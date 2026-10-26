@@ -42,13 +42,13 @@ S8 Data ownership: everything stored locally (IndexedDB); export/import of all d
 
 ## Tasks
 
-T1 [S0,S3,S8 base] Foundation: scaffold, Tailwind, router + layout/nav, i18n (per-feature namespaces), domain types, Dexie DB + repositories, seed techniques with relations + belt legality, export/import — inline — pending
-T2 [S1,S2,S3] Library UI: list/search/filter, detail with steps checklist, media, counterpart links, belt legality badges, create/edit — pending
-T3 [S4] Plan builder with drag & drop and objectives — pending
-T4 [S5] Training journal — pending
-T5 [S6] Profile, belts/stripes, graduation timeline, stats dashboard — pending
-T6 [S7] Sparring timer + scoreboard — pending
-T7 [S8] PWA manifest/offline, settings (export/import, language, GI/NoGI), README — pending
+T1 [S0,S3,S8 base] Foundation: scaffold, Tailwind, router + layout/nav, i18n (per-feature namespaces), domain types, Dexie DB + repositories, seed techniques with relations + belt legality, export/import — inline — done (c647e14; RED: repos/seed/backup modules missing → GREEN 20/20; belts tests written after impl, not a true RED; tsc + vite build OK)
+T2 [S1,S2,S3] Library UI: list/search/filter, detail with steps checklist, media, counterpart links, belt legality badges, create/edit — background writer — done (a7c548e; RED→GREEN 20 tests + picker excludeIds 1 test)
+T3 [S4] Plan builder with drag & drop and objectives — background writer — done (6201d26; RED→GREEN 10 tests; pointer drag not testable in jsdom, fallback tested)
+T4 [S5] Training journal — background writer — done (a47b504; RED→GREEN 7 tests; validation messages localized via SessionValidationError)
+T5 [S6] Profile, belts/stripes, graduation timeline, stats dashboard — background writer — done (710dcb3; RED→GREEN 17 tests)
+T6 [S7] Sparring timer + scoreboard — background writer — done (54d8f75; RED→GREEN 21 tests)
+T7 [S8] PWA manifest/offline, settings (export/import, language, GI/NoGI), README — inline — in_progress (e0f3747 settings/README, 26b8735 lazy routes; build OK, PWA precache 23 entries; independent verify of import pending)
 
 ## Log
 
@@ -119,3 +119,9 @@ L2 (2026-10-26, user answers): Arquitectura — "Local-first PWA (Recomendado)";
 
 L3: Research for S2 — IBJJF Rule Book v6.1 (June 2024) https://www.ligabjj.com/ibjjfrules/2024JUN_IBJJF_Rules_EN.pdf ; heel hooks/reaping legal for adult brown/black NoGi since 2021 https://ibjjf.com/news/new-rules-updates ; per-belt summary https://www.open-bjj.com/articles/ibjjf-illegal-moves-by-belt-and-age. Forecast: ~5–6k authored lines, well over the 400-line slice heuristic; work-unit commits per task, PR shape (chain vs single) decided by the user when a remote exists.
 Routing: T1 inline (everything depends on it). After T1 the data layer makes T2–T6 independent behaviors under disjoint `src/features/<name>/**` surfaces → parallel background writers (Writer rule: 2+ independent units each several files). T7 inline after the seam check.
+
+L4: T1 committed c647e14 (63 files, includes package-lock). Native assess on root commit: unavailable (no base commit to compare). Seed Spanish strings normalized to neutral infinitives (artifact language rule). Tests pin lang=es in setup. Launching T2–T6 as parallel background writers with disjoint surfaces src/features/<name>/**.
+
+L4: T1 committed c647e14 (63 files, includes package-lock). Native assess on root commit: unavailable (no base commit to compare). Seed Spanish strings normalized to neutral infinitives (artifact language rule). Tests pin lang=es in setup. Launching T2–T6 as parallel background writers with disjoint surfaces src/features/<name>/**.
+L5: T7 slice committed e0f3747 (settings export/import with translated BackupError codes, language + mode, storage persistence, README, .gitattributes). RED: settings tests 4 failed (no UI) → GREEN 24/24 (db, domain, settings, shell). Risk: item 1 (import replaces all stored data) → assess escalated: tier high, independent verifier required; native assess unavailable while writers' untracked files exist — run native review + gentle-ai-verify after T2–T6 land and the tree is clean. PWA build/offline check pending until all features land.
+L6: Seam check after T2–T6: full suite 17 files / 100 tests passed, tsc -b clean, vite build OK. Fixes at the seam: SessionValidationError with per-field translated messages (journal showed English RangeError text), TechniquePicker excludeIds (library form listed the edited technique as its own counterpart candidate), lazy feature routes (bundle 945 kB → initial ~256 kB). Writer notes kept as follow-ups: penalties only tie-break (no IBJJF advantage/points to opponent), points accumulate across rounds, result screen needs "Terminar combate" tap, GI/NoGI split in stats ignores the global filter by design. Native review of e0f3747 (high) not started: native assess was blocked by untracked writer files at that time; reviewing that commit alone now needs a separate worktree outside the project root.
