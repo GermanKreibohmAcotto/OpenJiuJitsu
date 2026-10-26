@@ -1,21 +1,15 @@
 import { Route, Routes } from 'react-router';
-import { useTranslation } from 'react-i18next';
-import { EmptyState, PageHeader } from '../../components/Page';
-
-function Placeholder() {
-  const { t } = useTranslation('journal');
-  return (
-    <>
-      <PageHeader title={t('title')} />
-      <EmptyState>{t('common:empty')}</EmptyState>
-    </>
-  );
-}
+import { SessionDetail } from './SessionDetail';
+import { SessionForm } from './SessionForm';
+import { SessionList } from './SessionList';
 
 export function JournalRoutes() {
   return (
     <Routes>
-      <Route index element={<Placeholder />} />
+      <Route index element={<SessionList />} />
+      <Route path="new" element={<SessionForm />} />
+      <Route path=":id/edit" element={<SessionForm />} />
+      <Route path=":id" element={<SessionDetail />} />
     </Routes>
   );
 }
