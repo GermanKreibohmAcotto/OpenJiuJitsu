@@ -1,21 +1,15 @@
 import { Route, Routes } from 'react-router';
-import { useTranslation } from 'react-i18next';
-import { EmptyState, PageHeader } from '../../components/Page';
-
-function Placeholder() {
-  const { t } = useTranslation('plans');
-  return (
-    <>
-      <PageHeader title={t('title')} />
-      <EmptyState>{t('common:empty')}</EmptyState>
-    </>
-  );
-}
+import { PlanBuilderPage } from './PlanBuilder';
+import { PlanDetailPage } from './PlanDetail';
+import { PlanListPage } from './PlanList';
 
 export function PlansRoutes() {
   return (
     <Routes>
-      <Route index element={<Placeholder />} />
+      <Route index element={<PlanListPage />} />
+      <Route path="new" element={<PlanBuilderPage />} />
+      <Route path=":id/edit" element={<PlanBuilderPage />} />
+      <Route path=":id" element={<PlanDetailPage />} />
     </Routes>
   );
 }
