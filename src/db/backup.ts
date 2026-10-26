@@ -1,0 +1,140 @@
+import { db } from './db';
+import { nowIso } from './ids';
+import { SEEDED_KEY, SEED_VERSION } from './seed';
+import { isBelt } from '../domain/belts';
+import {
+  CATEGORIES,
+  MODES,
+  TECHNIQUE_TYPES,
+  type Graduation,
+  type Profile,
+  type SparringMatch,
+  type Technique,
+  type TrainingPlan,
+  type TrainingSession,
+} from '../domain/types';
+
+export const BACKUP_APP = 'openjiujitsu';
+export const BACKUP_VERSION = 1;
+
+export interface BackupData {
+  techniques: Technique[];
+  plans: TrainingPlan[];
+  sessions: TrainingSession[];
+  graduations: Graduation[];
+  profile: Profile[];
+  matches: SparringMatch[];
+}
+
+export interface Backup {
+  app: typeof BACKUP_APP;
+  version: number;
+  exportedAt: string;
+  data: BackupData;
+}
+
+export class BackupError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'BackupError';
+  }
+}
+
+type Rec = Record<string, unknown>;
+const isRecord = (v: unknown): v is Rec => typeof v === 'object' && v !== null && !Array.isArray(v);
+const isString = (v: unknown): v is string => typeof v === 'string';
+const isNumber = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
+const isStringArray = (v: unknown): v is string[] => Array.isArray(v) && v.every(isString);
+const oneOf = (list: readonly string[], v: unknown) => isString(v) && list.includes(v);
+
+const VALIDATORS: Record<keyof BackupData, (r: Rec) => boolean> = {
+  techniques: (r) =>
+    isRecord(r.name) &&
+    oneOf(CATEGORIES, r.category) &&
+    oneOf(TECHNIQUE_TYPES, r.type) &&
+    Array.isArray(r.steps) &&
+    Array.isArray(r.media) &&
+    Array.isArray(r.modes) &&
+    r.modes.every((m) => oneOf(MODES, m)) &&
+    isStringArray(r.counterpartIds),
+  plans: (r) => isString(r.name) && oneOf(MODES, r.mode) && isStringArray(r.objectives) && Array.isArray(r.blocks),
+  sessions: (r) =>
+    isString(r.date) &&
+    isNumber(r.durationMin) &&
+    oneOf(MODES, r.mode) &&
+    isNumber(r.physicalDifficulty) &&
+    isNumber(r.technicalDifficulty) &&
+    isStringArray(r.feelings) &&
+    isStringArray(r.subsAchieved) &&
+    isStringArray(r.subsSuffered),
+  graduations: (r) => isBelt(r.belt) && isNumber(r.stripes) && isString(r.date),
+  profile: (r) => r.id === 'me' && isBelt(r.belt) && isNumber(r.stripes),
+  matches: (r) => isString(r.date) && oneOf(MODES, r.mode) && Array.isArray(r.athletes) && r.athletes.length === 2,
+};
+
+export async function exportData(): Promise<Backup> {
+  const [techniques, plans, sessions, graduations, profile, matches] = await Promise.all([
+    db.techniques.toArray(),
+    db.plans.toArray(),
+    db.sessions.toArray(),
+    db.graduations.toArray(),
+    db.profile.toArray(),
+    db.matches.toArray(),
+  ]);
+  return {
+    app: BACKUP_APP,
+    version: BACKUP_VERSION,
+    exportedAt: nowIso(),
+    data: { techniques, plans, sessions, graduations, profile, matches },
+  };
+}
+
+/** Parses and validates a backup file. Throws BackupError without touching the database. */
+export function parseBackup(json: string): Backup {
+  let raw: unknown;
+  try {
+    raw = JSON.parse(json);
+  } catch {
+    throw new BackupError('The file is not valid JSON.');
+  }
+  if (!isRecord(raw) || raw.app !== BACKUP_APP) throw new BackupError('The file is not an OpenJiuJitsu backup.');
+  if (!isNumber(raw.version) || raw.version > BACKUP_VERSION || raw.version < 1) {
+    throw new BackupError(`Unsupported backup version: ${String(raw.version)}.`);
+  }
+  if (!isRecord(raw.data)) throw new BackupError('The backup has no data section.');
+
+  const data = {} as Record<keyof BackupData, unknown[]>;
+  for (const table of Object.keys(VALIDATORS) as (keyof BackupData)[]) {
+    const rows = raw.data[table] ?? [];
+    if (!Array.isArray(rows)) throw new BackupError(`"${table}" must be a list.`);
+    rows.forEach((row, index) => {
+      if (!isRecord(row) || !isString(row.id) || !VALIDATORS[table](row)) {
+        throw new BackupError(`Invalid record #${index + 1} in "${table}".`);
+      }
+    });
+    data[table] = rows;
+  }
+  return {
+    app: BACKUP_APP,
+    version: raw.version,
+    exportedAt: isString(raw.exportedAt) ? raw.exportedAt : '',
+    data: data as unknown as BackupData,
+  };
+}
+
+/** Replaces all stored data with the backup in one transaction (all or nothing). */
+export function importData(backup: Backup): Promise<void> {
+  const tables = [db.techniques, db.plans, db.sessions, db.graduations, db.profile, db.matches, db.meta];
+  return db.transaction('rw', tables, async () => {
+    await Promise.all(tables.map((t) => t.clear()));
+    const { data } = backup;
+    await db.techniques.bulkPut(data.techniques);
+    await db.plans.bulkPut(data.plans);
+    await db.sessions.bulkPut(data.sessions);
+    await db.graduations.bulkPut(data.graduations);
+    await db.profile.bulkPut(data.profile);
+    await db.matches.bulkPut(data.matches);
+    // An imported library counts as seeded, so the built-in seed never overwrites it.
+    await db.meta.put({ key: SEEDED_KEY, value: SEED_VERSION });
+  });
+}

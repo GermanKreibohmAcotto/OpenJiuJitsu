@@ -1,0 +1,130 @@
+import { beforeEach, describe, expect, it } from 'vitest';
+import { db } from './db';
+import { deleteTechnique, getTechnique, saveTechnique, type TechniqueInput } from './techniques';
+import { listSessions, recordSubmission, saveSession, type SessionInput } from './sessions';
+import { ensureSeeded } from './seed';
+import { SEED_TECHNIQUES } from './seedData';
+
+function techniqueInput(name: string, counterpartIds: string[] = []): TechniqueInput {
+  return {
+    name: { es: name },
+    category: 'submission',
+    type: 'submission',
+    description: {},
+    steps: [],
+    media: [],
+    modes: ['gi', 'nogi'],
+    counterpartIds,
+  };
+}
+
+function sessionInput(overrides: Partial<SessionInput> = {}): SessionInput {
+  return {
+    date: '2026-10-26',
+    durationMin: 90,
+    mode: 'gi',
+    physicalDifficulty: 7,
+    technicalDifficulty: 5,
+    feelings: ['tired'],
+    sparringRounds: 4,
+    subsAchieved: [],
+    subsSuffered: [],
+    notes: '',
+    ...overrides,
+  };
+}
+
+beforeEach(async () => {
+  await db.delete();
+  await db.open();
+});
+
+describe('technique counterparts', () => {
+  it('links the counterpart back when a technique is saved', async () => {
+    const escape = await saveTechnique(techniqueInput('Escape de Kimura'));
+    const kimura = await saveTechnique(techniqueInput('Kimura', [escape.id]));
+
+    expect((await getTechnique(escape.id))?.counterpartIds).toEqual([kimura.id]);
+  });
+
+  it('unlinks the old counterpart when a relation is removed', async () => {
+    const escape = await saveTechnique(techniqueInput('Escape de Kimura'));
+    const kimura = await saveTechnique(techniqueInput('Kimura', [escape.id]));
+
+    await saveTechnique({ ...techniqueInput('Kimura'), id: kimura.id });
+
+    expect((await getTechnique(escape.id))?.counterpartIds).toEqual([]);
+  });
+
+  it('ignores self links and unknown ids', async () => {
+    const kimura = await saveTechnique(techniqueInput('Kimura'));
+    const saved = await saveTechnique({ ...techniqueInput('Kimura', [kimura.id, 'missing']), id: kimura.id });
+
+    expect(saved.counterpartIds).toEqual([]);
+  });
+
+  it('removes a deleted technique from its counterparts', async () => {
+    const escape = await saveTechnique(techniqueInput('Escape de Kimura'));
+    const kimura = await saveTechnique(techniqueInput('Kimura', [escape.id]));
+
+    await deleteTechnique(kimura.id);
+
+    expect(await getTechnique(kimura.id)).toBeUndefined();
+    expect((await getTechnique(escape.id))?.counterpartIds).toEqual([]);
+  });
+});
+
+describe('seed library', () => {
+  it('seeds once and every seeded technique has a counterpart that links back', async () => {
+    await ensureSeeded();
+    await ensureSeeded();
+
+    const all = await db.techniques.toArray();
+    expect(all).toHaveLength(SEED_TECHNIQUES.length);
+    const byId = new Map(all.map((t) => [t.id, t]));
+    for (const technique of all) {
+      expect(technique.counterpartIds.length, technique.id).toBeGreaterThan(0);
+      for (const counterpartId of technique.counterpartIds) {
+        expect(byId.get(counterpartId)?.counterpartIds, `${technique.id} -> ${counterpartId}`).toContain(technique.id);
+      }
+    }
+  });
+
+  it('does not reseed after the user deletes every technique', async () => {
+    await ensureSeeded();
+    await db.techniques.clear();
+    await ensureSeeded();
+
+    expect(await db.techniques.count()).toBe(0);
+  });
+
+  it('gives every seeded submission its belt legality', async () => {
+    const submissions = SEED_TECHNIQUES.filter((t) => t.type === 'submission');
+    expect(submissions.length).toBeGreaterThan(0);
+    for (const technique of submissions) expect(technique.legality, technique.id).toBeDefined();
+  });
+});
+
+describe('training sessions', () => {
+  it('rejects difficulty outside 1..10 and stores nothing', async () => {
+    await expect(saveSession(sessionInput({ physicalDifficulty: 11 }))).rejects.toThrow('physicalDifficulty');
+    await expect(saveSession(sessionInput({ technicalDifficulty: 0 }))).rejects.toThrow('technicalDifficulty');
+    expect(await db.sessions.count()).toBe(0);
+  });
+
+  it('lists sessions newest first', async () => {
+    await saveSession(sessionInput({ date: '2026-10-01' }));
+    await saveSession(sessionInput({ date: '2026-10-20' }));
+
+    expect((await listSessions()).map((s) => s.date)).toEqual(['2026-10-20', '2026-10-01']);
+  });
+
+  it('records a sparring submission into the session of that day, creating it when missing', async () => {
+    await recordSubmission({ date: '2026-10-26', mode: 'nogi', techniqueId: 'kimura', outcome: 'achieved' });
+    await recordSubmission({ date: '2026-10-26', mode: 'nogi', techniqueId: 'armbar', outcome: 'suffered' });
+
+    const sessions = await listSessions();
+    expect(sessions).toHaveLength(1);
+    expect(sessions[0]).toMatchObject({ subsAchieved: ['kimura'], subsSuffered: ['armbar'], sparringRounds: 2 });
+  });
+});
