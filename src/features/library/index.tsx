@@ -1,21 +1,15 @@
 import { Route, Routes } from 'react-router';
-import { useTranslation } from 'react-i18next';
-import { EmptyState, PageHeader } from '../../components/Page';
-
-function Placeholder() {
-  const { t } = useTranslation('library');
-  return (
-    <>
-      <PageHeader title={t('title')} />
-      <EmptyState>{t('common:empty')}</EmptyState>
-    </>
-  );
-}
+import { LibraryList } from './LibraryList';
+import { TechniqueDetail } from './TechniqueDetail';
+import { TechniqueEditRoute, TechniqueForm } from './TechniqueForm';
 
 export function LibraryRoutes() {
   return (
     <Routes>
-      <Route index element={<Placeholder />} />
+      <Route index element={<LibraryList />} />
+      <Route path="new" element={<TechniqueForm />} />
+      <Route path=":id" element={<TechniqueDetail />} />
+      <Route path=":id/edit" element={<TechniqueEditRoute />} />
     </Routes>
   );
 }
