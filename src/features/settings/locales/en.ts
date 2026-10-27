@@ -1,3 +1,32 @@
 export default {
   title: 'Settings',
+  preferences: 'Preferences',
+  language: 'Language',
+  languages: { es: 'Español', en: 'English' },
+  modeDefault: 'Mode (GI / NoGI)',
+  modeHelp: 'Filters the library and sets the default mode for plans, sessions and sparring.',
+  backup: {
+    title: 'Your data',
+    help: 'Everything is stored only on this device. Export a backup to move it to another device or keep it safe.',
+    export: 'Export backup',
+    import: 'Import backup',
+    exported: 'Backup downloaded.',
+    imported: 'Data imported successfully.',
+    confirmImport: 'Importing replaces ALL current data on this device with the file contents. Continue?',
+    errors: {
+      invalidJson: 'The file is not valid JSON.',
+      notBackup: 'The file is not an OpenJiuJitsu backup.',
+      unsupportedVersion: 'Unsupported backup version: {{version}}.',
+      noData: 'The backup has no data.',
+      notList: 'The "{{table}}" section must be a list.',
+      invalidRecord: 'Invalid record #{{index}} in "{{table}}".',
+      unknown: 'The file could not be imported.',
+    },
+  },
+  storage: {
+    title: 'Storage',
+    help: 'Browsers may clear data of rarely used sites. Requesting persistent storage prevents that.',
+    persisted: 'Persistent storage is active.',
+    request: 'Request persistent storage',
+  },
 } as const;

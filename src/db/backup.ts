@@ -33,8 +33,15 @@ export interface Backup {
   data: BackupData;
 }
 
+export type BackupErrorCode = 'invalidJson' | 'notBackup' | 'unsupportedVersion' | 'noData' | 'notList' | 'invalidRecord';
+
+/** Validation failure. `code` and `params` let the UI show a translated message. */
 export class BackupError extends Error {
-  constructor(message: string) {
+  constructor(
+    readonly code: BackupErrorCode,
+    message: string,
+    readonly params: Record<string, string | number> = {},
+  ) {
     super(message);
     this.name = 'BackupError';
   }
@@ -95,21 +102,23 @@ export function parseBackup(json: string): Backup {
   try {
     raw = JSON.parse(json);
   } catch {
-    throw new BackupError('The file is not valid JSON.');
+    throw new BackupError('invalidJson', 'The file is not valid JSON.');
   }
-  if (!isRecord(raw) || raw.app !== BACKUP_APP) throw new BackupError('The file is not an OpenJiuJitsu backup.');
+  if (!isRecord(raw) || raw.app !== BACKUP_APP) throw new BackupError('notBackup', 'The file is not an OpenJiuJitsu backup.');
   if (!isNumber(raw.version) || raw.version > BACKUP_VERSION || raw.version < 1) {
-    throw new BackupError(`Unsupported backup version: ${String(raw.version)}.`);
+    throw new BackupError('unsupportedVersion', `Unsupported backup version: ${String(raw.version)}.`, {
+      version: String(raw.version),
+    });
   }
-  if (!isRecord(raw.data)) throw new BackupError('The backup has no data section.');
+  if (!isRecord(raw.data)) throw new BackupError('noData', 'The backup has no data section.');
 
   const data = {} as Record<keyof BackupData, unknown[]>;
   for (const table of Object.keys(VALIDATORS) as (keyof BackupData)[]) {
     const rows = raw.data[table] ?? [];
-    if (!Array.isArray(rows)) throw new BackupError(`"${table}" must be a list.`);
+    if (!Array.isArray(rows)) throw new BackupError('notList', `"${table}" must be a list.`, { table });
     rows.forEach((row, index) => {
       if (!isRecord(row) || !isString(row.id) || !VALIDATORS[table](row)) {
-        throw new BackupError(`Invalid record #${index + 1} in "${table}".`);
+        throw new BackupError('invalidRecord', `Invalid record #${index + 1} in "${table}".`, { table, index: index + 1 });
       }
     });
     data[table] = rows;
