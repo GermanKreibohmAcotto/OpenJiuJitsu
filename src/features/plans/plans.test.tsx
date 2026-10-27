@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import '../../i18n';
@@ -29,7 +29,7 @@ beforeEach(async () => {
 
 describe('plan builder', () => {
   it('builds and stores a plan through the non-drag fallback', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     renderAt('/plans/new');
 
     await user.type(screen.getByLabelText('Nombre del plan'), 'Martes de pasajes');
@@ -51,15 +51,8 @@ describe('plan builder', () => {
     expect(screen.getByText('15 min', { selector: '[data-testid="total"]' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Guardar plan' }));
 
-    const plans = await (async () => {
-      for (let i = 0; i < 50; i++) {
-        const all = await listPlans();
-        if (all.length) return all;
-        await new Promise((r) => setTimeout(r, 20));
-      }
-      return [];
-    })();
-    expect(plans).toHaveLength(1);
+    await waitFor(async () => expect(await listPlans()).toHaveLength(1));
+    const plans = await listPlans();
     const stored = (await getPlan(plans[0].id))!;
     expect(stored.name).toBe('Martes de pasajes');
     expect(stored.objectives).toEqual(['Mejorar la presión de hombro']);
@@ -68,7 +61,7 @@ describe('plan builder', () => {
   });
 
   it('loads the example template as three blocks', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     renderAt('/plans/new');
     await user.click(await screen.findByRole('button', { name: 'Usar plantilla de ejemplo' }));
     expect(await screen.findByRole('group', { name: 'Bloque 3' })).toBeInTheDocument();
@@ -76,7 +69,7 @@ describe('plan builder', () => {
   });
 
   it('reorders blocks with the move buttons', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     renderAt('/plans/new');
     await user.click(await screen.findByRole('button', { name: 'Usar plantilla de ejemplo' }));
     await user.click(await screen.findByRole('button', { name: 'Bajar bloque 1' }));
@@ -86,7 +79,7 @@ describe('plan builder', () => {
 
 describe('plan index and detail', () => {
   it('lists, duplicates and shows the detail with a journal link', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     const plan = await savePlan({
       name: 'Plan A',
       mode: 'gi',

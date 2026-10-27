@@ -29,5 +29,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     css: false,
+    // jsdom UI tests with user-event can exceed the 5 s default when the suite runs in parallel.
+    testTimeout: 15000,
   },
 });
