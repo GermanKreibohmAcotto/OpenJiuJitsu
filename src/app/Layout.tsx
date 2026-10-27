@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { NavLink, Outlet } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { ModeToggle } from '../components/ModeToggle';
@@ -52,7 +53,9 @@ export function Layout() {
         </header>
 
         <main className="mx-auto w-full max-w-5xl flex-1 px-4 pt-5 pb-28 md:pb-10">
-          <Outlet />
+          <Suspense fallback={<p className="text-sm text-muted">…</p>}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
 

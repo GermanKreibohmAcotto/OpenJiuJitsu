@@ -13,6 +13,8 @@ interface TechniquePickerProps {
   multiple?: boolean;
   /** Only offer these technique types (e.g. ['submission']). */
   types?: TechniqueType[];
+  /** Never offer these ids (e.g. the technique being edited). */
+  excludeIds?: string[];
   /** Overrides the global GI/NoGI filter. */
   mode?: ModeFilter;
   label?: string;
@@ -36,6 +38,7 @@ export function TechniquePicker({
   onChange,
   multiple = true,
   types,
+  excludeIds,
   mode,
   label,
   maxHeightClass = 'max-h-64',
@@ -50,10 +53,11 @@ export function TechniquePicker({
     () =>
       (techniques ?? [])
         .filter((tech) => !types || types.includes(tech.type))
+        .filter((tech) => !excludeIds?.includes(tech.id))
         .filter((tech) => matchesModeFilter(tech.modes, filter))
         .filter((tech) => matchesSearch(tech, query))
         .sort((a, b) => localize(a.name, i18n.language).localeCompare(localize(b.name, i18n.language))),
-    [techniques, types, filter, query, i18n.language],
+    [techniques, types, excludeIds, filter, query, i18n.language],
   );
 
   const toggle = (id: string) => {

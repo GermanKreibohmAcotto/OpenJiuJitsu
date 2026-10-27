@@ -1,5 +1,5 @@
 Objective: build OpenJiuJitsu, a local-first BJJ web app (technique library, plan builder, training journal, profile/progression, sparring timer), GI and NoGI.
-Branch: feat/openjiujitsu-mvp · Delivery strategy: ask-on-risk (no remote yet; PR shape decided when pushing) · Test runner: `npm test` (Vitest + Testing Library), `npm run build` (tsc + vite).
+Branch: feat/openjiujitsu-mvp · Delivery strategy: chained, chain_strategy=stacked-to-main (private repo GermanKreibohmAcotto/OpenJiuJitsu, PRs #1–#7) · Test runner: `npm test` (Vitest + Testing Library), `npm run build` (tsc + vite).
 
 ## Specs
 
@@ -42,13 +42,13 @@ S8 Data ownership: everything stored locally (IndexedDB); export/import of all d
 
 ## Tasks
 
-T1 [S0,S3,S8 base] Foundation: scaffold, Tailwind, router + layout/nav, i18n (per-feature namespaces), domain types, Dexie DB + repositories, seed techniques with relations + belt legality, export/import — inline — pending
-T2 [S1,S2,S3] Library UI: list/search/filter, detail with steps checklist, media, counterpart links, belt legality badges, create/edit — pending
-T3 [S4] Plan builder with drag & drop and objectives — pending
-T4 [S5] Training journal — pending
-T5 [S6] Profile, belts/stripes, graduation timeline, stats dashboard — pending
-T6 [S7] Sparring timer + scoreboard — pending
-T7 [S8] PWA manifest/offline, settings (export/import, language, GI/NoGI), README — pending
+T1 [S0,S3,S8 base] Foundation: scaffold, Tailwind, router + layout/nav, i18n (per-feature namespaces), domain types, Dexie DB + repositories, seed techniques with relations + belt legality, export/import — inline — done (c647e14; RED: repos/seed/backup modules missing → GREEN 20/20; belts tests written after impl, not a true RED; tsc + vite build OK)
+T2 [S1,S2,S3] Library UI: list/search/filter, detail with steps checklist, media, counterpart links, belt legality badges, create/edit — background writer — done (a7c548e; RED→GREEN 20 tests + picker excludeIds 1 test)
+T3 [S4] Plan builder with drag & drop and objectives — background writer — done (6201d26; RED→GREEN 10 tests; pointer drag not testable in jsdom, fallback tested)
+T4 [S5] Training journal — background writer — done (a47b504; RED→GREEN 7 tests; validation messages localized via SessionValidationError)
+T5 [S6] Profile, belts/stripes, graduation timeline, stats dashboard — background writer — done (710dcb3; RED→GREEN 17 tests)
+T6 [S7] Sparring timer + scoreboard — background writer — done (54d8f75; RED→GREEN 21 tests)
+T7 [S8] PWA manifest/offline, settings (export/import, language, GI/NoGI), README — inline — done (e0f3747 settings/README, 26b8735 lazy routes, 5927d4c + f9526fa backup hardening; independent verify PASS; build OK, PWA precache 23 entries)
 
 ## Log
 
@@ -119,3 +119,13 @@ L2 (2026-10-26, user answers): Arquitectura — "Local-first PWA (Recomendado)";
 
 L3: Research for S2 — IBJJF Rule Book v6.1 (June 2024) https://www.ligabjj.com/ibjjfrules/2024JUN_IBJJF_Rules_EN.pdf ; heel hooks/reaping legal for adult brown/black NoGi since 2021 https://ibjjf.com/news/new-rules-updates ; per-belt summary https://www.open-bjj.com/articles/ibjjf-illegal-moves-by-belt-and-age. Forecast: ~5–6k authored lines, well over the 400-line slice heuristic; work-unit commits per task, PR shape (chain vs single) decided by the user when a remote exists.
 Routing: T1 inline (everything depends on it). After T1 the data layer makes T2–T6 independent behaviors under disjoint `src/features/<name>/**` surfaces → parallel background writers (Writer rule: 2+ independent units each several files). T7 inline after the seam check.
+
+L4: T1 committed c647e14 (63 files, includes package-lock). Native assess on root commit: unavailable (no base commit to compare). Seed Spanish strings normalized to neutral infinitives (artifact language rule). Tests pin lang=es in setup. Launching T2–T6 as parallel background writers with disjoint surfaces src/features/<name>/**.
+
+L4: T1 committed c647e14 (63 files, includes package-lock). Native assess on root commit: unavailable (no base commit to compare). Seed Spanish strings normalized to neutral infinitives (artifact language rule). Tests pin lang=es in setup. Launching T2–T6 as parallel background writers with disjoint surfaces src/features/<name>/**.
+L5: T7 slice committed e0f3747 (settings export/import with translated BackupError codes, language + mode, storage persistence, README, .gitattributes). RED: settings tests 4 failed (no UI) → GREEN 24/24 (db, domain, settings, shell). Risk: item 1 (import replaces all stored data) → assess escalated: tier high, independent verifier required; native assess unavailable while writers' untracked files exist — run native review + gentle-ai-verify after T2–T6 land and the tree is clean. PWA build/offline check pending until all features land.
+L6: Seam check after T2–T6: full suite 17 files / 100 tests passed, tsc -b clean, vite build OK. Fixes at the seam: SessionValidationError with per-field translated messages (journal showed English RangeError text), TechniquePicker excludeIds (library form listed the edited technique as its own counterpart candidate), lazy feature routes (bundle 945 kB → initial ~256 kB). Writer notes kept as follow-ups: penalties only tie-break (no IBJJF advantage/points to opponent), points accumulate across rounds, result screen needs "Terminar combate" tap, GI/NoGI split in stats ignores the global filter by design. Native review of e0f3747 (high) not started: native assess was blocked by untracked writer files at that time; reviewing that commit alone now needs a separate worktree outside the project root.
+L7: Independent verify (gentle-ai-verify) of backup import: PASS with defects D1 (data:{} or a missing table wiped all data after confirm), D2 (shallow nested validation), D3 (coverage). Fixed test-first in 5927d4c (RED 2 failing → GREEN) and f9526fa (optional position/planId/method/winner/submissionId; RED 1 failing → GREEN). Re-verify: S8 PASS, full suite 105/105, tsc clean. Native assess on 5927d4c: tier high (agent escalation item 1), reviewDue false (under_budget) → no native review started. e0f3747 never natively reviewed alone (assess blocked then by untracked writer files). All tasks done. Next (user decisions): remote + push, PR shape (~5.7k lines → chained PRs recommended), sparring follow-ups (IBJJF penalty→advantage/points, per-round score, auto-advance to result), stats GI/NoGI split vs global filter.
+L8 (2026-10-27, user, verbatim): "Utilicemos git" → answers: visibility "Privado (Recomendado)"; delivery "Cadena sobre main (Recomendado)" (chain_strategy=stacked-to-main).
+Slice verification before publishing: each slice commit runs its suite; 54d8f75 failed 4/5 runs with "Test timed out in 5000ms" in the plan builder UI test (4.3 s even at HEAD) → fixed in 47387a3 (user-event delay null, waitFor, testTimeout 15 s; 3.3 s; HEAD 6/6 + 1 green runs).
+Slices (main = foundation c647e14, not reviewed through a PR): #1 chain/01-settings e0f3747 (+369/-11) · #2 chain/02-library a7c548e (+1009/-14) · #3 chain/03-plans 6201d26 (+1019/-13) · #4 chain/04-journal a47b504 (+927/-17) · #5 chain/05-profile 710dcb3 (+1056/-10) · #6 chain/06-sparring 54d8f75 (+1159/-5) · #7 chain/07-hardening 47387a3+ (+200/-44). #2–#6 exceed 400 lines: one feature + tests each, no cohesive smaller split. Merge is the user's decision.

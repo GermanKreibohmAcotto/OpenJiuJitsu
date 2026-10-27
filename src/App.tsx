@@ -1,15 +1,19 @@
-import { useEffect, useState } from 'react';
+import { lazy, useEffect, useState, type ComponentType } from 'react';
 import { HashRouter, Route, Routes } from 'react-router';
 import { Layout } from './app/Layout';
 import { SettingsProvider } from './app/settings';
 import { ensureSeeded } from './db/seed';
-import { HomeRoutes } from './features/home';
-import { JournalRoutes } from './features/journal';
-import { LibraryRoutes } from './features/library';
-import { PlansRoutes } from './features/plans';
-import { ProfileRoutes } from './features/profile';
-import { SettingsRoutes } from './features/settings';
-import { SparringRoutes } from './features/sparring';
+
+// Features load on demand so charts and drag & drop stay out of the initial bundle.
+const lazyRoutes = <K extends string>(load: () => Promise<Record<K, ComponentType>>, name: K) =>
+  lazy(async () => ({ default: (await load())[name] }));
+const HomeRoutes = lazyRoutes(() => import('./features/home'), 'HomeRoutes');
+const LibraryRoutes = lazyRoutes(() => import('./features/library'), 'LibraryRoutes');
+const PlansRoutes = lazyRoutes(() => import('./features/plans'), 'PlansRoutes');
+const JournalRoutes = lazyRoutes(() => import('./features/journal'), 'JournalRoutes');
+const SparringRoutes = lazyRoutes(() => import('./features/sparring'), 'SparringRoutes');
+const ProfileRoutes = lazyRoutes(() => import('./features/profile'), 'ProfileRoutes');
+const SettingsRoutes = lazyRoutes(() => import('./features/settings'), 'SettingsRoutes');
 
 export function AppRoutes() {
   return (

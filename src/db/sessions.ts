@@ -4,21 +4,34 @@ import type { Mode, TrainingSession } from '../domain/types';
 
 export type SessionInput = Omit<TrainingSession, 'id' | 'createdAt' | 'updatedAt'> & { id?: string };
 
+export type SessionField = 'physicalDifficulty' | 'technicalDifficulty' | 'date' | 'durationMin' | 'sparringRounds';
+
+/** Invalid session input; `field` lets the UI show a translated message. */
+export class SessionValidationError extends RangeError {
+  constructor(
+    readonly field: SessionField,
+    message: string,
+  ) {
+    super(message);
+    this.name = 'SessionValidationError';
+  }
+}
+
 export const DIFFICULTY_MIN = 1;
 export const DIFFICULTY_MAX = 10;
 
 function assertDifficulty(field: 'physicalDifficulty' | 'technicalDifficulty', value: number) {
   if (!Number.isInteger(value) || value < DIFFICULTY_MIN || value > DIFFICULTY_MAX) {
-    throw new RangeError(`${field} must be an integer between ${DIFFICULTY_MIN} and ${DIFFICULTY_MAX}`);
+    throw new SessionValidationError(field, `${field} must be an integer between ${DIFFICULTY_MIN} and ${DIFFICULTY_MAX}`);
   }
 }
 
 function assertSession(input: SessionInput) {
   assertDifficulty('physicalDifficulty', input.physicalDifficulty);
   assertDifficulty('technicalDifficulty', input.technicalDifficulty);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(input.date)) throw new RangeError('date must be yyyy-mm-dd');
-  if (!(input.durationMin >= 0)) throw new RangeError('durationMin must be zero or positive');
-  if (!(input.sparringRounds >= 0)) throw new RangeError('sparringRounds must be zero or positive');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(input.date)) throw new SessionValidationError('date', 'date must be yyyy-mm-dd');
+  if (!(input.durationMin >= 0)) throw new SessionValidationError('durationMin', 'durationMin must be zero or positive');
+  if (!(input.sparringRounds >= 0)) throw new SessionValidationError('sparringRounds', 'sparringRounds must be zero or positive');
 }
 
 /** Newest first; same-day sessions by creation time, newest first. */

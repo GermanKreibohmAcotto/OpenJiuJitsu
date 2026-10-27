@@ -1,0 +1,132 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router';
+import '../../i18n';
+import { SettingsProvider } from '../../app/settings';
+import { db } from '../../db/db';
+import { listMatches } from '../../db/matches';
+import { ensureSeeded } from '../../db/seed';
+import { listSessions } from '../../db/sessions';
+import { SparringRoutes } from '.';
+
+function renderSparring() {
+  return render(
+    <SettingsProvider>
+      <MemoryRouter>
+        <SparringRoutes />
+      </MemoryRouter>
+    </SettingsProvider>,
+  );
+}
+
+async function startMatch(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole('button', { name: 'Iniciar combate' }));
+}
+
+beforeEach(async () => {
+  localStorage.removeItem('ojj.mode');
+  await db.delete();
+  await db.open();
+  await ensureSeeded();
+});
+
+describe('sparring mini-app', () => {
+  it('scores points, supports undo and saves a match won on points', async () => {
+    const user = userEvent.setup();
+    renderSparring();
+    expect(screen.getByLabelText('Atleta 1')).toHaveValue('Yo');
+    expect(screen.getByLabelText('Atleta 2')).toHaveValue('Compañero');
+    await startMatch(user);
+
+    await user.click(screen.getByRole('button', { name: 'Yo: Derribo (+2)' }));
+    await user.click(screen.getByRole('button', { name: 'Yo: Montada (+4)' }));
+    await user.click(screen.getByRole('button', { name: 'Compañero: Pasaje de guardia (+3)' }));
+    await user.click(screen.getByRole('button', { name: 'Compañero: Ventaja' }));
+    expect(screen.getByTestId('points-0')).toHaveTextContent('6');
+    expect(screen.getByTestId('points-1')).toHaveTextContent('3');
+
+    await user.click(screen.getByRole('button', { name: 'Deshacer último evento' }));
+    expect(screen.getByTestId('advantages-1')).toHaveTextContent('0');
+    await user.click(screen.getByRole('button', { name: 'Yo: Penalización' }));
+
+    await user.click(screen.getByRole('button', { name: 'Terminar combate' }));
+    expect(screen.getByText('Gana Yo por puntos')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Guardar combate' }));
+
+    await waitFor(async () => expect(await listMatches()).toHaveLength(1));
+    const [match] = await listMatches();
+    expect(match).toMatchObject({ method: 'points', winner: 0, mode: 'gi' });
+    expect(match.athletes[0]).toEqual({ name: 'Yo', points: 6, advantages: 0, penalties: 1 });
+    expect(match.athletes[1]).toEqual({ name: 'Compañero', points: 3, advantages: 0, penalties: 0 });
+    expect(await listSessions()).toHaveLength(0);
+    expect(await screen.findByText(/Ganador: Yo/)).toBeInTheDocument();
+  });
+
+  it('finishes by submission and records it in the journal as achieved', async () => {
+    const user = userEvent.setup();
+    renderSparring();
+    await startMatch(user);
+    await user.click(screen.getByRole('button', { name: 'Terminar combate' }));
+    await user.click(screen.getByRole('radio', { name: 'Por sumisión' }));
+    await user.click(screen.getByRole('radio', { name: 'Yo' }));
+    await user.click(within(await screen.findByRole('option', { name: /Kimura desde guardia cerrada/ })).getByRole('button'));
+    await user.click(screen.getByRole('button', { name: 'Guardar combate' }));
+
+    await waitFor(async () => expect(await listMatches()).toHaveLength(1));
+    const [match] = await listMatches();
+    const kimura = await db.techniques.filter((t) => t.name.es === 'Kimura desde guardia cerrada').first();
+    expect(match).toMatchObject({ method: 'submission', winner: 0, submissionId: kimura?.id });
+    const [session] = await listSessions();
+    expect(session.subsAchieved).toEqual([kimura?.id]);
+    expect(session.subsSuffered).toEqual([]);
+    expect(session.sparringRounds).toBe(1);
+  });
+
+  it('records a suffered submission and skips the journal when unchecked', async () => {
+    const user = userEvent.setup();
+    renderSparring();
+    await startMatch(user);
+    await user.click(screen.getByRole('button', { name: 'Terminar combate' }));
+    await user.click(screen.getByRole('radio', { name: 'Por sumisión' }));
+    await user.click(screen.getByRole('radio', { name: 'Compañero' }));
+    await user.click(within(await screen.findByRole('option', { name: /Triángulo desde guardia cerrada/ })).getByRole('button'));
+    await user.click(screen.getByRole('button', { name: 'Guardar combate' }));
+    await waitFor(async () => expect(await listSessions()).toHaveLength(1));
+    expect((await listSessions())[0].subsSuffered).toHaveLength(1);
+    expect((await listMatches())[0].winner).toBe(1);
+
+    await startMatch(user);
+    await user.click(screen.getByRole('button', { name: 'Terminar combate' }));
+    await user.click(screen.getByRole('radio', { name: 'Por sumisión' }));
+    await user.click(screen.getByRole('radio', { name: 'Yo' }));
+    await user.click(within(await screen.findByRole('option', { name: /Kimura desde guardia cerrada/ })).getByRole('button'));
+    await user.click(screen.getByRole('checkbox', { name: 'Guardar en la bitácora' }));
+    await user.click(screen.getByRole('button', { name: 'Guardar combate' }));
+    await waitFor(async () => expect(await listMatches()).toHaveLength(2));
+    expect((await listSessions())[0].subsAchieved).toEqual([]);
+  });
+
+  it('deletes a match from the history after confirmation', async () => {
+    const user = userEvent.setup();
+    await db.matches.add({
+      id: 'm1',
+      date: '2026-10-26',
+      mode: 'gi',
+      durationSec: 300,
+      athletes: [
+        { name: 'Yo', points: 2, advantages: 0, penalties: 0 },
+        { name: 'Compañero', points: 0, advantages: 0, penalties: 0 },
+      ],
+      winner: 0,
+      method: 'points',
+      createdAt: '2026-10-26T10:00:00.000Z',
+    });
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    renderSparring();
+    const row = await screen.findByRole('listitem');
+    expect(within(row).getByText(/Ganador: Yo/)).toBeInTheDocument();
+    await user.click(within(row).getByRole('button', { name: 'Eliminar combate' }));
+    await waitFor(async () => expect(await listMatches()).toHaveLength(0));
+  });
+});

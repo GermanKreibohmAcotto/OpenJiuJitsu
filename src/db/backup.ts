@@ -3,8 +3,12 @@ import { nowIso } from './ids';
 import { SEEDED_KEY, SEED_VERSION } from './seed';
 import { isBelt } from '../domain/belts';
 import {
+  BLOCK_KINDS,
   CATEGORIES,
+  MATCH_METHODS,
+  MEDIA_KINDS,
   MODES,
+  POSITIONS,
   TECHNIQUE_TYPES,
   type Graduation,
   type Profile,
@@ -54,29 +58,61 @@ const isNumber = (v: unknown): v is number => typeof v === 'number' && Number.is
 const isStringArray = (v: unknown): v is string[] => Array.isArray(v) && v.every(isString);
 const oneOf = (list: readonly string[], v: unknown) => isString(v) && list.includes(v);
 
+const isLocalized = (v: unknown) => isRecord(v) && Object.values(v).every(isString);
+const isOptional = (v: unknown, check: (x: unknown) => boolean) => v === undefined || check(v);
+const everyOf = (v: unknown, check: (x: unknown) => boolean) => Array.isArray(v) && v.every(check);
+
+const isMedia = (v: unknown) => isRecord(v) && oneOf(MEDIA_KINDS, v.kind) && isString(v.url);
+const isLegality = (v: unknown) =>
+  isRecord(v) && MODES.every((mode) => v[mode] === null || isBelt(v[mode]));
+const isBlock = (v: unknown) =>
+  isRecord(v) &&
+  isString(v.id) &&
+  oneOf(BLOCK_KINDS, v.kind) &&
+  isString(v.title) &&
+  isNumber(v.minutes) &&
+  isStringArray(v.techniqueIds);
+const isAthlete = (v: unknown) =>
+  isRecord(v) && isString(v.name) && isNumber(v.points) && isNumber(v.advantages) && isNumber(v.penalties);
+
 const VALIDATORS: Record<keyof BackupData, (r: Rec) => boolean> = {
   techniques: (r) =>
-    isRecord(r.name) &&
+    isLocalized(r.name) &&
+    isLocalized(r.description) &&
     oneOf(CATEGORIES, r.category) &&
     oneOf(TECHNIQUE_TYPES, r.type) &&
-    Array.isArray(r.steps) &&
-    Array.isArray(r.media) &&
-    Array.isArray(r.modes) &&
-    r.modes.every((m) => oneOf(MODES, m)) &&
-    isStringArray(r.counterpartIds),
-  plans: (r) => isString(r.name) && oneOf(MODES, r.mode) && isStringArray(r.objectives) && Array.isArray(r.blocks),
+    everyOf(r.steps, isLocalized) &&
+    everyOf(r.media, isMedia) &&
+    everyOf(r.modes, (m) => oneOf(MODES, m)) &&
+    isStringArray(r.counterpartIds) &&
+    isOptional(r.legality, isLegality) &&
+    isOptional(r.position, (p) => oneOf(POSITIONS, p)),
+  plans: (r) =>
+    isString(r.name) && oneOf(MODES, r.mode) && isStringArray(r.objectives) && everyOf(r.blocks, isBlock),
   sessions: (r) =>
     isString(r.date) &&
     isNumber(r.durationMin) &&
     oneOf(MODES, r.mode) &&
     isNumber(r.physicalDifficulty) &&
     isNumber(r.technicalDifficulty) &&
+    isNumber(r.sparringRounds) &&
+    isString(r.notes) &&
     isStringArray(r.feelings) &&
     isStringArray(r.subsAchieved) &&
-    isStringArray(r.subsSuffered),
+    isStringArray(r.subsSuffered) &&
+    isOptional(r.planId, isString),
   graduations: (r) => isBelt(r.belt) && isNumber(r.stripes) && isString(r.date),
-  profile: (r) => r.id === 'me' && isBelt(r.belt) && isNumber(r.stripes),
-  matches: (r) => isString(r.date) && oneOf(MODES, r.mode) && Array.isArray(r.athletes) && r.athletes.length === 2,
+  profile: (r) => r.id === 'me' && isBelt(r.belt) && isNumber(r.stripes) && isString(r.name),
+  matches: (r) =>
+    isString(r.date) &&
+    oneOf(MODES, r.mode) &&
+    isNumber(r.durationSec) &&
+    Array.isArray(r.athletes) &&
+    r.athletes.length === 2 &&
+    r.athletes.every(isAthlete) &&
+    (r.winner === null || r.winner === 0 || r.winner === 1) &&
+    oneOf(MATCH_METHODS, r.method) &&
+    isOptional(r.submissionId, isString),
 };
 
 export async function exportData(): Promise<Backup> {
@@ -114,7 +150,8 @@ export function parseBackup(json: string): Backup {
 
   const data = {} as Record<keyof BackupData, unknown[]>;
   for (const table of Object.keys(VALIDATORS) as (keyof BackupData)[]) {
-    const rows = raw.data[table] ?? [];
+    // A missing table is an error, never an empty list: importing replaces everything.
+    const rows = raw.data[table];
     if (!Array.isArray(rows)) throw new BackupError('notList', `"${table}" must be a list.`, { table });
     rows.forEach((row, index) => {
       if (!isRecord(row) || !isString(row.id) || !VALIDATORS[table](row)) {

@@ -71,7 +71,8 @@ describe('settings: backup import', () => {
 
   it('keeps stored data when the user cancels the import', async () => {
     const kept = await addTechnique('Kimura');
-    const backup = JSON.stringify({ ...(await exportData()), data: { techniques: [] } });
+    const exported = await exportData();
+    const backup = JSON.stringify({ ...exported, data: { ...exported.data, techniques: [] } });
     vi.spyOn(window, 'confirm').mockReturnValue(false);
 
     renderSettings();
