@@ -151,7 +151,8 @@ export interface Graduation {
   notes?: string;
 }
 
-export type MatchMethod = 'points' | 'advantages' | 'penalties' | 'submission' | 'draw' | 'referee';
+export const MATCH_METHODS = ['points', 'advantages', 'penalties', 'submission', 'draw', 'referee'] as const;
+export type MatchMethod = (typeof MATCH_METHODS)[number];
 
 export interface AthleteScore {
   name: string;

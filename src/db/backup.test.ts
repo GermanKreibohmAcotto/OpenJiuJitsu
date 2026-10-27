@@ -141,6 +141,10 @@ describe('backup hardening', () => {
       { plans: [{ ...backup.data.plans[0], blocks: [{}] }] },
       { sessions: [{ ...backup.data.sessions[0], notes: undefined }] },
       { matches: [{ ...backup.data.matches[0], athletes: [{}, {}] }] },
+      { techniques: [{ ...backup.data.techniques[0], position: 5 }] },
+      { sessions: [{ ...backup.data.sessions[0], planId: {} }] },
+      { matches: [{ ...backup.data.matches[0], method: 'magic' }] },
+      { matches: [{ ...backup.data.matches[0], winner: 2 }] },
     ];
     for (const patch of variants) {
       const json = JSON.stringify({ ...backup, data: { ...backup.data, ...patch } });

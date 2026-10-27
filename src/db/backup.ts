@@ -5,8 +5,10 @@ import { isBelt } from '../domain/belts';
 import {
   BLOCK_KINDS,
   CATEGORIES,
+  MATCH_METHODS,
   MEDIA_KINDS,
   MODES,
+  POSITIONS,
   TECHNIQUE_TYPES,
   type Graduation,
   type Profile,
@@ -83,7 +85,8 @@ const VALIDATORS: Record<keyof BackupData, (r: Rec) => boolean> = {
     everyOf(r.media, isMedia) &&
     everyOf(r.modes, (m) => oneOf(MODES, m)) &&
     isStringArray(r.counterpartIds) &&
-    isOptional(r.legality, isLegality),
+    isOptional(r.legality, isLegality) &&
+    isOptional(r.position, (p) => oneOf(POSITIONS, p)),
   plans: (r) =>
     isString(r.name) && oneOf(MODES, r.mode) && isStringArray(r.objectives) && everyOf(r.blocks, isBlock),
   sessions: (r) =>
@@ -96,7 +99,8 @@ const VALIDATORS: Record<keyof BackupData, (r: Rec) => boolean> = {
     isString(r.notes) &&
     isStringArray(r.feelings) &&
     isStringArray(r.subsAchieved) &&
-    isStringArray(r.subsSuffered),
+    isStringArray(r.subsSuffered) &&
+    isOptional(r.planId, isString),
   graduations: (r) => isBelt(r.belt) && isNumber(r.stripes) && isString(r.date),
   profile: (r) => r.id === 'me' && isBelt(r.belt) && isNumber(r.stripes) && isString(r.name),
   matches: (r) =>
@@ -105,7 +109,10 @@ const VALIDATORS: Record<keyof BackupData, (r: Rec) => boolean> = {
     isNumber(r.durationSec) &&
     Array.isArray(r.athletes) &&
     r.athletes.length === 2 &&
-    r.athletes.every(isAthlete),
+    r.athletes.every(isAthlete) &&
+    (r.winner === null || r.winner === 0 || r.winner === 1) &&
+    oneOf(MATCH_METHODS, r.method) &&
+    isOptional(r.submissionId, isString),
 };
 
 export async function exportData(): Promise<Backup> {
