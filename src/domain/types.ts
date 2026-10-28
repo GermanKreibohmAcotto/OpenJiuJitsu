@@ -161,6 +161,24 @@ export interface AthleteScore {
   penalties: number;
 }
 
+export const MATCH_EVENT_KINDS = [
+  'takedown',
+  'sweep',
+  'kneeOnBelly',
+  'guardPass',
+  'mount',
+  'backControl',
+  'advantage',
+  'penalty',
+] as const;
+export type MatchEventKind = (typeof MATCH_EVENT_KINDS)[number];
+
+/** One scoring action, in the order it happened. */
+export interface MatchEvent {
+  athlete: 0 | 1;
+  kind: MatchEventKind;
+}
+
 export interface SparringMatch {
   id: string;
   date: string;
@@ -171,5 +189,7 @@ export interface SparringMatch {
   winner: 0 | 1 | null;
   method: MatchMethod;
   submissionId?: string;
+  /** Scoring log. Absent on matches saved before the log was kept. */
+  events?: MatchEvent[];
   createdAt: string;
 }

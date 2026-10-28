@@ -1,5 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
 import { EmptyState } from '../../components/Page';
 import { deleteMatch, listMatches } from '../../db/matches';
 import { useTechniqueMap } from '../../hooks/useTechniques';
@@ -26,9 +27,9 @@ export function MatchHistory() {
           return (
             <li key={match.id} className="card flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <p className="font-semibold">
+                <Link to={`/sparring/${match.id}`} className="font-semibold hover:text-accent">
                   {match.athletes[0].name} {match.athletes[0].points} – {match.athletes[1].points} {match.athletes[1].name}
-                </p>
+                </Link>
                 <p className="text-xs text-muted">
                   {match.date} · {tc(`modes.${match.mode}`)} · {t(`methods.${match.method}`)} ·{' '}
                   {match.winner === null ? t('history.draw') : t('history.winner', { name: match.athletes[match.winner].name })}
@@ -39,9 +40,14 @@ export function MatchHistory() {
                   </p>
                 )}
               </div>
-              <button type="button" className="btn btn-danger" onClick={() => remove(match.id)}>
-                {t('history.delete')}
-              </button>
+              <div className="flex shrink-0 flex-wrap gap-2">
+                <Link to={`/sparring/${match.id}`} className="btn">
+                  {t('history.details')}
+                </Link>
+                <button type="button" className="btn btn-danger" onClick={() => remove(match.id)}>
+                  {t('history.delete')}
+                </button>
+              </div>
             </li>
           );
         })}

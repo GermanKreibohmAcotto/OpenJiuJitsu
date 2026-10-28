@@ -5,6 +5,7 @@ import { isBelt } from '../domain/belts';
 import {
   BLOCK_KINDS,
   CATEGORIES,
+  MATCH_EVENT_KINDS,
   MATCH_METHODS,
   MEDIA_KINDS,
   MODES,
@@ -75,6 +76,8 @@ const isBlock = (v: unknown) =>
 const isAthlete = (v: unknown) =>
   isRecord(v) && isString(v.name) && isNumber(v.points) && isNumber(v.advantages) && isNumber(v.penalties);
 
+const isMatchEvent = (v: unknown) => isRecord(v) && (v.athlete === 0 || v.athlete === 1) && oneOf(MATCH_EVENT_KINDS, v.kind);
+
 const VALIDATORS: Record<keyof BackupData, (r: Rec) => boolean> = {
   techniques: (r) =>
     isLocalized(r.name) &&
@@ -112,7 +115,8 @@ const VALIDATORS: Record<keyof BackupData, (r: Rec) => boolean> = {
     r.athletes.every(isAthlete) &&
     (r.winner === null || r.winner === 0 || r.winner === 1) &&
     oneOf(MATCH_METHODS, r.method) &&
-    isOptional(r.submissionId, isString),
+    isOptional(r.submissionId, isString) &&
+    isOptional(r.events, (e) => everyOf(e, isMatchEvent)),
 };
 
 export async function exportData(): Promise<Backup> {

@@ -88,6 +88,7 @@ export function ResultForm({ config, events, durationSec, onDone }: ResultFormPr
         ],
         winner: resolved.winner,
         method: resolved.method,
+        events: events.map(({ athlete, kind }) => ({ athlete, kind })),
         ...(outcome === 'submission' ? { submissionId: techniqueId } : {}),
       });
       if (outcome === 'submission' && toJournal && techniqueId) {
