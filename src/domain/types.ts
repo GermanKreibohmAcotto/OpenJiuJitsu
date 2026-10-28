@@ -12,7 +12,7 @@ export type ModeFilter = Mode | 'all';
 export const BELTS = ['white', 'blue', 'purple', 'brown', 'black'] as const;
 export type Belt = (typeof BELTS)[number];
 
-export const CATEGORIES = ['drill', 'guard', 'pass', 'submission', 'escape'] as const;
+export const CATEGORIES = ['drill', 'guard', 'pass', 'submission', 'escape', 'takedown'] as const;
 export type Category = (typeof CATEGORIES)[number];
 
 export const TECHNIQUE_TYPES = [
@@ -128,6 +128,9 @@ export interface TrainingSession {
   /** Technique ids; repeated ids count as repeated submissions. */
   subsAchieved: string[];
   subsSuffered: string[];
+  /** Takedown/throw technique ids; repeated ids count repeatedly. Absent on sessions saved before they were tracked. */
+  takedownsAchieved?: string[];
+  takedownsSuffered?: string[];
   notes: string;
   createdAt: string;
   updatedAt: string;
@@ -140,6 +143,8 @@ export interface Profile {
   belt: Belt;
   stripes: number;
   startedAt?: string;
+  /** Self-rated style axes (1..10) that no logged data measures. */
+  selfRatings?: { flexibility?: number };
 }
 
 export interface Graduation {
@@ -161,6 +166,26 @@ export interface AthleteScore {
   penalties: number;
 }
 
+export const MATCH_EVENT_KINDS = [
+  'takedown',
+  'sweep',
+  'kneeOnBelly',
+  'guardPass',
+  'mount',
+  'backControl',
+  'advantage',
+  'penalty',
+] as const;
+export type MatchEventKind = (typeof MATCH_EVENT_KINDS)[number];
+
+/** One scoring action, in the order it happened. */
+export interface MatchEvent {
+  athlete: 0 | 1;
+  kind: MatchEventKind;
+  /** Which takedown technique it was, when the user said so. */
+  techniqueId?: string;
+}
+
 export interface SparringMatch {
   id: string;
   date: string;
@@ -171,5 +196,7 @@ export interface SparringMatch {
   winner: 0 | 1 | null;
   method: MatchMethod;
   submissionId?: string;
+  /** Scoring log. Absent on matches saved before the log was kept. */
+  events?: MatchEvent[];
   createdAt: string;
 }

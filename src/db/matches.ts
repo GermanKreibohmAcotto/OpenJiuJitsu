@@ -19,3 +19,7 @@ export async function saveMatch(input: MatchInput): Promise<SparringMatch> {
 export function deleteMatch(id: string): Promise<void> {
   return db.matches.delete(id);
 }
+
+export function getMatch(id: string): Promise<SparringMatch | undefined> {
+  return db.matches.get(id);
+}

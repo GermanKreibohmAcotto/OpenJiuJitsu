@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from './db';
 import { deleteTechnique, getTechnique, saveTechnique, type TechniqueInput } from './techniques';
 import { listSessions, recordSubmission, saveSession, type SessionInput } from './sessions';
-import { ensureSeeded } from './seed';
+import { ensureSeeded, SEEDED_KEY, SEED_VERSION } from './seed';
 import { SEED_TECHNIQUES } from './seedData';
 
 function techniqueInput(name: string, counterpartIds: string[] = []): TechniqueInput {
@@ -88,6 +88,35 @@ describe('seed library', () => {
         expect(byId.get(counterpartId)?.counterpartIds, `${technique.id} -> ${counterpartId}`).toContain(technique.id);
       }
     }
+  });
+
+  it('ships takedowns and throws as their own category', () => {
+    const takedowns = SEED_TECHNIQUES.filter((t) => t.category === 'takedown');
+    expect(takedowns.length).toBeGreaterThanOrEqual(10);
+    expect(takedowns.every((t) => t.type === 'takedown' && t.position === 'standing')).toBe(true);
+    expect(takedowns.map((t) => t.id)).toContain('double-leg');
+  });
+
+  it('adds only the techniques newer than the stored seed version, keeping what the user has', async () => {
+    await ensureSeeded();
+    const original = SEED_TECHNIQUES.filter((t) => t.category !== 'takedown' && t.id !== 'clinch-defense' && t.id !== 'sprawl-defense' && t.id !== 'guard-pull');
+    // Simulate a library seeded at version 1: no takedowns, the user deleted one old technique and edited another.
+    await db.techniques.clear();
+    await db.techniques.bulkPut(
+      original
+        .filter((t) => t.id !== 'kneebar')
+        .map((t) => (t.id === 'toreando-pass' ? { ...t, counterpartIds: t.counterpartIds.filter((id) => id !== 'guard-pull'), name: { es: 'Mi toreando' } } : t)),
+    );
+    await db.meta.put({ key: SEEDED_KEY, value: 1 });
+
+    await ensureSeeded();
+
+    expect(await db.techniques.get('double-leg')).toBeDefined();
+    expect(await db.techniques.get('kneebar')).toBeUndefined();
+    const toreando = await db.techniques.get('toreando-pass');
+    expect(toreando?.name).toEqual({ es: 'Mi toreando' });
+    expect(toreando?.counterpartIds).toContain('guard-pull');
+    expect((await db.meta.get(SEEDED_KEY))?.value).toBe(SEED_VERSION);
   });
 
   it('does not reseed after the user deletes every technique', async () => {

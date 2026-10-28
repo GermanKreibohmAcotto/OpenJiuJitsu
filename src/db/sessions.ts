@@ -69,6 +69,43 @@ export interface SubmissionRecord {
   outcome: 'achieved' | 'suffered';
 }
 
+export interface TakedownRecord {
+  date: string;
+  mode: Mode;
+  achieved: string[];
+  suffered: string[];
+}
+
+/**
+ * Adds takedown technique ids to the latest session of `date` (same mode), creating a
+ * minimal session when there is none. A takedown is part of a round already counted, so
+ * this never changes the round count.
+ */
+export function recordTakedowns(record: TakedownRecord): Promise<TrainingSession> {
+  return db.transaction('rw', db.sessions, async () => {
+    const sameDay = (await db.sessions.where('date').equals(record.date).toArray())
+      .filter((s) => s.mode === record.mode)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    const base: SessionInput = sameDay[0] ?? {
+      date: record.date,
+      durationMin: 0,
+      mode: record.mode,
+      physicalDifficulty: 5,
+      technicalDifficulty: 5,
+      feelings: [],
+      sparringRounds: 0,
+      subsAchieved: [],
+      subsSuffered: [],
+      notes: '',
+    };
+    return saveSession({
+      ...base,
+      takedownsAchieved: [...(base.takedownsAchieved ?? []), ...record.achieved],
+      takedownsSuffered: [...(base.takedownsSuffered ?? []), ...record.suffered],
+    });
+  });
+}
+
 /**
  * Adds a sparring round with a submission to the latest session of `date`
  * (same mode), creating a minimal session when there is none.

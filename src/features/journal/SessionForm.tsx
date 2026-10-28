@@ -24,6 +24,8 @@ interface Draft {
   sparringRounds: string;
   subsAchieved: string[];
   subsSuffered: string[];
+  takedownsAchieved: string[];
+  takedownsSuffered: string[];
   notes: string;
 }
 
@@ -90,6 +92,8 @@ function SessionFormBody({ id, initial }: { id?: string; initial: Draft }) {
         sparringRounds: Number(draft.sparringRounds),
         subsAchieved: draft.subsAchieved,
         subsSuffered: draft.subsSuffered,
+        takedownsAchieved: draft.takedownsAchieved,
+        takedownsSuffered: draft.takedownsSuffered,
         notes: draft.notes,
       });
       navigate(`/journal/${saved.id}`);
@@ -226,6 +230,22 @@ function SessionFormBody({ id, initial }: { id?: string; initial: Draft }) {
           value={draft.subsSuffered}
           onChange={(subsSuffered) => patch({ subsSuffered })}
         />
+        <SubmissionField
+          legend={t('form.takedownsAchieved')}
+          hint={t('form.takedownsAchievedHint')}
+          mode={draft.mode}
+          types={['takedown']}
+          value={draft.takedownsAchieved}
+          onChange={(takedownsAchieved) => patch({ takedownsAchieved })}
+        />
+        <SubmissionField
+          legend={t('form.takedownsSuffered')}
+          hint={t('form.takedownsSufferedHint')}
+          mode={draft.mode}
+          types={['takedown']}
+          value={draft.takedownsSuffered}
+          onChange={(takedownsSuffered) => patch({ takedownsSuffered })}
+        />
 
         <div className="card">
           <label htmlFor="session-notes" className="label">
@@ -289,6 +309,8 @@ export function SessionForm() {
         sparringRounds: String(session.sparringRounds),
         subsAchieved: session.subsAchieved,
         subsSuffered: session.subsSuffered,
+        takedownsAchieved: session.takedownsAchieved ?? [],
+        takedownsSuffered: session.takedownsSuffered ?? [],
         notes: session.notes,
       }
     : {
@@ -302,6 +324,8 @@ export function SessionForm() {
         sparringRounds: '0',
         subsAchieved: [],
         subsSuffered: [],
+        takedownsAchieved: [],
+        takedownsSuffered: [],
         notes: '',
       };
 

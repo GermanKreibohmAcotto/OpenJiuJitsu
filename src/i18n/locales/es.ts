@@ -6,6 +6,7 @@ export default {
     plans: 'Planes',
     journal: 'Bitácora',
     sparring: 'Sparring',
+    analytics: 'Analíticas',
     profile: 'Perfil',
     settings: 'Ajustes',
   },
@@ -34,6 +35,7 @@ export default {
     pass: 'Pasajes',
     submission: 'Llaves/Sumisiones',
     escape: 'Escapes/Defensas',
+    takedown: 'Derribos',
   },
   types: {
     submission: 'Sumisión',

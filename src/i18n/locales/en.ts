@@ -6,6 +6,7 @@ export default {
     plans: 'Plans',
     journal: 'Journal',
     sparring: 'Sparring',
+    analytics: 'Analytics',
     profile: 'Profile',
     settings: 'Settings',
   },
@@ -34,6 +35,7 @@ export default {
     pass: 'Passes',
     submission: 'Submissions',
     escape: 'Escapes/Defenses',
+    takedown: 'Takedowns',
   },
   types: {
     submission: 'Submission',

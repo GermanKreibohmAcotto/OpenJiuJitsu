@@ -12,6 +12,7 @@ const LibraryRoutes = lazyRoutes(() => import('./features/library'), 'LibraryRou
 const PlansRoutes = lazyRoutes(() => import('./features/plans'), 'PlansRoutes');
 const JournalRoutes = lazyRoutes(() => import('./features/journal'), 'JournalRoutes');
 const SparringRoutes = lazyRoutes(() => import('./features/sparring'), 'SparringRoutes');
+const AnalyticsRoutes = lazyRoutes(() => import('./features/analytics'), 'AnalyticsRoutes');
 const ProfileRoutes = lazyRoutes(() => import('./features/profile'), 'ProfileRoutes');
 const SettingsRoutes = lazyRoutes(() => import('./features/settings'), 'SettingsRoutes');
 
@@ -24,6 +25,7 @@ export function AppRoutes() {
         <Route path="/plans/*" element={<PlansRoutes />} />
         <Route path="/journal/*" element={<JournalRoutes />} />
         <Route path="/sparring/*" element={<SparringRoutes />} />
+        <Route path="/analytics/*" element={<AnalyticsRoutes />} />
         <Route path="/profile/*" element={<ProfileRoutes />} />
         <Route path="/settings/*" element={<SettingsRoutes />} />
       </Route>

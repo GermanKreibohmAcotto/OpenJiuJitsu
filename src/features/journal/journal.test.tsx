@@ -80,6 +80,30 @@ describe('journal form', () => {
     await screen.findByText('Detalles de oro');
   });
 
+  it('stores takedowns landed and taken, and shows them in the detail', async () => {
+    renderAt('/journal/new');
+    await pickSubmission('Derribos logrados', /Doble pierna/);
+    await pickSubmission('Derribos recibidos', /Uchi-mata/);
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar' }));
+
+    await waitFor(async () => expect(await listSessions()).toHaveLength(1));
+    const [session] = await listSessions();
+    expect(session.takedownsAchieved).toEqual(['double-leg']);
+    expect(session.takedownsSuffered).toEqual(['uchi-mata']);
+    expect(session.subsAchieved).toEqual([]);
+
+    const detail = await screen.findByRole('heading', { name: 'Derribos logrados' });
+    expect(await within(detail.closest('section')!).findByRole('link', { name: 'Doble pierna' })).toBeInTheDocument();
+    expect(await screen.findByRole('link', { name: 'Uchi-mata' })).toBeInTheDocument();
+  });
+
+  it('shows sessions saved before takedowns were tracked with empty takedown counts', async () => {
+    await saveSession(baseSession);
+    renderAt('/journal');
+    expect(await screen.findByText('Derribos logrados: 0')).toBeInTheDocument();
+    expect(screen.getByText('Derribos recibidos: 0')).toBeInTheDocument();
+  });
+
   it('prefills duration, mode and plan from ?planId=', async () => {
     const plan = await savePlan({
       name: 'Pasajes y rolada',

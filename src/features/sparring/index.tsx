@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Route, Routes } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '../../components/Page';
+import { MatchDetail } from './MatchDetail';
 import { MatchHistory } from './MatchHistory';
 import { MatchScreen } from './MatchScreen';
 import { ResultForm } from './ResultForm';
@@ -44,6 +45,7 @@ export function SparringRoutes() {
   return (
     <Routes>
       <Route index element={<SparringHome />} />
+      <Route path=":id" element={<MatchDetail />} />
     </Routes>
   );
 }

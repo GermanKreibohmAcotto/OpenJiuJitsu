@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { matchesModeFilter, useSettings } from '../../app/settings';
 import { BeltLegalityBadges } from '../../components/BeltLegalityBadges';
-import { ModeBadges } from '../../components/ModeToggle';
+import { ModeBadges, ModeToggle } from '../../components/ModeToggle';
 import { EmptyState, PageHeader } from '../../components/Page';
 import { matchesSearch } from '../../components/TechniquePicker';
 import { CATEGORIES, TECHNIQUE_TYPES, type Category, type TechniqueType } from '../../domain/types';
@@ -12,7 +12,7 @@ import { localize } from '../../i18n';
 
 export function LibraryList() {
   const { t, i18n } = useTranslation('library');
-  const { modeFilter } = useSettings();
+  const { modeFilter, setModeFilter } = useSettings();
   const techniques = useTechniques();
   const [category, setCategory] = useState<Category | 'all'>('all');
   const [type, setType] = useState<TechniqueType | 'all'>('all');
@@ -34,9 +34,12 @@ export function LibraryList() {
       <PageHeader
         title={t('title')}
         actions={
-          <Link to="/library/new" className="btn btn-primary">
-            {t('newTechnique')}
-          </Link>
+          <>
+            <ModeToggle value={modeFilter} onChange={setModeFilter} allowAll />
+            <Link to="/library/new" className="btn btn-primary">
+              {t('newTechnique')}
+            </Link>
+          </>
         }
       />
 

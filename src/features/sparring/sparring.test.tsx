@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter, Route, Routes } from 'react-router';
 import '../../i18n';
 import { SettingsProvider } from '../../app/settings';
 import { db } from '../../db/db';
@@ -13,8 +13,10 @@ import { SparringRoutes } from '.';
 function renderSparring() {
   return render(
     <SettingsProvider>
-      <MemoryRouter>
-        <SparringRoutes />
+      <MemoryRouter initialEntries={['/sparring']}>
+        <Routes>
+          <Route path="/sparring/*" element={<SparringRoutes />} />
+        </Routes>
       </MemoryRouter>
     </SettingsProvider>,
   );
@@ -58,6 +60,12 @@ describe('sparring mini-app', () => {
     const [match] = await listMatches();
     expect(match).toMatchObject({ method: 'points', winner: 0, mode: 'gi' });
     expect(match.athletes[0]).toEqual({ name: 'Yo', points: 6, advantages: 0, penalties: 1 });
+    expect(match.events).toEqual([
+      { athlete: 0, kind: 'takedown' },
+      { athlete: 0, kind: 'mount' },
+      { athlete: 1, kind: 'guardPass' },
+      { athlete: 0, kind: 'penalty' },
+    ]);
     expect(match.athletes[1]).toEqual({ name: 'Compañero', points: 3, advantages: 0, penalties: 0 });
     expect(await listSessions()).toHaveLength(0);
     expect(await screen.findByText(/Ganador: Yo/)).toBeInTheDocument();
@@ -105,6 +113,104 @@ describe('sparring mini-app', () => {
     await user.click(screen.getByRole('button', { name: 'Guardar combate' }));
     await waitFor(async () => expect(await listMatches()).toHaveLength(2));
     expect((await listSessions())[0].subsAchieved).toEqual([]);
+  });
+
+  it('records which takedown it was, shows it in the detail and logs it in the journal', async () => {
+    const user = userEvent.setup();
+    renderSparring();
+    await startMatch(user);
+    await user.click(screen.getByRole('button', { name: 'Yo: Derribo (+2)' }));
+    await user.click(screen.getByRole('button', { name: 'Compañero: Derribo (+2)' }));
+    await user.click(screen.getByRole('button', { name: 'Terminar combate' }));
+
+    await user.selectOptions(await screen.findByRole('combobox', { name: /Derribo 1 de Yo/ }), 'double-leg');
+    await user.selectOptions(screen.getByRole('combobox', { name: /Derribo 1 de Compañero/ }), 'uchi-mata');
+    await user.click(screen.getByRole('button', { name: 'Guardar combate' }));
+
+    await waitFor(async () => expect(await listMatches()).toHaveLength(1));
+    const [match] = await listMatches();
+    expect(match.events).toEqual([
+      { athlete: 0, kind: 'takedown', techniqueId: 'double-leg' },
+      { athlete: 1, kind: 'takedown', techniqueId: 'uchi-mata' },
+    ]);
+    await waitFor(async () => expect(await listSessions()).toHaveLength(1));
+    const [session] = await listSessions();
+    expect(session.takedownsAchieved).toEqual(['double-leg']);
+    expect(session.takedownsSuffered).toEqual(['uchi-mata']);
+    expect(session.sparringRounds).toBe(0);
+
+    await user.click(await screen.findByRole('link', { name: 'Ver detalle' }));
+    expect(await screen.findByRole('link', { name: '(Doble pierna)' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '(Uchi-mata)' })).toBeInTheDocument();
+  });
+
+  it('saves a takedown without technique and leaves the journal alone', async () => {
+    const user = userEvent.setup();
+    renderSparring();
+    await startMatch(user);
+    await user.click(screen.getByRole('button', { name: 'Yo: Derribo (+2)' }));
+    await user.click(screen.getByRole('button', { name: 'Terminar combate' }));
+    await user.click(screen.getByRole('button', { name: 'Guardar combate' }));
+
+    await waitFor(async () => expect(await listMatches()).toHaveLength(1));
+    expect((await listMatches())[0].events).toEqual([{ athlete: 0, kind: 'takedown' }]);
+    expect(await listSessions()).toHaveLength(0);
+  });
+
+  it('opens the detail of a saved match from the history', async () => {
+    const user = userEvent.setup();
+    await db.matches.add({
+      id: 'm2',
+      date: '2026-10-25',
+      mode: 'nogi',
+      durationSec: 305,
+      athletes: [
+        { name: 'Yo', points: 0, advantages: 0, penalties: 0 },
+        { name: 'Marco', points: 0, advantages: 0, penalties: 1 },
+      ],
+      winner: 0,
+      method: 'submission',
+      submissionId: 'kimura-closed-guard',
+      createdAt: '2026-10-25T10:00:00.000Z',
+    });
+    renderSparring();
+    await user.click(await screen.findByRole('link', { name: 'Ver detalle' }));
+    expect(await screen.findByText('Duración 5:05')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Kimura desde guardia cerrada/ })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'Marco' })).toBeInTheDocument();
+    expect(screen.getByText('No se guardó el registro de puntos de este combate.')).toBeInTheDocument();
+  });
+
+  it('lists the scoring actions of a match in the detail', async () => {
+    const user = userEvent.setup();
+    await db.matches.add({
+      id: 'm3',
+      date: '2026-10-25',
+      mode: 'nogi',
+      durationSec: 300,
+      athletes: [
+        { name: 'Yo', points: 6, advantages: 1, penalties: 0 },
+        { name: 'Marco', points: 0, advantages: 0, penalties: 0 },
+      ],
+      winner: 0,
+      method: 'points',
+      events: [
+        { athlete: 0, kind: 'takedown' },
+        { athlete: 0, kind: 'advantage' },
+        { athlete: 0, kind: 'guardPass' },
+        { athlete: 0, kind: 'sweep' },
+      ],
+      createdAt: '2026-10-25T10:00:00.000Z',
+    });
+    renderSparring();
+    await user.click(await screen.findByRole('link', { name: 'Ver detalle' }));
+    const log = await screen.findByRole('list');
+    const items = within(log).getAllByRole('listitem');
+    expect(items).toHaveLength(4);
+    expect(items[0]).toHaveTextContent('Yo · Derribo+2');
+    expect(items[1]).toHaveTextContent('Yo · Ventaja');
+    expect(items[2]).toHaveTextContent('Yo · Pasaje de guardia+3');
+    expect(items[3]).toHaveTextContent('Yo · Raspaje+2');
   });
 
   it('deletes a match from the history after confirmation', async () => {
