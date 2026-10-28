@@ -91,9 +91,9 @@ export function MatchDetail() {
             </p>
           )}
         </section>
-        <section className="card">
+        <section className="card overflow-x-auto">
           <h2 className="label">{t('detail.scoreboard')}</h2>
-          <table className="w-full text-sm">
+          <table className="w-full text-xs sm:text-sm">
             <thead className="text-left text-muted">
               <tr>
                 <th className="py-1 font-medium">{t('detail.athlete')}</th>

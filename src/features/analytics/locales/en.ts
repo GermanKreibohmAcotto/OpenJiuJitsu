@@ -1,6 +1,6 @@
 export default {
   title: 'Performance analytics',
-  subtitle: 'Your playing style on six axes, computed from your matches and journal.',
+  subtitle: 'Your playing style on seven axes, computed from your matches and journal.',
   dominant: 'Your strongest axis',
   empty: 'Not enough data yet. Log matches and sessions to see your profile.',
   chart: 'Playing style hexagon chart',

@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { NavLink, Outlet } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
+/** Sections of the desktop sidebar. */
 const NAV = [
   { to: '/library', key: 'library', icon: '📖' },
   { to: '/plans', key: 'plans', icon: '🗂️' },
@@ -9,6 +10,18 @@ const NAV = [
   { to: '/sparring', key: 'sparring', icon: '⏱️' },
   { to: '/analytics', key: 'analytics', icon: '📊' },
   { to: '/profile', key: 'profile', icon: '🥋' },
+] as const;
+
+/**
+ * Bottom bar on phones: exactly five buttons, with Home in the middle as the primary one.
+ * Analytics and Profile stay one tap away from the header.
+ */
+const TAB_BAR = [
+  { to: '/library', key: 'library', icon: '📖' },
+  { to: '/plans', key: 'plans', icon: '🗂️' },
+  { to: '/', key: 'home', icon: '🏠', primary: true },
+  { to: '/journal', key: 'journal', icon: '📝' },
+  { to: '/sparring', key: 'sparring', icon: '⏱️' },
 ] as const;
 
 export function Layout() {
@@ -19,11 +32,23 @@ export function Layout() {
       isActive ? 'text-accent md:bg-accent/10' : 'text-muted hover:text-zinc-100'
     }`;
 
+  const headerIconClass = ({ isActive }: { isActive: boolean }) =>
+    `btn btn-ghost px-2 md:hidden ${isActive ? 'text-accent' : ''}`;
+
+  const tabClass = (primary: boolean) => ({ isActive }: { isActive: boolean }) =>
+    `flex min-w-0 flex-col items-center gap-0.5 rounded-xl px-0.5 py-1.5 text-[10px] leading-tight max-[340px]:text-[9px] ${
+      primary ? '-mt-6' : ''
+    } ${isActive ? 'text-accent' : 'text-muted hover:text-zinc-100'}`;
+
   return (
     <div className="min-h-screen md:flex">
       <aside className="hidden w-60 shrink-0 flex-col gap-1 border-r border-line p-4 md:flex">
-        <NavLink to="/" className="mb-6 px-3 text-lg font-extrabold tracking-tight">
+        <NavLink to="/" className="mb-6 px-3 text-lg tracking-tight">
           Open<span className="text-accent">JiuJitsu</span>
+        </NavLink>
+        <NavLink to="/" end className={linkClass}>
+          <span aria-hidden>🏠</span>
+          {t('nav.home')}
         </NavLink>
         {NAV.map((item) => (
           <NavLink key={item.to} to={item.to} className={linkClass}>
@@ -39,11 +64,16 @@ export function Layout() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-line bg-bg/90 px-4 py-3 backdrop-blur">
-          <NavLink to="/" className="text-base font-extrabold tracking-tight md:invisible">
+          <NavLink to="/" className="text-base tracking-tight md:invisible">
             Open<span className="text-accent">JiuJitsu</span>
           </NavLink>
           <div className="flex items-center gap-2">
-            <NavLink to="/settings" aria-label={t('nav.settings')} className="btn btn-ghost px-2 md:hidden">
+            {(['analytics', 'profile'] as const).map((key) => (
+              <NavLink key={key} to={`/${key}`} aria-label={t(`nav.${key}`)} className={headerIconClass}>
+                {key === 'analytics' ? '📊' : '🥋'}
+              </NavLink>
+            ))}
+            <NavLink to="/settings" aria-label={t('nav.settings')} className={headerIconClass}>
               ⚙️
             </NavLink>
           </div>
@@ -56,13 +86,22 @@ export function Layout() {
         </main>
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-10 flex justify-around border-t border-line bg-bg/95 px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur md:hidden">
-        {NAV.map((item) => (
-          <NavLink key={item.to} to={item.to} className={linkClass}>
-            <span aria-hidden className="text-lg">
-              {item.icon}
-            </span>
-            {t(`nav.${item.key}`)}
+      <nav className="fixed inset-x-0 bottom-0 z-10 grid grid-cols-5 items-end border-t border-line bg-bg/95 px-1 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur md:hidden">
+        {TAB_BAR.map((item) => (
+          <NavLink key={item.to} to={item.to} end={item.to === '/'} className={tabClass('primary' in item)}>
+            {'primary' in item ? (
+              <span
+                aria-hidden
+                className="flex h-14 w-14 items-center justify-center rounded-full border-4 border-bg bg-accent text-2xl text-accent-ink shadow-lg"
+              >
+                {item.icon}
+              </span>
+            ) : (
+              <span aria-hidden className="text-lg">
+                {item.icon}
+              </span>
+            )}
+            <span className="max-w-full truncate">{t(`nav.${item.key}`)}</span>
           </NavLink>
         ))}
       </nav>

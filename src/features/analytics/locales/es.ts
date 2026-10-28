@@ -1,6 +1,6 @@
 export default {
   title: 'Analíticas de rendimiento',
-  subtitle: 'Tu estilo de juego en seis ejes, calculado con tus combates y tu bitácora.',
+  subtitle: 'Tu estilo de juego en siete ejes, calculado con tus combates y tu bitácora.',
   dominant: 'Tu eje más fuerte',
   empty: 'Todavía no hay datos suficientes. Registrá combates y sesiones para ver tu perfil.',
   chart: 'Gráfico hexagonal de estilo de juego',
