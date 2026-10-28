@@ -14,6 +14,8 @@ interface SeedDef {
   description: Pair;
   steps: Pair[];
   counterparts: string[];
+  /** Seed version that introduced the technique. Omitted for the original library (version 1). */
+  since?: number;
 }
 
 const text = ([es, en]: Pair): LocalizedText => ({ es, en });
@@ -633,7 +635,7 @@ const DEFS: SeedDef[] = [
       ['Empujar las piernas hacia un lado y caminar hacia el otro.', 'Push the legs to one side and step to the other.'],
       ['Pecho abajo y rodilla en el abdomen o 100 kilos.', 'Chest down and knee on belly or side control.'],
     ],
-    counterparts: ['spider-guard', 'de-la-riva-guard', 'guard-retention-drill'],
+    counterparts: ['spider-guard', 'de-la-riva-guard', 'guard-retention-drill', 'guard-pull'],
   },
   {
     id: 'over-under-pass',
@@ -690,7 +692,223 @@ const DEFS: SeedDef[] = [
     ],
     counterparts: ['toreando-pass', 'knee-slice'],
   },
+
+  // Takedowns and throws (seed version 2)
+  {
+    id: 'double-leg',
+    name: ['Doble pierna', 'Double leg'],
+    category: 'takedown',
+    type: 'takedown',
+    position: 'standing',
+    since: 2,
+    description: ['Derribo de lucha penetrando para atrapar ambas piernas.', 'Wrestling takedown that penetrates to trap both legs.'],
+    steps: [
+      ['Cambiar de nivel y dar un paso de penetración con la rodilla entre sus pies.', 'Change levels and take a penetration step with the knee between his feet.'],
+      ['Cabeza pegada a la costilla, abrazar ambas piernas por detrás de las rodillas.', 'Head tight to the ribs, wrap both legs behind the knees.'],
+      ['Levantar la cadera y empujar con el hombro para llevarlo al piso, pasando a una posición de control.', 'Lift the hips and drive with the shoulder to take him down, finishing in a controlling position.'],
+    ],
+    counterparts: ['sprawl-defense'],
+  },
+  {
+    id: 'single-leg',
+    name: ['Simple pierna', 'Single leg'],
+    category: 'takedown',
+    type: 'takedown',
+    position: 'standing',
+    since: 2,
+    description: ['Derribo atrapando una sola pierna, con muchas finalizaciones posibles.', 'Takedown trapping one leg, with many possible finishes.'],
+    steps: [
+      ['Cambiar de nivel, agarrar la pierna adelantada y pegar la cabeza al costado.', 'Change levels, grab the lead leg and press the head to the side.'],
+      ['Levantarse con la pierna atrapada contra tu pecho.', 'Stand up with the trapped leg held against your chest.'],
+      ['Terminar con un barrido de la pierna de apoyo o corriendo la tubería hacia afuera.', 'Finish by sweeping the post leg or running the pipe to the outside.'],
+    ],
+    counterparts: ['sprawl-defense'],
+  },
+  {
+    id: 'ankle-pick',
+    name: ['Recogida de tobillo', 'Ankle pick'],
+    category: 'takedown',
+    type: 'takedown',
+    position: 'standing',
+    since: 2,
+    description: ['Derribo rápido sacando el tobillo mientras se empuja la cabeza.', 'Quick takedown picking the ankle while pushing the head.'],
+    steps: [
+      ['Controlar la cabeza o una muñeca y bajar la cadera.', 'Control the head or a wrist and lower the hips.'],
+      ['Empujar su cabeza hacia atrás y agarrar el tobillo con ambas manos.', 'Push his head back and grab the ankle with both hands.'],
+      ['Tirar del tobillo hacia vos y seguir hacia adelante para terminar arriba.', 'Pull the ankle toward you and follow forward to finish on top.'],
+    ],
+    counterparts: ['sprawl-defense'],
+  },
+  {
+    id: 'sprawl-defense',
+    name: ['Defensa de derribo (sprawl)', 'Takedown defense (sprawl)'],
+    category: 'escape',
+    type: 'escape',
+    position: 'standing',
+    since: 2,
+    description: ['Tirar las piernas hacia atrás y cargar el peso sobre el atacante.', 'Shoot the legs back and load your weight onto the attacker.'],
+    steps: [
+      ['Detectar el cambio de nivel y bajar las manos a sus hombros o axilas.', 'Read the level change and drop your hands to his shoulders or armpits.'],
+      ['Lanzar las caderas hacia atrás y abajo, piernas largas.', 'Throw the hips back and down with the legs long.'],
+      ['Girar hacia su espalda o pasar a un control de cabeza.', 'Spin behind him or move to a front headlock.'],
+    ],
+    counterparts: ['double-leg', 'single-leg', 'ankle-pick'],
+  },
+  {
+    id: 'body-lock-takedown',
+    name: ['Derribo con body lock', 'Body lock takedown'],
+    category: 'takedown',
+    type: 'takedown',
+    position: 'standing',
+    since: 2,
+    description: ['Agarre de cintura con zancadilla o levantada para llevarlo al piso.', 'Waist clinch with a trip or lift to bring him to the mat.'],
+    steps: [
+      ['Cerrar el agarre alrededor de la cintura, con la cabeza pegada a su pecho.', 'Lock the grip around the waist with the head tight to his chest.'],
+      ['Pegar las caderas y quitarle la base con una zancadilla por detrás de la pierna.', 'Close the hips and break his base with a trip behind the leg.'],
+      ['Caer encima y estabilizar en control lateral.', 'Land on top and settle into side control.'],
+    ],
+    counterparts: ['clinch-defense'],
+  },
+  {
+    id: 'arm-drag-takedown',
+    name: ['Arm drag a la espalda', 'Arm drag to the back'],
+    category: 'takedown',
+    type: 'takedown',
+    position: 'standing',
+    since: 2,
+    description: ['Arrastre del brazo para pasar a su espalda de pie y derribar.', 'Drag his arm to get behind him standing and take him down.'],
+    steps: [
+      ['Agarrar la muñeca y el codo del mismo lado y tirar en diagonal.', 'Grab the wrist and the elbow on the same side and pull diagonally.'],
+      ['Pasar a su costado y poner la mano en su espalda.', 'Step to his side and place a hand on his back.'],
+      ['Engancharle la pierna y llevarlo al suelo con control de espalda.', 'Hook his leg and take him down with back control.'],
+    ],
+    counterparts: ['clinch-defense'],
+  },
+  {
+    id: 'guard-pull',
+    name: ['Tirada a guardia', 'Guard pull'],
+    category: 'takedown',
+    type: 'takedown',
+    position: 'standing',
+    since: 2,
+    description: ['Llevar la pelea al piso sentándose a guardia de forma controlada.', 'Take the fight to the ground by sitting to guard in a controlled way.'],
+    steps: [
+      ['Asegurar los agarres de manga y solapa o de muñeca y cuello.', 'Secure sleeve and lapel grips, or wrist and neck control.'],
+      ['Sentarse hacia atrás poniendo un pie en su cadera.', 'Sit back placing a foot on his hip.'],
+      ['Caer de espalda con las piernas entre ustedes y establecer la guardia.', 'Roll to your back with the legs between you and set up the guard.'],
+    ],
+    counterparts: ['toreando-pass'],
+  },
+  {
+    id: 'osoto-gari',
+    name: ['O-soto-gari', 'O-soto-gari'],
+    category: 'takedown',
+    type: 'takedown',
+    position: 'standing',
+    since: 2,
+    description: ['Proyección de judo cortando la pierna de apoyo hacia atrás.', 'Judo throw reaping the supporting leg backward.'],
+    steps: [
+      ['Agarrar manga y solapa y desequilibrarlo hacia atrás sobre su talón.', 'Grip sleeve and lapel and break his balance back onto his heel.'],
+      ['Colocar el pie junto a su pierna de apoyo, con el pecho sobre el suyo.', 'Plant your foot beside his supporting leg with your chest over his.'],
+      ['Barrer la pierna hacia atrás mientras empujás con el pecho.', 'Reap the leg backward while driving with your chest.'],
+    ],
+    counterparts: ['clinch-defense'],
+  },
+  {
+    id: 'ouchi-gari',
+    name: ['O-uchi-gari', 'O-uchi-gari'],
+    category: 'takedown',
+    type: 'takedown',
+    position: 'standing',
+    since: 2,
+    description: ['Segada interna que engancha la pierna desde adentro.', 'Inner reap hooking the leg from the inside.'],
+    steps: [
+      ['Agarres de manga y solapa y desplazarlo para abrir su postura.', 'Sleeve and lapel grips and move him to open his stance.'],
+      ['Meter la pierna entre las suyas y engancharle la pierna más cercana.', 'Step between his legs and hook the nearest leg.'],
+      ['Empujar con el torso mientras segás hasta que caiga de espaldas.', 'Push with the torso while reaping until he falls to his back.'],
+    ],
+    counterparts: ['clinch-defense'],
+  },
+  {
+    id: 'uchi-mata',
+    name: ['Uchi-mata', 'Uchi-mata'],
+    category: 'takedown',
+    type: 'takedown',
+    position: 'standing',
+    since: 2,
+    description: ['Proyección elevando el muslo interno del oponente con tu pierna.', 'Throw lifting the opponent’s inner thigh with your leg.'],
+    steps: [
+      ['Tirar hacia adelante para cargar su peso sobre las puntas de los pies.', 'Pull forward to load his weight onto his toes.'],
+      ['Girar metiendo la cadera y colocar la pierna entre sus muslos.', 'Turn in with the hips and place your leg between his thighs.'],
+      ['Levantar con la pierna y tirar del agarre hacia abajo para proyectarlo.', 'Lift with the leg and pull the grip down to throw him.'],
+    ],
+    counterparts: ['clinch-defense'],
+  },
+  {
+    id: 'seoi-nage',
+    name: ['Seoi-nage', 'Seoi-nage'],
+    category: 'takedown',
+    type: 'takedown',
+    position: 'standing',
+    since: 2,
+    modes: GI,
+    description: ['Proyección de hombro, cargando al oponente sobre la espalda.', 'Shoulder throw, loading the opponent over your back.'],
+    steps: [
+      ['Agarrar manga y solapa y girar metiendo el hombro bajo su axila.', 'Grip sleeve and lapel and turn in with the shoulder under his armpit.'],
+      ['Flexionar las rodillas y cargarlo sobre tu espalda.', 'Bend the knees and load him onto your back.'],
+      ['Extender las piernas y tirar del brazo hacia abajo para proyectar.', 'Extend the legs and pull his arm down to throw.'],
+    ],
+    counterparts: ['clinch-defense'],
+  },
+  {
+    id: 'o-goshi',
+    name: ['O-goshi (cadera)', 'O-goshi (hip throw)'],
+    category: 'takedown',
+    type: 'takedown',
+    position: 'standing',
+    since: 2,
+    description: ['Proyección de cadera con brazo alrededor de la cintura.', 'Hip throw with an arm around the waist.'],
+    steps: [
+      ['Rodear su cintura con un brazo y meter la cadera por debajo de la suya.', 'Wrap an arm around his waist and drive your hips below his.'],
+      ['Cargarlo sobre tu cadera, piernas flexionadas.', 'Load him onto your hips with the legs bent.'],
+      ['Extender las piernas y girar el torso para proyectar.', 'Extend the legs and rotate the torso to throw.'],
+    ],
+    counterparts: ['clinch-defense'],
+  },
+  {
+    id: 'de-ashi-harai',
+    name: ['De-ashi-harai (barrida de pie)', 'De-ashi-harai (foot sweep)'],
+    category: 'takedown',
+    type: 'takedown',
+    position: 'standing',
+    since: 2,
+    modes: GI,
+    description: ['Barrida del pie adelantado justo cuando carga su peso.', 'Sweep of the lead foot just as he loads his weight.'],
+    steps: [
+      ['Agarrar manga y solapa y marcar el ritmo de sus pasos.', 'Grip sleeve and lapel and read the rhythm of his steps.'],
+      ['Cuando apoya el pie, barrerlo con la planta del tuyo hacia afuera.', 'As he lands the foot, sweep it with the sole of yours outward.'],
+      ['Acompañar con los brazos para tirarlo en la dirección del barrido.', 'Follow through with the arms to drop him in the direction of the sweep.'],
+    ],
+    counterparts: ['clinch-defense'],
+  },
+  {
+    id: 'clinch-defense',
+    name: ['Defensa de agarre y proyección', 'Clinch and throw defense'],
+    category: 'escape',
+    type: 'escape',
+    position: 'standing',
+    since: 2,
+    description: ['Base amplia, underhooks y control de muñecas para evitar proyecciones.', 'Wide base, underhooks and wrist control to stop throws.'],
+    steps: [
+      ['Mantener las rodillas flexionadas y la base más ancha que los hombros.', 'Keep the knees bent and the base wider than the shoulders.'],
+      ['Ganar underhooks o controlar sus muñecas para quitarle los agarres.', 'Win underhooks or control his wrists to strip the grips.'],
+      ['Alejar la cadera de su entrada y contrarrestar con tu propio derribo o guardia.', 'Move the hips away from his entry and counter with your own takedown or guard.'],
+    ],
+    counterparts: ['body-lock-takedown', 'arm-drag-takedown', 'osoto-gari', 'ouchi-gari', 'uchi-mata', 'seoi-nage', 'o-goshi', 'de-ashi-harai'],
+  },
 ];
+
+export const SEED_ADDED_IN = new Map<string, number>(DEFS.filter((def) => def.since).map((def) => [def.id, def.since!]));
 
 const SEED_TIMESTAMP = '2026-01-01T00:00:00.000Z';
 

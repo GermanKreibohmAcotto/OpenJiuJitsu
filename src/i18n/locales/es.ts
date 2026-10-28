@@ -35,6 +35,7 @@ export default {
     pass: 'Pasajes',
     submission: 'Llaves/Sumisiones',
     escape: 'Escapes/Defensas',
+    takedown: 'Derribos',
   },
   types: {
     submission: 'Sumisión',

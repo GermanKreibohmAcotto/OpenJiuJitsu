@@ -35,6 +35,7 @@ export default {
     pass: 'Passes',
     submission: 'Submissions',
     escape: 'Escapes/Defenses',
+    takedown: 'Takedowns',
   },
   types: {
     submission: 'Submission',
