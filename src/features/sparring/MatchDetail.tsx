@@ -126,6 +126,7 @@ export function MatchDetail() {
                 const { kind } = event;
                 const points = kind === 'advantage' || kind === 'penalty' ? null : SCORE_VALUES[kind];
                 const label = points === null ? t(`match.${kind}`) : t(`match.actions.${kind}`);
+                const technique = event.techniqueId ? techniques.get(event.techniqueId) : undefined;
                 return (
                   <li key={index} className="flex items-center justify-between gap-3">
                     <span>
@@ -134,6 +135,14 @@ export function MatchDetail() {
                         {match.athletes[event.athlete].name}
                       </span>{' '}
                       · {label}
+                      {technique && (
+                        <>
+                          {' '}
+                          <Link to={`/library/${technique.id}`} className="text-accent hover:underline">
+                            ({localize(technique.name)})
+                          </Link>
+                        </>
+                      )}
                     </span>
                     {points !== null && <span className="chip px-2 py-0 tabular-nums">+{points}</span>}
                   </li>

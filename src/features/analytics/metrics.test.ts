@@ -104,6 +104,16 @@ describe('computeAnalytics', () => {
     expect(pick(results, 'wrestling').value).toBe(75);
   });
 
+  it('adds takedowns landed per round to wrestling, ignoring sessions that never tracked them', () => {
+    // One tracked session: 8 rounds -> 8/6 per session (133, averaged unclamped); 1 takedown in 8 rounds -> 0.125 of 0.5 = 25.
+    const tracked = session({ id: 't', sparringRounds: 8, takedownsAchieved: ['double-leg'] });
+    expect(pick(computeAnalytics({ matches: [], sessions: [tracked] }), 'wrestling').value).toBe(79);
+
+    // A legacy session without the field adds rounds but no takedown component: (24 rounds / 2 sessions / 6 = 200) and (25) -> 112 -> 100.
+    const legacy = session({ id: 'l', sparringRounds: 16 });
+    expect(pick(computeAnalytics({ matches: [], sessions: [tracked, legacy] }), 'wrestling').value).toBe(100);
+  });
+
   it('lowers defense with submissions suffered and points conceded', () => {
     const results = computeAnalytics({
       matches: [match([{ athlete: 1, kind: 'mount' }, { athlete: 1, kind: 'takedown' }])], // 6 of 8 -> 25

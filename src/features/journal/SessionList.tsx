@@ -45,6 +45,8 @@ export function SessionList() {
                 <span>{t('list.rounds', { count: s.sparringRounds })}</span>
                 <span>{t('list.achieved', { count: s.subsAchieved.length })}</span>
                 <span>{t('list.suffered', { count: s.subsSuffered.length })}</span>
+                <span>{t('list.takedownsAchieved', { count: (s.takedownsAchieved ?? []).length })}</span>
+                <span>{t('list.takedownsSuffered', { count: (s.takedownsSuffered ?? []).length })}</span>
               </p>
               <FeelingChips feelings={s.feelings} />
             </li>

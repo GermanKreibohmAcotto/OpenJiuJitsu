@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { TechniquePicker } from '../../components/TechniquePicker';
-import type { Mode } from '../../domain/types';
+import type { Mode, TechniqueType } from '../../domain/types';
 import { useTechniqueMap } from '../../hooks/useTechniques';
 import { useLocalize } from '../../i18n';
 import { countIds } from './parts';
@@ -9,13 +9,15 @@ interface SubmissionFieldProps {
   legend: string;
   hint: string;
   mode: Mode;
+  /** Technique types offered by the picker. Defaults to submissions. */
+  types?: TechniqueType[];
   /** Technique ids; a repeated id is a repeated submission (the storage contract used by stats). */
   value: string[];
   onChange: (ids: string[]) => void;
 }
 
 /** Picks submissions from the library and counts how many times each one happened. */
-export function SubmissionField({ legend, hint, mode, value, onChange }: SubmissionFieldProps) {
+export function SubmissionField({ legend, hint, mode, types = ['submission'], value, onChange }: SubmissionFieldProps) {
   const { t } = useTranslation('journal');
   const techniques = useTechniqueMap();
   const localize = useLocalize();
@@ -37,7 +39,7 @@ export function SubmissionField({ legend, hint, mode, value, onChange }: Submiss
     <fieldset className="card flex flex-col gap-3">
       <legend className="label px-1">{legend}</legend>
       <p className="text-xs text-muted">{hint}</p>
-      <TechniquePicker value={counts.map(([id]) => id)} onChange={onPick} types={['submission']} mode={mode} />
+      <TechniquePicker value={counts.map(([id]) => id)} onChange={onPick} types={types} mode={mode} />
       {counts.length > 0 && (
         <ul className="flex flex-col gap-1">
           {counts.map(([id, count]) => {

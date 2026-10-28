@@ -95,6 +95,8 @@ export function StatsDashboard() {
   const ranked = (entries: SubmissionCount[]) => entries.slice(0, TOP).map((e) => ({ ...e, name: nameOf(e.id) }));
   const achieved = ranked(countSubmissions(sessions, 'subsAchieved'));
   const suffered = ranked(countSubmissions(sessions, 'subsSuffered'));
+  const takedownsLanded = ranked(countSubmissions(sessions, 'takedownsAchieved'));
+  const takedownsTaken = ranked(countSubmissions(sessions, 'takedownsSuffered'));
 
   return (
     <section aria-labelledby="stats-title" className="space-y-4">
@@ -157,6 +159,53 @@ export function StatsDashboard() {
             <RankedChart data={suffered} color="#f87171" label={t('stats.sufferedChart')} valueLabel={t('stats.times')} />
             <ol className="divide-y divide-line">
               {suffered.map((entry) => {
+                const target = trainingTarget(techniques.get(entry.id), techniques);
+                return (
+                  <li key={entry.id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+                    <span>
+                      {entry.name} <span className="text-muted">×{entry.count}</span>
+                    </span>
+                    {target && (
+                      <Link to={`/library/${target.id}`} className="btn btn-ghost text-accent">
+                        {t('stats.train', { name: localize(target.name) })}
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
+            </ol>
+          </>
+        )}
+      </div>
+
+      <div className="card space-y-3">
+        <h3 className="text-sm font-semibold">{t('stats.takedownsAchieved')}</h3>
+        {takedownsLanded.length === 0 ? (
+          <p className="text-sm text-muted">{t('stats.takedownsAchievedEmpty')}</p>
+        ) : (
+          <>
+            <RankedChart data={takedownsLanded} color="#a3e635" label={t('stats.takedownsAchievedChart')} valueLabel={t('stats.times')} />
+            <ol className="sr-only">
+              {takedownsLanded.map((entry) => (
+                <li key={entry.id}>
+                  <span>{entry.name}</span>: {entry.count}
+                </li>
+              ))}
+            </ol>
+          </>
+        )}
+      </div>
+
+      <div className="card space-y-3">
+        <h3 className="text-sm font-semibold">{t('stats.takedownsSuffered')}</h3>
+        {takedownsTaken.length === 0 ? (
+          <p className="text-sm text-muted">{t('stats.takedownsSufferedEmpty')}</p>
+        ) : (
+          <>
+            <p className="text-xs text-muted">{t('stats.takedownsSufferedHint')}</p>
+            <RankedChart data={takedownsTaken} color="#f87171" label={t('stats.takedownsSufferedChart')} valueLabel={t('stats.times')} />
+            <ol className="divide-y divide-line">
+              {takedownsTaken.map((entry) => {
                 const target = trainingTarget(techniques.get(entry.id), techniques);
                 return (
                   <li key={entry.id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">

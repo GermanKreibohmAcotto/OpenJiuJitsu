@@ -115,6 +115,48 @@ describe('sparring mini-app', () => {
     expect((await listSessions())[0].subsAchieved).toEqual([]);
   });
 
+  it('records which takedown it was, shows it in the detail and logs it in the journal', async () => {
+    const user = userEvent.setup();
+    renderSparring();
+    await startMatch(user);
+    await user.click(screen.getByRole('button', { name: 'Yo: Derribo (+2)' }));
+    await user.click(screen.getByRole('button', { name: 'Compañero: Derribo (+2)' }));
+    await user.click(screen.getByRole('button', { name: 'Terminar combate' }));
+
+    await user.selectOptions(await screen.findByRole('combobox', { name: /Derribo 1 de Yo/ }), 'double-leg');
+    await user.selectOptions(screen.getByRole('combobox', { name: /Derribo 1 de Compañero/ }), 'uchi-mata');
+    await user.click(screen.getByRole('button', { name: 'Guardar combate' }));
+
+    await waitFor(async () => expect(await listMatches()).toHaveLength(1));
+    const [match] = await listMatches();
+    expect(match.events).toEqual([
+      { athlete: 0, kind: 'takedown', techniqueId: 'double-leg' },
+      { athlete: 1, kind: 'takedown', techniqueId: 'uchi-mata' },
+    ]);
+    await waitFor(async () => expect(await listSessions()).toHaveLength(1));
+    const [session] = await listSessions();
+    expect(session.takedownsAchieved).toEqual(['double-leg']);
+    expect(session.takedownsSuffered).toEqual(['uchi-mata']);
+    expect(session.sparringRounds).toBe(0);
+
+    await user.click(await screen.findByRole('link', { name: 'Ver detalle' }));
+    expect(await screen.findByRole('link', { name: '(Doble pierna)' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '(Uchi-mata)' })).toBeInTheDocument();
+  });
+
+  it('saves a takedown without technique and leaves the journal alone', async () => {
+    const user = userEvent.setup();
+    renderSparring();
+    await startMatch(user);
+    await user.click(screen.getByRole('button', { name: 'Yo: Derribo (+2)' }));
+    await user.click(screen.getByRole('button', { name: 'Terminar combate' }));
+    await user.click(screen.getByRole('button', { name: 'Guardar combate' }));
+
+    await waitFor(async () => expect(await listMatches()).toHaveLength(1));
+    expect((await listMatches())[0].events).toEqual([{ athlete: 0, kind: 'takedown' }]);
+    expect(await listSessions()).toHaveLength(0);
+  });
+
   it('opens the detail of a saved match from the history', async () => {
     const user = userEvent.setup();
     await db.matches.add({

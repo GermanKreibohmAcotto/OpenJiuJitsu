@@ -13,7 +13,7 @@ export default {
     },
     wrestling: {
       name: 'Lucha / Ritmo',
-      basis: 'Puntos por combate de derribos y rounds de sparring por sesión como medida de cardio.',
+      basis: 'Puntos por combate de derribos, derribos logrados por round (bitácora) y rounds por sesión como medida de cardio.',
     },
     submission: {
       name: 'Sumisión',

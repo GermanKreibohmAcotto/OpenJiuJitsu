@@ -76,7 +76,7 @@ const isBlock = (v: unknown) =>
 const isAthlete = (v: unknown) =>
   isRecord(v) && isString(v.name) && isNumber(v.points) && isNumber(v.advantages) && isNumber(v.penalties);
 
-const isMatchEvent = (v: unknown) => isRecord(v) && (v.athlete === 0 || v.athlete === 1) && oneOf(MATCH_EVENT_KINDS, v.kind);
+const isMatchEvent = (v: unknown) => isRecord(v) && (v.athlete === 0 || v.athlete === 1) && oneOf(MATCH_EVENT_KINDS, v.kind) && isOptional(v.techniqueId, isString);
 
 const VALIDATORS: Record<keyof BackupData, (r: Rec) => boolean> = {
   techniques: (r) =>
@@ -103,6 +103,8 @@ const VALIDATORS: Record<keyof BackupData, (r: Rec) => boolean> = {
     isStringArray(r.feelings) &&
     isStringArray(r.subsAchieved) &&
     isStringArray(r.subsSuffered) &&
+    isOptional(r.takedownsAchieved, isStringArray) &&
+    isOptional(r.takedownsSuffered, isStringArray) &&
     isOptional(r.planId, isString),
   graduations: (r) => isBelt(r.belt) && isNumber(r.stripes) && isString(r.date),
   profile: (r) =>

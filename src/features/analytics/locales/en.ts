@@ -13,7 +13,7 @@ export default {
     },
     wrestling: {
       name: 'Wrestling / Pace',
-      basis: 'Points per match from takedowns and sparring rounds per session as a cardio measure.',
+      basis: 'Points per match from takedowns, takedowns landed per round (journal) and rounds per session as a cardio measure.',
     },
     submission: {
       name: 'Submissions',

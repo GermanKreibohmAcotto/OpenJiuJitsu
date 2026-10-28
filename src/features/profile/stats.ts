@@ -31,11 +31,11 @@ export function totalSparringRounds(sessions: TrainingSession[]): number {
 /** Submission counts (repeated ids count repeatedly), most frequent first, ties by id. */
 export function countSubmissions(
   sessions: TrainingSession[],
-  field: 'subsAchieved' | 'subsSuffered',
+  field: 'subsAchieved' | 'subsSuffered' | 'takedownsAchieved' | 'takedownsSuffered',
 ): SubmissionCount[] {
   const counts = new Map<string, number>();
   for (const session of sessions) {
-    for (const id of session[field]) counts.set(id, (counts.get(id) ?? 0) + 1);
+    for (const id of session[field] ?? []) counts.set(id, (counts.get(id) ?? 0) + 1);
   }
   return [...counts]
     .map(([id, count]) => ({ id, count }))

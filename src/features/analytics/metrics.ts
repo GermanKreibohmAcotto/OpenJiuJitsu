@@ -33,6 +33,8 @@ export const REFERENCE = {
   roundsPerSession: 6,
   /** Training sessions per week that count as full consistency. */
   sessionsPerWeek: 4,
+  /** Takedowns landed per sparring round (journal). */
+  takedownsPerRound: 0.5,
   /** Submissions achieved per sparring round. */
   subsPerRound: 0.4,
   /** Submissions suffered per round that zeroes the defense component. */
@@ -93,6 +95,13 @@ export function computeAnalytics({ matches, sessions, selfRatings, today = today
   const wrestling: number[] = [];
   if (hasMatches) wrestling.push(matchScore(['takedown'], REFERENCE.takedownPointsPerMatch));
   if (sessions.length > 0) wrestling.push((rounds / sessions.length / REFERENCE.roundsPerSession) * 100);
+  // Only sessions that track takedowns can say how many were landed.
+  const tracked = sessions.filter((s) => s.takedownsAchieved !== undefined);
+  const trackedRounds = tracked.reduce((sum, s) => sum + s.sparringRounds, 0);
+  if (trackedRounds > 0) {
+    const landed = tracked.reduce((sum, s) => sum + (s.takedownsAchieved?.length ?? 0), 0);
+    wrestling.push((landed / trackedRounds / REFERENCE.takedownsPerRound) * 100);
+  }
 
   const defense: number[] = [];
   if (rounds > 0) defense.push(100 - (suffered / rounds / REFERENCE.sufferedPerRound) * 100);

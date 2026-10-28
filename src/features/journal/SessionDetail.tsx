@@ -125,6 +125,12 @@ export function SessionDetail() {
         <Section title={t('detail.suffered')}>
           <SubmissionList ids={session.subsSuffered} />
         </Section>
+        <Section title={t('detail.takedownsAchieved')}>
+          <SubmissionList ids={session.takedownsAchieved ?? []} />
+        </Section>
+        <Section title={t('detail.takedownsSuffered')}>
+          <SubmissionList ids={session.takedownsSuffered ?? []} />
+        </Section>
         <section className="card border-accent bg-accent/10">
           <h2 className="label text-accent">{t('detail.notes')}</h2>
           {session.notes ? <p className="text-sm whitespace-pre-wrap">{session.notes}</p> : <p className="text-sm text-muted">{t('detail.noNotes')}</p>}

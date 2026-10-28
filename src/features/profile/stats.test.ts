@@ -65,6 +65,19 @@ describe('profile stats', () => {
     expect(countSubmissions([], 'subsAchieved')).toEqual([]);
   });
 
+  it('counts takedowns like submissions and treats sessions without them as empty', () => {
+    const withTakedowns = [
+      { ...sessions[0], takedownsAchieved: ['double-leg', 'double-leg', 'single-leg'], takedownsSuffered: ['uchi-mata'] },
+      sessions[1],
+    ];
+    expect(countSubmissions(withTakedowns, 'takedownsAchieved')).toEqual([
+      { id: 'double-leg', count: 2 },
+      { id: 'single-leg', count: 1 },
+    ]);
+    expect(countSubmissions(withTakedowns, 'takedownsSuffered')).toEqual([{ id: 'uchi-mata', count: 1 }]);
+    expect(countSubmissions(sessions, 'takedownsAchieved')).toEqual([]);
+  });
+
   it('splits sessions, minutes and rounds per mode', () => {
     expect(modeSplit(sessions)).toEqual({
       gi: { sessions: 1, minutes: 90, rounds: 4 },
