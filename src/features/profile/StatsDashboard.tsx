@@ -65,7 +65,7 @@ function trainingTarget(technique: Technique | undefined, techniques: Map<string
 export function StatsDashboard() {
   const { t } = useTranslation('profile');
   const localize = useLocalize();
-  const { modeFilter, setModeFilter } = useSettings();
+  const { modeFilter, setModeFilter, accent } = useSettings();
   const techniques = useTechniqueMap();
   const allSessions = useLiveQuery(listSessions, []);
 
@@ -107,7 +107,7 @@ export function StatsDashboard() {
         <ModeToggle value={modeFilter} onChange={setModeFilter} allowAll />
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-3 min-[430px]:grid-cols-3">
         <StatCard label={t('stats.hours')} value={t('stats.hoursValue', { value: minutesToHours(totalMinutes(sessions)) })} />
         <StatCard label={t('stats.sessions')} value={sessions.length} />
         <StatCard label={t('stats.rounds')} value={totalSparringRounds(sessions)} />
@@ -137,7 +137,7 @@ export function StatsDashboard() {
           <p className="text-sm text-muted">{t('stats.achievedEmpty')}</p>
         ) : (
           <>
-            <RankedChart data={achieved} color="#a3e635" label={t('stats.achievedChart')} valueLabel={t('stats.times')} />
+            <RankedChart data={achieved} color={accent} label={t('stats.achievedChart')} valueLabel={t('stats.times')} />
             <ol className="sr-only">
               {achieved.map((entry) => (
                 <li key={entry.id}>
@@ -184,7 +184,7 @@ export function StatsDashboard() {
           <p className="text-sm text-muted">{t('stats.takedownsAchievedEmpty')}</p>
         ) : (
           <>
-            <RankedChart data={takedownsLanded} color="#a3e635" label={t('stats.takedownsAchievedChart')} valueLabel={t('stats.times')} />
+            <RankedChart data={takedownsLanded} color={accent} label={t('stats.takedownsAchievedChart')} valueLabel={t('stats.times')} />
             <ol className="sr-only">
               {takedownsLanded.map((entry) => (
                 <li key={entry.id}>

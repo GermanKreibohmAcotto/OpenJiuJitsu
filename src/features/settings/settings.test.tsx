@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import '../../i18n';
@@ -90,5 +90,52 @@ describe('settings: language', () => {
 
     expect(await screen.findByLabelText('Language')).toBeInTheDocument();
     await userEvent.selectOptions(screen.getByLabelText('Language'), 'es');
+  });
+
+  it('changes the main color from a preset or the color picker and remembers it', async () => {
+    const user = userEvent.setup();
+    localStorage.removeItem('ojj.accent');
+    renderSettings();
+
+    await user.click(await screen.findByRole('radio', { name: 'Azul' }));
+    expect(screen.getByRole('radio', { name: 'Azul' })).toBeChecked();
+    expect(document.documentElement.style.getPropertyValue('--color-accent')).toBe('#3b82f6');
+    expect(localStorage.getItem('ojj.accent')).toBe('#3b82f6');
+
+    fireEvent.change(screen.getByLabelText('Elegir cualquier color'), { target: { value: '#12ab34' } });
+    expect(document.documentElement.style.getPropertyValue('--color-accent')).toBe('#12ab34');
+    expect(localStorage.getItem('ojj.accent')).toBe('#12ab34');
+    for (const radio of screen.getAllByRole('radio', { name: /Lima|Rojo|Naranja|Ámbar|Cian|Azul|Violeta|Rosa/ })) {
+      expect(radio).not.toBeChecked();
+    }
+
+    await user.click(screen.getByRole('radio', { name: 'Lima' }));
+    expect(document.documentElement.style.getPropertyValue('--color-accent')).toBe('');
+    localStorage.removeItem('ojj.accent');
+  });
+
+  it('can follow the belt in the profile and returns to manual when a color is picked', async () => {
+    const user = userEvent.setup();
+    localStorage.removeItem('ojj.accent');
+    localStorage.removeItem('ojj.accentSource');
+    await db.profile.put({ id: 'me', name: '', academy: '', belt: 'purple', stripes: 0 });
+    renderSettings();
+
+    await user.click(await screen.findByRole('radio', { name: 'Según mi cinturón' }));
+    expect(screen.getByRole('radio', { name: 'Según mi cinturón' })).toBeChecked();
+    expect(document.documentElement.style.getPropertyValue('--color-accent')).toBe('#a855f7');
+    expect(localStorage.getItem('ojj.accentSource')).toBe('belt');
+    expect(screen.getByRole('radio', { name: 'Lima' })).not.toBeChecked();
+
+    await db.profile.put({ id: 'me', name: '', academy: '', belt: 'brown', stripes: 0 });
+    await waitFor(() => expect(document.documentElement.style.getPropertyValue('--color-accent')).toBe('#c2813b'));
+
+    await user.click(screen.getByRole('radio', { name: 'Rojo' }));
+    expect(screen.getByRole('radio', { name: 'Según mi cinturón' })).not.toBeChecked();
+    expect(document.documentElement.style.getPropertyValue('--color-accent')).toBe('#ef4444');
+    expect(localStorage.getItem('ojj.accentSource')).toBe('manual');
+
+    localStorage.removeItem('ojj.accent');
+    localStorage.removeItem('ojj.accentSource');
   });
 });
