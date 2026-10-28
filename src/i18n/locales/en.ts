@@ -6,6 +6,7 @@ export default {
     plans: 'Plans',
     journal: 'Journal',
     sparring: 'Sparring',
+    analytics: 'Analytics',
     profile: 'Profile',
     settings: 'Settings',
   },

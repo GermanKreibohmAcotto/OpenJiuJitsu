@@ -6,6 +6,7 @@ export default {
     plans: 'Planes',
     journal: 'Bitácora',
     sparring: 'Sparring',
+    analytics: 'Analíticas',
     profile: 'Perfil',
     settings: 'Ajustes',
   },

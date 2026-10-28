@@ -140,6 +140,8 @@ export interface Profile {
   belt: Belt;
   stripes: number;
   startedAt?: string;
+  /** Self-rated style axes (1..10) that no logged data measures. */
+  selfRatings?: { flexibility?: number };
 }
 
 export interface Graduation {

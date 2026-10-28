@@ -14,6 +14,12 @@ export async function saveProfile(profile: Omit<Profile, 'id'>): Promise<Profile
   return saved;
 }
 
+/** Stores one self-rated style axis (1..10) without touching the rest of the profile. */
+export async function saveSelfRating(axis: 'flexibility', value: number): Promise<void> {
+  const { id: _id, ...profile } = await getProfile();
+  await saveProfile({ ...profile, selfRatings: { ...profile.selfRatings, [axis]: value } });
+}
+
 /** Oldest first, for the graduation timeline. */
 export async function listGraduations(): Promise<Graduation[]> {
   const all = await db.graduations.toArray();
