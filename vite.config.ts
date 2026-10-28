@@ -25,6 +25,9 @@ export default defineConfig({
       },
     }),
   ],
+  // Listen on all interfaces so the app is reachable from other devices on the LAN.
+  server: { host: true },
+  preview: { host: true },
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
