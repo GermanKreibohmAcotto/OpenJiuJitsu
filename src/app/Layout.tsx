@@ -1,8 +1,6 @@
 import { Suspense } from 'react';
 import { NavLink, Outlet } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { ModeToggle } from '../components/ModeToggle';
-import { useSettings } from './settings';
 
 const NAV = [
   { to: '/library', key: 'library', icon: '📖' },
@@ -14,7 +12,6 @@ const NAV = [
 
 export function Layout() {
   const { t } = useTranslation();
-  const { modeFilter, setModeFilter } = useSettings();
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     `flex flex-col items-center gap-0.5 rounded-xl px-3 py-1.5 text-[11px] font-medium md:flex-row md:gap-3 md:text-sm ${
@@ -45,7 +42,6 @@ export function Layout() {
             Open<span className="text-accent">JiuJitsu</span>
           </NavLink>
           <div className="flex items-center gap-2">
-            <ModeToggle value={modeFilter} onChange={setModeFilter} allowAll />
             <NavLink to="/settings" aria-label={t('nav.settings')} className="btn btn-ghost px-2 md:hidden">
               ⚙️
             </NavLink>

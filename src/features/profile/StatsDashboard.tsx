@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useSettings } from '../../app/settings';
+import { ModeToggle } from '../../components/ModeToggle';
 import { EmptyState } from '../../components/Page';
 import { listSessions } from '../../db/sessions';
 import { MODES, type Technique } from '../../domain/types';
@@ -64,7 +65,7 @@ function trainingTarget(technique: Technique | undefined, techniques: Map<string
 export function StatsDashboard() {
   const { t } = useTranslation('profile');
   const localize = useLocalize();
-  const { modeFilter } = useSettings();
+  const { modeFilter, setModeFilter } = useSettings();
   const techniques = useTechniqueMap();
   const allSessions = useLiveQuery(listSessions, []);
 
@@ -97,9 +98,12 @@ export function StatsDashboard() {
 
   return (
     <section aria-labelledby="stats-title" className="space-y-4">
-      <h2 id="stats-title" className="text-lg font-semibold">
-        {t('stats.title')}
-      </h2>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 id="stats-title" className="text-lg font-semibold">
+          {t('stats.title')}
+        </h2>
+        <ModeToggle value={modeFilter} onChange={setModeFilter} allowAll />
+      </div>
 
       <div className="grid grid-cols-3 gap-3">
         <StatCard label={t('stats.hours')} value={t('stats.hoursValue', { value: minutesToHours(totalMinutes(sessions)) })} />

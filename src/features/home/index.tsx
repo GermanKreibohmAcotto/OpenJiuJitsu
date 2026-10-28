@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useSettings } from '../../app/settings';
 import { BeltBar } from '../../components/BeltBar';
+import { ModeToggle } from '../../components/ModeToggle';
 import { PageHeader } from '../../components/Page';
 import { getProfile } from '../../db/profile';
 import { listSessions } from '../../db/sessions';
@@ -17,7 +18,7 @@ const ACTIONS = [
 
 function Dashboard() {
   const { t } = useTranslation('home');
-  const { modeFilter } = useSettings();
+  const { modeFilter, setModeFilter } = useSettings();
   const profile = useLiveQuery(getProfile, []);
   const allSessions = useLiveQuery(listSessions, []);
   const sessions = filterByMode(allSessions ?? [], modeFilter);
@@ -25,7 +26,7 @@ function Dashboard() {
 
   return (
     <>
-      <PageHeader title={t('title')} />
+      <PageHeader title={t('title')} actions={<ModeToggle value={modeFilter} onChange={setModeFilter} allowAll />} />
       <div className="grid gap-4 md:grid-cols-2">
         <section className="card space-y-3" aria-labelledby="home-belt">
           <div className="flex items-center justify-between gap-2">
