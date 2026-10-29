@@ -1,6 +1,7 @@
 import { useEffect, useState, type ChangeEvent } from 'react';
 import { Route, Routes } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { ACCENT_PRESETS } from '../../app/accent';
 import { useSettings } from '../../app/settings';
 import { ModeToggle } from '../../components/ModeToggle';
 import { PageHeader } from '../../components/Page';
@@ -22,7 +23,7 @@ function downloadJson(filename: string, content: string) {
 
 function SettingsPage() {
   const { t } = useTranslation('settings');
-  const { lang, setLang, modeFilter, setModeFilter } = useSettings();
+  const { lang, setLang, modeFilter, setModeFilter, accent, accentSource, setAccent, setAccentSource, beltAccent } = useSettings();
   const [status, setStatus] = useState<Status>(null);
   const [persisted, setPersisted] = useState<boolean | null>(null);
 
@@ -85,6 +86,51 @@ function SettingsPage() {
             <span className="label">{t('modeDefault')}</span>
             <ModeToggle value={modeFilter} onChange={setModeFilter} allowAll />
             <p className="mt-1 text-xs text-muted">{t('modeHelp')}</p>
+          </div>
+        </section>
+
+        <section className="card flex flex-col gap-3">
+          <h2 className="font-semibold">{t('appearance.title')}</h2>
+          <div>
+            <span className="label">{t('appearance.accent')}</span>
+            <div role="radiogroup" aria-label={t('appearance.accent')} className="flex flex-wrap items-center gap-2">
+              {ACCENT_PRESETS.map((preset) => (
+                <button
+                  key={preset.key}
+                  type="button"
+                  role="radio"
+                  aria-checked={accentSource === 'manual' && accent.toLowerCase() === preset.hex}
+                  aria-label={t(`appearance.colors.${preset.key}`)}
+                  title={t(`appearance.colors.${preset.key}`)}
+                  onClick={() => setAccent(preset.hex)}
+                  style={{ backgroundColor: preset.hex }}
+                  className={`h-9 w-9 rounded-full border-2 transition ${
+                    accentSource === 'manual' && accent.toLowerCase() === preset.hex ? 'border-zinc-100 ring-2 ring-zinc-100/40' : 'border-transparent hover:border-zinc-500'
+                  }`}
+                />
+              ))}
+              <button
+                type="button"
+                role="radio"
+                aria-checked={accentSource === 'belt'}
+                onClick={() => setAccentSource('belt')}
+                className={`btn px-3 py-1.5 ${accentSource === 'belt' ? 'border-accent text-accent' : ''}`}
+              >
+                <span aria-hidden className="h-4 w-4 rounded-full border border-line" style={{ backgroundColor: beltAccent }} />
+                {t('appearance.belt')}
+              </button>
+              <label className="btn cursor-pointer px-3 py-1.5">
+                {t('appearance.custom')}
+                <input
+                  type="color"
+                  aria-label={t('appearance.customPicker')}
+                  className="h-6 w-8 cursor-pointer rounded border-0 bg-transparent p-0"
+                  value={accent}
+                  onChange={(e) => setAccent(e.target.value)}
+                />
+              </label>
+            </div>
+            <p className="mt-1 text-xs text-muted">{t(accentSource === 'belt' ? 'appearance.beltHelp' : 'appearance.help')}</p>
           </div>
         </section>
 

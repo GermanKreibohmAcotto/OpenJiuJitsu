@@ -25,8 +25,8 @@ export function MatchHistory() {
         {(matches ?? []).map((match) => {
           const technique = match.submissionId ? techniques.get(match.submissionId) : undefined;
           return (
-            <li key={match.id} className="card flex items-center justify-between gap-3">
-              <div className="min-w-0">
+            <li key={match.id} className="card flex flex-wrap items-center justify-between gap-3">
+              <div className="min-w-0 flex-1 basis-56">
                 <Link to={`/sparring/${match.id}`} className="font-semibold hover:text-accent">
                   {match.athletes[0].name} {match.athletes[0].points} – {match.athletes[1].points} {match.athletes[1].name}
                 </Link>
@@ -40,11 +40,11 @@ export function MatchHistory() {
                   </p>
                 )}
               </div>
-              <div className="flex shrink-0 flex-wrap gap-2">
-                <Link to={`/sparring/${match.id}`} className="btn">
+              <div className="flex w-full flex-wrap gap-2 sm:w-auto">
+                <Link to={`/sparring/${match.id}`} className="btn flex-1 sm:flex-none">
                   {t('history.details')}
                 </Link>
-                <button type="button" className="btn btn-danger" onClick={() => remove(match.id)}>
+                <button type="button" className="btn btn-danger flex-1 sm:flex-none" onClick={() => remove(match.id)}>
                   {t('history.delete')}
                 </button>
               </div>

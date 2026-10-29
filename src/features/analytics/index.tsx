@@ -82,9 +82,9 @@ function AnalyticsPage() {
               step={1}
               value={flexibility ?? 5}
               onChange={(e) => void saveSelfRating('flexibility', Number(e.target.value))}
-              className="flex-1"
+              className="min-w-0 flex-1"
             />
-            <span className="w-14 text-right text-sm tabular-nums">
+            <span className="shrink-0 text-right text-xs tabular-nums sm:text-sm">
               {flexibility === undefined ? t('rating.unset') : `${flexibility}/${RATING_MAX}`}
             </span>
           </div>

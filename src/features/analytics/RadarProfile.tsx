@@ -1,3 +1,4 @@
+import { useSettings } from '../../app/settings';
 import type { Axis, AxisResult } from './metrics';
 
 interface RadarProfileProps {
@@ -10,7 +11,6 @@ const CENTER = 200;
 const RADIUS = 130;
 const LABEL_GAP = 22;
 const RINGS = [25, 50, 75, 100] as const;
-const ACCENT = '#a3e635';
 
 /** Point at `fraction` (0..1) of the radius on axis `index`, the first axis pointing up. */
 function polar(index: number, count: number, fraction: number, extra = 0) {
@@ -28,11 +28,12 @@ const lines = (text: string) => text.split(' / ');
  * of `results`, clockwise from the top.
  */
 export function RadarProfile({ results, labels, label }: RadarProfileProps) {
+  const { accent } = useSettings();
   const count = results.length;
   const vertices = results.map((r, i) => polar(i, count, r.value / 100));
 
   return (
-    <svg viewBox="-110 -30 620 460" role="img" aria-label={label} className="mx-auto h-auto w-full max-w-2xl">
+    <svg viewBox="-60 -34 520 404" role="img" aria-label={label} className="mx-auto h-auto w-full max-w-2xl">
       {[...RINGS].reverse().map((ring, i) => (
         <circle
           key={ring}
@@ -56,14 +57,14 @@ export function RadarProfile({ results, labels, label }: RadarProfileProps) {
 
       <polygon
         points={vertices.map((v) => `${v.x},${v.y}`).join(' ')}
-        fill={ACCENT}
+        fill={accent}
         fillOpacity={0.28}
-        stroke={ACCENT}
+        stroke={accent}
         strokeWidth={2}
         strokeLinejoin="round"
       />
       {vertices.map((v, i) => (
-        <circle key={results[i].axis} cx={v.x} cy={v.y} r={3.5} fill={ACCENT} />
+        <circle key={results[i].axis} cx={v.x} cy={v.y} r={3.5} fill={accent} />
       ))}
 
       {results.map((r, i) => {
@@ -73,13 +74,13 @@ export function RadarProfile({ results, labels, label }: RadarProfileProps) {
         const rows = [...lines(labels[r.axis]), r.hasData ? String(r.value) : '–'];
         const top = p.y < CENTER - 1 ? p.y - (rows.length - 1) * 14 : p.y + 4;
         return (
-          <text key={r.axis} x={p.x} y={top} textAnchor={anchor} fontSize={12}>
+          <text key={r.axis} x={p.x} y={top} textAnchor={anchor} fontSize={13}>
             {rows.map((row, rowIndex) => (
               <tspan
                 key={rowIndex}
                 x={p.x}
                 dy={rowIndex === 0 ? 0 : 14}
-                fill={rowIndex === rows.length - 1 ? ACCENT : '#d4d4d8'}
+                fill={rowIndex === rows.length - 1 ? accent : '#d4d4d8'}
                 fontWeight={rowIndex === rows.length - 1 ? 700 : 400}
               >
                 {row}

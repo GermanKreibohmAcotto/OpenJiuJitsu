@@ -46,10 +46,10 @@ export function BeltEditor({ profile, onGraduationChange }: BeltEditorProps) {
             aria-checked={belt === option}
             aria-label={t(`belts.${option}`, { ns: 'common' })}
             onClick={() => selectBelt(option)}
-            className={`rounded-xl border p-2 ${belt === option ? 'border-accent bg-accent/10' : 'border-line'}`}
+            className={`min-w-0 rounded-xl border px-1 py-2 ${belt === option ? 'border-accent bg-accent/10' : 'border-line'}`}
           >
             <BeltBar belt={option} size="sm" />
-            <span aria-hidden className="mt-1 block text-xs">
+            <span aria-hidden className="mt-1 block text-[10px] sm:text-xs">
               {t(`belts.${option}`, { ns: 'common' })}
             </span>
           </button>
