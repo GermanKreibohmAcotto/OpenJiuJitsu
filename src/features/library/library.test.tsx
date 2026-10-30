@@ -105,3 +105,41 @@ describe('technique form', () => {
     expect((await db.techniques.toArray()).some((t) => t.name.es === 'Con media')).toBe(false);
   });
 });
+
+describe('position map', () => {
+  it('is linked from the library list', async () => {
+    renderLibrary('/library');
+    const link = await screen.findByRole('link', { name: 'Mapa de posiciones' });
+    expect(link).toHaveAttribute('href', '/library/map');
+  });
+
+  it('shows techniques and transitions of the selected position', async () => {
+    renderLibrary('/library/map');
+    await userEvent.click(await screen.findByRole('button', { name: 'Montada' }));
+    const detail = await screen.findByRole('region', { name: 'Montada' });
+    expect(await within(detail).findByRole('link', { name: 'Ezequiel desde la montada' })).toHaveAttribute(
+      'href',
+      '/library/ezekiel-mount',
+    );
+    expect(within(detail).getAllByRole('link', { name: /Espalda · control/ })[0]).toBeInTheDocument();
+    expect(within(detail).getAllByRole('link', { name: /100 kilos/ })[0]).toBeInTheDocument();
+  });
+
+  it('reads the selected position from the url and navigates through transitions', async () => {
+    renderLibrary('/library/map?pos=side_control');
+    const detail = await screen.findByRole('region', { name: '100 kilos' });
+    await userEvent.click(within(detail).getAllByRole('link', { name: /Montada/ })[0]);
+    expect(await screen.findByRole('region', { name: 'Montada' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Montada' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('respects the global mode filter', async () => {
+    await db.techniques.update('ezekiel-mount', { modes: ['gi'] });
+    localStorage.setItem('ojj.mode', 'nogi');
+    renderLibrary('/library/map?pos=mount');
+    const detail = await screen.findByRole('region', { name: 'Montada' });
+    expect(await within(detail).findByRole('link', { name: 'Escape de montada (upa)' })).toBeInTheDocument();
+    expect(within(detail).queryByRole('link', { name: 'Ezequiel desde la montada' })).toBeNull();
+    localStorage.removeItem('ojj.mode');
+  });
+});

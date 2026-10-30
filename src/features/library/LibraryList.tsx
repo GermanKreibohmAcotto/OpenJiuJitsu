@@ -34,6 +34,9 @@ export function LibraryList() {
         actions={
           <>
             <ModeToggle value={modeFilter} onChange={setModeFilter} allowAll />
+            <Link to="/library/map" className="btn btn-ghost">
+              {t('positionMap')}
+            </Link>
             <Link to="/library/new" className="btn btn-primary">
               {t('newTechnique')}
             </Link>
