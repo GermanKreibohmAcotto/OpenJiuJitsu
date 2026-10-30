@@ -30,7 +30,7 @@ S5 Injury log — idea 7: "Lesiones y estado físico: registro de dolores y de c
 ## Tasks
 
 - [x] T0 S2,S3 Profile fields `weeklyGoal`, `graduationGoal` + backup validation · route: inline · commit: d24edb1
-- [ ] T1 S1 Standalone round timer + start beep + 30 s warning · route: writer (src/features/sparring) · commit: —
+- [x] T1 S1 Standalone round timer + start beep + 30 s warning · route: writer (src/features/sparring) · commit: 9519e71
 - [ ] T2 S2 Weekly goal and streak on home · route: writer (home + profile goal form) · commit: —
 - [ ] T3 S3 Graduation progress in profile · route: writer (same writer as T2, profile) · commit: —
 - [ ] T4 S4 Position map in library · route: writer (src/features/library, src/domain/positionGraph) · commit: —
@@ -42,3 +42,4 @@ S5 Injury log — idea 7: "Lesiones y estado físico: registro de dolores y de c
 L1 (user, original request): "Ideas que me gustaria aplicar son: la 1,2,3,4 y 7" — referring to the proposed list: "1. Temporizador de rounds: configurable (por ejemplo 5 min por 6 rounds, descanso entre rounds) con sonido. Se usa en el tatami. 2. Rachas y objetivos: meta semanal de clases y racha de entrenamientos, con recordatorios locales. 3. Gráfico de progreso por cinturón: horas de mat, clases hasta la próxima graduación y línea de tiempo (ya tenés `GraduationTimeline`). 4. Mapa de posiciones: un grafo de transiciones (guardia → pasaje → control → sumisión) navegable desde la biblioteca. 7. Lesiones y estado físico: registro de dolores y de cómo te sentís antes de entrenar, cruzado con el volumen de entrenamiento."
 L2 (user decisions): timer "Básico"; streaks "Meta semanal"; graduation "Ambos"; injuries "Lesiones simples".
 L3 (discovery): sparring already ships a round/rest timer with end beeps; techniques have no destination position.
+L4 (T1 worker): start beep also fires when rest ends; round→round without rest stays 'end'; cues differ by pitch/duration; timer link only from sparring setup.
