@@ -42,6 +42,11 @@ export default {
       backControl: 'Back control',
     },
   },
+  timer: {
+    link: 'Round timer',
+    back: 'Back to sparring',
+    reset: 'Reset',
+  },
   result: {
     title: 'Result',
     byTime: 'By time',

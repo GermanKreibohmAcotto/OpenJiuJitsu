@@ -97,3 +97,32 @@ export function sync(state: TimerState, config: TimerConfig, now: number): Timer
 
 /** IBJJF adult round length in minutes per belt. */
 export const BELT_ROUND_MINUTES = { white: 5, blue: 6, purple: 7, brown: 8, black: 10 } as const;
+
+export type TimerCue = 'start' | 'warning' | 'end';
+
+/** Remaining time at which a round gives its warning beep. */
+export const WARNING_MS = 30_000;
+
+/**
+ * Which beep (if any) the move from one timer snapshot to the next calls for.
+ * `start` also covers a rest ending into the next round; `warning` fires once, when
+ * the clock crosses 30 s left, and only for rounds longer than 30 s.
+ */
+export function cueBetween(
+  before: TimerState,
+  after: TimerState,
+  config: TimerConfig,
+  beforeNow: number,
+  afterNow: number,
+): TimerCue | null {
+  if (before.phase === 'idle') return after.phase === 'round' ? 'start' : null;
+  if (before.phase !== after.phase || before.round !== after.round) {
+    if (after.phase === 'idle') return null;
+    return after.phase === 'round' && before.phase === 'rest' ? 'start' : 'end';
+  }
+  if (after.phase === 'round' && config.roundSec * 1000 > WARNING_MS) {
+    const wasAbove = remainingMs(before, config, beforeNow) > WARNING_MS;
+    if (wasAbove && remainingMs(after, config, afterNow) <= WARNING_MS) return 'warning';
+  }
+  return null;
+}

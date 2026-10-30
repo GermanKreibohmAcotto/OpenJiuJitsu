@@ -236,3 +236,24 @@ describe('sparring mini-app', () => {
     await waitFor(async () => expect(await listMatches()).toHaveLength(0));
   });
 });
+
+describe('standalone round timer', () => {
+  it('is reachable from the sparring setup and renders the timer page', async () => {
+    const user = userEvent.setup();
+    renderSparring();
+    await user.click(screen.getByRole('link', { name: 'Temporizador de rounds' }));
+    expect(await screen.findByRole('timer')).toHaveTextContent('05:00');
+    expect(screen.getByRole('button', { name: 'Iniciar' })).toBeInTheDocument();
+    expect(screen.queryByTestId('points-0')).not.toBeInTheDocument();
+  });
+
+  it('uses the configured round length', async () => {
+    const user = userEvent.setup();
+    renderSparring();
+    await user.click(screen.getByRole('link', { name: 'Temporizador de rounds' }));
+    const minutes = await screen.findByLabelText('Minutos por round');
+    await user.clear(minutes);
+    await user.type(minutes, '3');
+    expect(screen.getByRole('timer')).toHaveTextContent('03:00');
+  });
+});
