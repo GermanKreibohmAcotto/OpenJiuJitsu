@@ -31,11 +31,11 @@ S5 Injury log — idea 7: "Lesiones y estado físico: registro de dolores y de c
 
 - [x] T0 S2,S3 Profile fields `weeklyGoal`, `graduationGoal` + backup validation · route: inline · commit: d24edb1
 - [x] T1 S1 Standalone round timer + start beep + 30 s warning · route: writer (src/features/sparring) · commit: 9519e71
-- [ ] T2 S2 Weekly goal and streak on home · route: writer (home + profile goal form) · commit: —
-- [ ] T3 S3 Graduation progress in profile · route: writer (same writer as T2, profile) · commit: —
+- [x] T2 S2 Weekly goal and streak on home · route: writer (home + profile goal form) · commit: e177181
+- [x] T3 S3 Graduation progress in profile · route: writer (same writer as T2, profile) · commit: e177181
 - [x] T4 S4 Position map in library · route: writer (src/features/library, src/domain/positionGraph) · commit: 3d8f2d1
-- [ ] T5 S5 Injury log (new table, backup v2) · route: writer, own commit (Risk item 1: schema/backup format) · commit: 04b3993 (independent verify pending)
-- [ ] T6 all Verify (independent for T5), full suite + build · route: verify · commit: —
+- [x] T5 S5 Injury log (new table, backup v2) · route: writer, own commit (Risk item 1: schema/backup format) · commit: 04b3993, 3c68147 (independent verify: pass)
+- [x] T6 all Verify (independent for T5), full suite + build · route: verify · commit: — (200 tests, tsc, build OK)
 
 ## Log
 
@@ -45,3 +45,6 @@ L3 (discovery): sparring already ships a round/rest timer with end beeps; techni
 L4 (T1 worker): start beep also fires when rest ends; round→round without rest stays 'end'; cues differ by pitch/duration; timer link only from sparring setup.
 L5 (T4 review): removed 'submission' transition kind (a submission ends the exchange, not a transition); submissions show as techniques per position. Layered HTML buttons instead of SVG.
 L6 (T5 worker): 14 body zones; nav entry in desktop sidebar + phone header icon (bottom bar stays 5); stale Vitest fs module cache can hide new i18n namespaces locally — run with --experimental.fsModuleCache=false. Isolated check of 04b3993: 164 tests, tsc, build OK.
+L7 (T2/T3 worker): weekly goal edited only from the home card (empty clears it); future-dated sessions ignored; months = days / 30.4375; classes/hours bars only with an own goal (IBJJF reference is months only).
+L8 (T5 verify): pass on every S5 bullet and risk item; added its proposed regressions (all v1 tables across upgrade, whole data unchanged on rejected import, import replaces injuries) in 3c68147.
+L9 (T6): full suite 200/200, tsc, build OK. Local `npm test` showed 4 injury UI failures from a stale `node_modules/.vitest-cache` (import.meta.glob of feature locales); deleting the cache fixed it. CI is unaffected (fresh install).
