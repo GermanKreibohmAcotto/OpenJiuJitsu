@@ -29,7 +29,7 @@ S5 Injury log — idea 7: "Lesiones y estado físico: registro de dolores y de c
 
 ## Tasks
 
-- [ ] T0 S2,S3 Profile fields `weeklyGoal`, `graduationGoal` + backup validation · route: inline · commit: —
+- [x] T0 S2,S3 Profile fields `weeklyGoal`, `graduationGoal` + backup validation · route: inline · commit: d24edb1
 - [ ] T1 S1 Standalone round timer + start beep + 30 s warning · route: writer (src/features/sparring) · commit: —
 - [ ] T2 S2 Weekly goal and streak on home · route: writer (home + profile goal form) · commit: —
 - [ ] T3 S3 Graduation progress in profile · route: writer (same writer as T2, profile) · commit: —
