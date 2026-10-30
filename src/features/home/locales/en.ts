@@ -5,6 +5,18 @@ export default {
   hours: 'Hours on the mat',
   hoursValue: '{{value}} h',
   sessions: '{{count}} sessions',
+  goal: {
+    title: 'Consistency',
+    progress: '{{count}} / {{goal}}',
+    current_one: 'Current streak: {{count}} week',
+    current_other: 'Current streak: {{count}} weeks',
+    best_one: 'Best streak: {{count}} week',
+    best_other: 'Best streak: {{count}} weeks',
+    invite: 'Set how many times a week you want to train to start your streak.',
+    label: 'Weekly goal',
+    save: 'Save goal',
+    invalid: 'The goal must be a whole number between 1 and 14.',
+  },
   last: {
     title: 'Last session',
     empty: 'You have not logged any session yet.',

@@ -1,12 +1,12 @@
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import '../../i18n';
 import { SettingsProvider } from '../../app/settings';
 import { db } from '../../db/db';
 import { ensureSeeded } from '../../db/seed';
-import { getProfile, listGraduations, saveGraduation } from '../../db/profile';
+import { getProfile, listGraduations, saveGraduation, saveProfile } from '../../db/profile';
 import { saveSession } from '../../db/sessions';
 import { ProfileRoutes } from '.';
 
@@ -150,5 +150,71 @@ describe('stats dashboard', () => {
     await saveSession(sessionInput({ subsAchieved: ['gone'] }));
     renderProfile();
     expect((await screen.findAllByText('Técnica eliminada')).length).toBeGreaterThan(0);
+  });
+});
+
+describe('graduation progress', () => {
+  const blue = { name: 'Ana', academy: 'GB', belt: 'blue' as const, stripes: 1, startedAt: '2020-01-01', weeklyGoal: 3 };
+  const regionName = 'Progreso hacia la próxima graduación';
+
+  it('shows classes, hours and time at belt since the last graduation, with the IBJJF reference', async () => {
+    await saveProfile(blue);
+    await saveGraduation({ belt: 'blue', stripes: 0, date: '2026-01-01' });
+    await saveSession(sessionInput({ date: '2025-12-01', durationMin: 600 }));
+    await saveSession(sessionInput({ date: '2026-02-01', durationMin: 90 }));
+    await saveSession(sessionInput({ date: '2026-02-02', durationMin: 90 }));
+    renderProfile();
+
+    const section = await screen.findByRole('region', { name: regionName });
+    expect(within(section).getByText('Desde 2026-01-01')).toBeInTheDocument();
+    expect(within(section).getByText('Clases: 2')).toBeInTheDocument();
+    expect(within(section).getByText('Horas en el tatami: 3 h')).toBeInTheDocument();
+    expect(within(section).getByRole('progressbar', { name: /Tiempo en el cinturón/ })).toHaveAttribute('aria-valuemax', '24');
+    expect(within(section).queryByRole('progressbar', { name: /Clases/ })).not.toBeInTheDocument();
+  });
+
+  it('says there is no IBJJF minimum for white and black', async () => {
+    await saveProfile({ ...blue, belt: 'black' });
+    renderProfile();
+    const section = await screen.findByRole('region', { name: regionName });
+    expect(within(section).getByText('Sin mínimo IBJJF')).toBeInTheDocument();
+  });
+
+  it('stores an own goal per field, keeps the rest of the profile and clears it', async () => {
+    const user = userEvent.setup();
+    await saveProfile(blue);
+    await saveSession(sessionInput({ date: '2026-02-01', durationMin: 60 }));
+    renderProfile();
+
+    const section = await screen.findByRole('region', { name: regionName });
+    await user.type(within(section).getByLabelText('Meta de clases'), '10');
+    await user.type(within(section).getByLabelText('Meta de horas'), '20');
+    await user.click(within(section).getByRole('button', { name: 'Guardar meta' }));
+
+    const bar = await within(section).findByRole('progressbar', { name: /Clases/ });
+    expect(bar).toHaveAttribute('aria-valuenow', '1');
+    expect(bar).toHaveAttribute('aria-valuemax', '10');
+    expect(within(section).getByRole('progressbar', { name: /Horas/ })).toHaveAttribute('aria-valuemax', '20');
+    expect(within(section).getByRole('progressbar', { name: /Tiempo en el cinturón/ })).toHaveAttribute('aria-valuemax', '24');
+    expect(await getProfile()).toEqual({ id: 'me', ...blue, graduationGoal: { classes: 10, hours: 20 } });
+
+    await user.clear(within(section).getByLabelText('Meta de clases'));
+    await user.clear(within(section).getByLabelText('Meta de horas'));
+    await user.click(within(section).getByRole('button', { name: 'Guardar meta' }));
+    await waitFor(() => expect(within(section).queryByRole('progressbar', { name: /Clases/ })).not.toBeInTheDocument());
+    expect(await getProfile()).toEqual({ id: 'me', ...blue });
+  });
+
+  it('lets an own months goal replace the reference', async () => {
+    const user = userEvent.setup();
+    await saveProfile(blue);
+    renderProfile();
+    const section = await screen.findByRole('region', { name: regionName });
+    await user.type(within(section).getByLabelText('Meta de meses'), '9');
+    await user.click(within(section).getByRole('button', { name: 'Guardar meta' }));
+    await waitFor(() =>
+      expect(within(section).getByRole('progressbar', { name: /Tiempo en el cinturón/ })).toHaveAttribute('aria-valuemax', '9'),
+    );
+    expect((await getProfile()).graduationGoal).toEqual({ months: 9 });
   });
 });

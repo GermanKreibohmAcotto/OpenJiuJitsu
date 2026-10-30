@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from './db';
 import { deleteTechnique, getTechnique, saveTechnique, type TechniqueInput } from './techniques';
 import { listSessions, recordSubmission, saveSession, type SessionInput } from './sessions';
+import { getProfile, saveGraduationGoal, saveProfile, saveWeeklyGoal } from './profile';
 import { ensureSeeded, SEEDED_KEY, SEED_VERSION } from './seed';
 import { SEED_TECHNIQUES } from './seedData';
 
@@ -155,5 +156,39 @@ describe('training sessions', () => {
     const sessions = await listSessions();
     expect(sessions).toHaveLength(1);
     expect(sessions[0]).toMatchObject({ subsAchieved: ['kimura'], subsSuffered: ['armbar'], sparringRounds: 2 });
+  });
+});
+
+describe('profile goals', () => {
+  beforeEach(async () => {
+    await db.delete();
+    await db.open();
+  });
+
+  it('stores the weekly goal without touching other profile fields', async () => {
+    await saveProfile({ name: 'Ana', academy: 'GB', belt: 'blue', stripes: 2, startedAt: '2020-01-01', selfRatings: { flexibility: 4 } });
+    await saveWeeklyGoal(3);
+    expect(await getProfile()).toEqual({
+      id: 'me', name: 'Ana', academy: 'GB', belt: 'blue', stripes: 2, startedAt: '2020-01-01', selfRatings: { flexibility: 4 }, weeklyGoal: 3,
+    });
+    await saveWeeklyGoal(undefined);
+    expect(await getProfile()).not.toHaveProperty('weeklyGoal');
+    expect(await getProfile()).toMatchObject({ name: 'Ana', startedAt: '2020-01-01' });
+  });
+
+  it.each([0, 15, 1.5, Number.NaN])('rejects weekly goal %s and keeps the stored one', async (bad) => {
+    await saveWeeklyGoal(2);
+    await expect(saveWeeklyGoal(bad)).rejects.toThrow();
+    expect((await getProfile()).weeklyGoal).toBe(2);
+  });
+
+  it('stores the graduation goal, dropping empty fields, and clears it', async () => {
+    await saveProfile({ name: 'Ana', academy: '', belt: 'purple', stripes: 0, weeklyGoal: 4 });
+    await saveGraduationGoal({ classes: 100, hours: undefined, months: 6 });
+    expect(await getProfile()).toMatchObject({ name: 'Ana', weeklyGoal: 4, graduationGoal: { classes: 100, months: 6 } });
+    expect((await getProfile()).graduationGoal).not.toHaveProperty('hours');
+    await saveGraduationGoal({});
+    expect(await getProfile()).not.toHaveProperty('graduationGoal');
+    expect((await getProfile()).weeklyGoal).toBe(4);
   });
 });

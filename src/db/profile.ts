@@ -1,6 +1,6 @@
 import { db } from './db';
 import { newId } from './ids';
-import type { Graduation, Profile } from '../domain/types';
+import type { Graduation, GraduationGoal, Profile } from '../domain/types';
 
 export const DEFAULT_PROFILE: Profile = { id: 'me', name: '', academy: '', belt: 'white', stripes: 0 };
 
@@ -34,4 +34,25 @@ export async function saveGraduation(input: Omit<Graduation, 'id'> & { id?: stri
 
 export function deleteGraduation(id: string): Promise<void> {
   return db.graduations.delete(id);
+}
+
+/** Stores the weekly training goal (integer 1..14), or clears it with `undefined`, keeping the rest of the profile. */
+export async function saveWeeklyGoal(goal: number | undefined): Promise<void> {
+  if (goal !== undefined && (!Number.isInteger(goal) || goal < 1 || goal > 14)) {
+    throw new RangeError('weeklyGoal must be an integer between 1 and 14');
+  }
+  const { id: _id, weeklyGoal: _previous, ...profile } = await getProfile();
+  await saveProfile(goal === undefined ? profile : { ...profile, weeklyGoal: goal });
+}
+
+/** Stores the own graduation goal (unset or non-positive fields dropped); an empty goal clears it. */
+export async function saveGraduationGoal(goal: GraduationGoal): Promise<void> {
+  const kept = Object.fromEntries(
+    (['classes', 'hours', 'months'] as const).flatMap((key) => {
+      const value = goal[key];
+      return value !== undefined && Number.isFinite(value) && value > 0 ? [[key, value]] : [];
+    }),
+  ) as GraduationGoal;
+  const { id: _id, graduationGoal: _previous, ...profile } = await getProfile();
+  await saveProfile(Object.keys(kept).length > 0 ? { ...profile, graduationGoal: kept } : profile);
 }

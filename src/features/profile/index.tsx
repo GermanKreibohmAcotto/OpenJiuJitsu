@@ -5,6 +5,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { PageHeader } from '../../components/Page';
 import { getProfile } from '../../db/profile';
 import { BeltEditor } from './BeltEditor';
+import { GraduationProgress } from './GraduationProgress';
 import { GraduationTimeline, type GraduationSuggestion } from './GraduationTimeline';
 import { StatsDashboard } from './StatsDashboard';
 
@@ -26,6 +27,7 @@ function ProfilePage() {
         {profile && (
           <GraduationTimeline suggestion={suggestion} fallback={{ belt: profile.belt, stripes: profile.stripes }} />
         )}
+        {profile && <GraduationProgress profile={profile} />}
         <StatsDashboard />
       </div>
     </>
