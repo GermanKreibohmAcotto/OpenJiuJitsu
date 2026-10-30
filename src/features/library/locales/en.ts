@@ -4,7 +4,6 @@ export default {
   all: 'All',
   allTypes: 'All types',
   typeFilter: 'Type',
-  categoryTabs: 'Categories',
   noResults: 'No techniques match the filters.',
   noCounterpart: 'No counterpart',
   noCounterpartHint: 'Every technique should have a counterpart.',

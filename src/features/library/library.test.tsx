@@ -29,10 +29,10 @@ beforeEach(async () => {
 });
 
 describe('library list', () => {
-  it('filters by category', async () => {
+  it('filters by type', async () => {
     renderLibrary('/library');
     expect(await screen.findByText('Triángulo desde guardia cerrada')).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('tab', { name: 'Escapes/Defensas' }));
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Tipo' }), 'escape');
     expect(screen.getByText('Escape de Kimura')).toBeInTheDocument();
     expect(screen.queryByText('Triángulo desde guardia cerrada')).not.toBeInTheDocument();
   });
