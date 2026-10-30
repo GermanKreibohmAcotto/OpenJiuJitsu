@@ -2,6 +2,7 @@ import { db } from '../db/db';
 import { todayIso } from '../db/ids';
 import type {
   Graduation,
+  Injury,
   PlanBlock,
   MatchEvent,
   SparringMatch,
@@ -145,13 +146,34 @@ function buildGraduations(): Graduation[] {
   ];
 }
 
+function buildInjuries(): Injury[] {
+  const injury = (id: string, zone: Injury['zone'], intensity: number, daysAgo: number, status: Injury['status'], notes: string): Injury =>
+    ({ id, zone, intensity, date: dayOffset(daysAgo), notes, status, createdAt: stamp(dayOffset(daysAgo)), updatedAt: stamp(dayOffset(daysAgo)) });
+  return [
+    injury('demo-injury-1', 'knee', 4, 6, 'active', 'Tweaked it defending a heel hook entry. Ice after training.'),
+    injury('demo-injury-2', 'neck', 3, 25, 'active', 'Stiff after a lot of guillotine defense.'),
+    injury('demo-injury-3', 'elbow', 6, 120, 'recovered', 'Late tap on an armbar. Two weeks off sparring.'),
+  ];
+}
+
 /**
- * Adds fictional profile, plans, sessions, matches and graduations on top of the
- * built-in library. Fixed ids make it safe to run more than once. Dev only.
+ * Adds fictional profile (with weekly and graduation goals), plans, sessions, matches,
+ * graduations and injuries on top of the built-in library. Fixed ids make it safe to
+ * run more than once. Dev only.
  */
 export async function loadDemoData(): Promise<void> {
-  await db.transaction('rw', [db.profile, db.plans, db.sessions, db.matches, db.graduations], async () => {
-    await db.profile.put({ id: 'me', name: 'Alex Silva', academy: 'Open Mat Academy', belt: 'blue', stripes: 1, startedAt: dayOffset(900) });
+  await db.transaction('rw', [db.profile, db.plans, db.sessions, db.matches, db.graduations, db.injuries], async () => {
+    await db.profile.put({
+      id: 'me',
+      name: 'Alex Silva',
+      academy: 'Open Mat Academy',
+      belt: 'blue',
+      stripes: 1,
+      startedAt: dayOffset(900),
+      weeklyGoal: 3,
+      graduationGoal: { classes: 150 },
+    });
+    await db.injuries.bulkPut(buildInjuries());
     await db.plans.bulkPut(buildPlans());
     await db.sessions.bulkPut(buildSessions());
     await db.matches.bulkPut(buildMatches());
