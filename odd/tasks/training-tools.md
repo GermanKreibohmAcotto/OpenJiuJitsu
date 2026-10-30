@@ -44,7 +44,7 @@ S6 Demo mode in its own database — user: "sin poner ?demo me queda todo guarda
 - [x] T4 S4 Position map in library · route: writer (src/features/library, src/domain/positionGraph) · commit: 3d8f2d1
 - [x] T5 S5 Injury log (new table, backup v2) · route: writer, own commit (Risk item 1: schema/backup format) · commit: 04b3993, 3c68147 (independent verify: pass)
 - [x] T6 all Verify (independent for T5), full suite + build · route: verify · commit: — (200 tests, tsc, build OK)
-- [ ] T7 S6 Demo mode in its own database + real-db cleanup · route: writer (context backstop), independent verify (Risk item 1: deletes stored data) · commit: —
+- [x] T7 S6 Demo mode in its own database + real-db cleanup · route: writer (context backstop), independent verify (Risk item 1: deletes stored data) · commit: 648ebbf (independent verify: pass)
 
 ## Log
 
@@ -58,3 +58,4 @@ L7 (T2/T3 worker): weekly goal edited only from the home card (empty clears it);
 L8 (T5 verify): pass on every S5 bullet and risk item; added its proposed regressions (all v1 tables across upgrade, whole data unchanged on rejected import, import replaces injuries) in 3c68147.
 L9 (T6): full suite 200/200, tsc, build OK. Local `npm test` showed 4 injury UI failures from a stale `node_modules/.vitest-cache` (import.meta.glob of feature locales); deleting the cache fixed it. CI is unaffected (fresh install).
 L10 (user): "sin poner ?demo me queda todo guardado de la demo en la aplicacion, que opciones tengo para sacar la demo cuando yo quiera y volver cuando lo necesite" → chose "Base separada + interruptor". Also earlier: injury save shows "no se pudo guardar la lesion" in the user browser; not reproducible in a clean Chrome profile; error now logged (e7599ee); awaiting console output.
+L11 (root cause, reproduced in headless Chrome over the LAN address http://192.168.100.231:5173): "No se pudo guardar la lesión." + console `TypeError: crypto.randomUUID is not a function` — randomUUID only exists in secure contexts (https/localhost) and `vite --host` serves the LAN over http. Affected every new record via newId(). Fixed with a getRandomValues v4 fallback; not reproducible on localhost (fresh, v1+demo upgrade, tab open during live code change all saved fine).
