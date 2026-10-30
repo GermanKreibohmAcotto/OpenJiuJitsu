@@ -4,7 +4,9 @@ import { SEEDED_KEY, SEED_VERSION } from './seed';
 import { isBelt } from '../domain/belts';
 import {
   BLOCK_KINDS,
+  BODY_ZONES,
   CATEGORIES,
+  INJURY_STATUSES,
   MATCH_EVENT_KINDS,
   MATCH_METHODS,
   MEDIA_KINDS,
@@ -12,6 +14,7 @@ import {
   POSITIONS,
   TECHNIQUE_TYPES,
   type Graduation,
+  type Injury,
   type Profile,
   type SparringMatch,
   type Technique,
@@ -20,7 +23,9 @@ import {
 } from '../domain/types';
 
 export const BACKUP_APP = 'openjiujitsu';
-export const BACKUP_VERSION = 1;
+export const BACKUP_VERSION = 2;
+/** First backup version that carries the `injuries` table. */
+const INJURIES_SINCE = 2;
 
 export interface BackupData {
   techniques: Technique[];
@@ -29,6 +34,7 @@ export interface BackupData {
   graduations: Graduation[];
   profile: Profile[];
   matches: SparringMatch[];
+  injuries: Injury[];
 }
 
 export interface Backup {
@@ -112,7 +118,12 @@ const VALIDATORS: Record<keyof BackupData, (r: Rec) => boolean> = {
     isBelt(r.belt) &&
     isNumber(r.stripes) &&
     isString(r.name) &&
-    isOptional(r.selfRatings, (v) => isRecord(v) && isOptional(v.flexibility, isNumber)),
+    isOptional(r.selfRatings, (v) => isRecord(v) && isOptional(v.flexibility, isNumber)) &&
+    isOptional(r.weeklyGoal, isNumber) &&
+    isOptional(
+      r.graduationGoal,
+      (v) => isRecord(v) && isOptional(v.classes, isNumber) && isOptional(v.hours, isNumber) && isOptional(v.months, isNumber),
+    ),
   matches: (r) =>
     isString(r.date) &&
     oneOf(MODES, r.mode) &&
@@ -124,22 +135,34 @@ const VALIDATORS: Record<keyof BackupData, (r: Rec) => boolean> = {
     oneOf(MATCH_METHODS, r.method) &&
     isOptional(r.submissionId, isString) &&
     isOptional(r.events, (e) => everyOf(e, isMatchEvent)),
+  injuries: (r) =>
+    oneOf(BODY_ZONES, r.zone) &&
+    isNumber(r.intensity) &&
+    Number.isInteger(r.intensity) &&
+    r.intensity >= 1 &&
+    r.intensity <= 10 &&
+    isString(r.date) &&
+    isString(r.notes) &&
+    oneOf(INJURY_STATUSES, r.status) &&
+    isString(r.createdAt) &&
+    isString(r.updatedAt),
 };
 
 export async function exportData(): Promise<Backup> {
-  const [techniques, plans, sessions, graduations, profile, matches] = await Promise.all([
+  const [techniques, plans, sessions, graduations, profile, matches, injuries] = await Promise.all([
     db.techniques.toArray(),
     db.plans.toArray(),
     db.sessions.toArray(),
     db.graduations.toArray(),
     db.profile.toArray(),
     db.matches.toArray(),
+    db.injuries.toArray(),
   ]);
   return {
     app: BACKUP_APP,
     version: BACKUP_VERSION,
     exportedAt: nowIso(),
-    data: { techniques, plans, sessions, graduations, profile, matches },
+    data: { techniques, plans, sessions, graduations, profile, matches, injuries },
   };
 }
 
@@ -161,6 +184,11 @@ export function parseBackup(json: string): Backup {
 
   const data = {} as Record<keyof BackupData, unknown[]>;
   for (const table of Object.keys(VALIDATORS) as (keyof BackupData)[]) {
+    // Backups from before the injury log have no such table: they import as an empty list.
+    if (table === 'injuries' && raw.version < INJURIES_SINCE && raw.data[table] === undefined) {
+      data[table] = [];
+      continue;
+    }
     // A missing table is an error, never an empty list: importing replaces everything.
     const rows = raw.data[table];
     if (!Array.isArray(rows)) throw new BackupError('notList', `"${table}" must be a list.`, { table });
@@ -181,7 +209,7 @@ export function parseBackup(json: string): Backup {
 
 /** Replaces all stored data with the backup in one transaction (all or nothing). */
 export function importData(backup: Backup): Promise<void> {
-  const tables = [db.techniques, db.plans, db.sessions, db.graduations, db.profile, db.matches, db.meta];
+  const tables = [db.techniques, db.plans, db.sessions, db.graduations, db.profile, db.matches, db.injuries, db.meta];
   return db.transaction('rw', tables, async () => {
     await Promise.all(tables.map((t) => t.clear()));
     const { data } = backup;
@@ -191,6 +219,7 @@ export function importData(backup: Backup): Promise<void> {
     await db.graduations.bulkPut(data.graduations);
     await db.profile.bulkPut(data.profile);
     await db.matches.bulkPut(data.matches);
+    await db.injuries.bulkPut(data.injuries);
     // An imported library counts as seeded, so the built-in seed never overwrites it.
     await db.meta.put({ key: SEEDED_KEY, value: SEED_VERSION });
   });

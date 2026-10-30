@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createTimer, fightedMs, pause, remainingMs, reset, resume, start, sync, type TimerConfig } from './timer';
+import { createTimer, cueBetween, fightedMs, pause, remainingMs, reset, resume, start, sync, type TimerConfig } from './timer';
 
 const config: TimerConfig = { roundSec: 300, restSec: 60, rounds: 2 };
 const T0 = 1_000_000;
@@ -66,5 +66,60 @@ describe('timer state machine', () => {
     expect(fightedMs(state, config, T0 + sec(330))).toBe(sec(300));
     state = sync(state, config, T0 + sec(400));
     expect(fightedMs(state, config, T0 + sec(400))).toBe(sec(340));
+  });
+});
+
+describe('cueBetween', () => {
+  const cfg: TimerConfig = { roundSec: 300, restSec: 60, rounds: 2 };
+  const running = start(createTimer(), T0);
+
+  it('beeps at the start of the first round', () => {
+    expect(cueBetween(createTimer(), running, cfg, T0, T0)).toBe('start');
+  });
+
+  it('warns once when 30 s remain, not before and not again', () => {
+    expect(cueBetween(running, running, cfg, T0, T0 + sec(269))).toBeNull();
+    expect(cueBetween(running, running, cfg, T0 + sec(269), T0 + sec(270))).toBe('warning');
+    expect(cueBetween(running, running, cfg, T0 + sec(270), T0 + sec(271))).toBeNull();
+    // Coming back from a throttled tab past the mark still warns once.
+    expect(cueBetween(running, running, cfg, T0 + sec(100), T0 + sec(280))).toBe('warning');
+  });
+
+  it('does not warn for rounds of 30 s or less', () => {
+    const short: TimerConfig = { roundSec: 30, restSec: 10, rounds: 1 };
+    expect(cueBetween(running, running, short, T0, T0 + sec(1))).toBeNull();
+    const shorter: TimerConfig = { roundSec: 20, restSec: 10, rounds: 1 };
+    expect(cueBetween(running, running, shorter, T0, T0 + sec(10))).toBeNull();
+  });
+
+  it('does not warn during rest', () => {
+    const rest = sync(running, cfg, T0 + sec(300));
+    expect(rest.phase).toBe('rest');
+    expect(cueBetween(rest, rest, cfg, T0 + sec(300), T0 + sec(331))).toBeNull();
+  });
+
+  it('beeps at round end, with and without rest, and when finished', () => {
+    const rest = sync(running, cfg, T0 + sec(300));
+    expect(cueBetween(running, rest, cfg, T0 + sec(299), T0 + sec(300))).toBe('end');
+    const noRest: TimerConfig = { ...cfg, restSec: 0 };
+    expect(cueBetween(running, sync(running, noRest, T0 + sec(300)), noRest, T0 + sec(299), T0 + sec(300))).toBe('end');
+    const second = sync(rest, cfg, T0 + sec(360));
+    const done = sync(second, cfg, T0 + sec(660));
+    expect(done.phase).toBe('finished');
+    expect(cueBetween(second, done, cfg, T0 + sec(659), T0 + sec(660))).toBe('end');
+  });
+
+  it('beeps when the rest ends and the next round starts', () => {
+    const rest = sync(running, cfg, T0 + sec(300));
+    const second = sync(rest, cfg, T0 + sec(360));
+    expect(second.phase).toBe('round');
+    expect(cueBetween(rest, second, cfg, T0 + sec(359), T0 + sec(360))).toBe('start');
+  });
+
+  it('stays silent on pause, resume and reset', () => {
+    const paused = pause(running, T0 + sec(10));
+    expect(cueBetween(running, paused, cfg, T0 + sec(10), T0 + sec(10))).toBeNull();
+    expect(cueBetween(paused, resume(paused, T0 + sec(20)), cfg, T0 + sec(10), T0 + sec(20))).toBeNull();
+    expect(cueBetween(running, reset(), cfg, T0 + sec(10), T0 + sec(10))).toBeNull();
   });
 });

@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { NavLink, Outlet } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { isDemoMode } from '../dev/demoMode';
 
 /** Sections of the desktop sidebar. */
 const NAV = [
@@ -9,12 +10,20 @@ const NAV = [
   { to: '/journal', key: 'journal', icon: '📝' },
   { to: '/sparring', key: 'sparring', icon: '⏱️' },
   { to: '/analytics', key: 'analytics', icon: '📊' },
+  { to: '/injuries', key: 'injuries', icon: '🩹' },
   { to: '/profile', key: 'profile', icon: '🥋' },
+] as const;
+
+/** Icon links in the header, for phones. */
+const HEADER_LINKS = [
+  { key: 'analytics', icon: '📊' },
+  { key: 'injuries', icon: '🩹' },
+  { key: 'profile', icon: '🥋' },
 ] as const;
 
 /**
  * Bottom bar on phones: exactly five buttons, with Home in the middle as the primary one.
- * Analytics and Profile stay one tap away from the header.
+ * Analytics, Injuries and Profile stay one tap away from the header.
  */
 const TAB_BAR = [
   { to: '/library', key: 'library', icon: '📖' },
@@ -43,7 +52,7 @@ export function Layout() {
   return (
     <div className="min-h-screen md:flex">
       <aside className="hidden w-60 shrink-0 flex-col gap-1 border-r border-line p-4 md:flex">
-        <NavLink to="/" className="mb-6 px-3 text-lg tracking-tight">
+        <NavLink to="/" className="mb-6 px-3 font-display text-lg tracking-tight">
           Open<span className="text-accent">JiuJitsu</span>
         </NavLink>
         <NavLink to="/" end className={linkClass}>
@@ -63,14 +72,19 @@ export function Layout() {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
+        {isDemoMode() && (
+          <div role="status" className="bg-accent px-4 py-1 text-center text-xs font-semibold text-accent-ink">
+            {t('demoBanner')}
+          </div>
+        )}
         <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-line bg-bg/90 px-4 py-3 backdrop-blur">
-          <NavLink to="/" className="text-base tracking-tight md:invisible">
+          <NavLink to="/" className="font-display text-base tracking-tight md:invisible">
             Open<span className="text-accent">JiuJitsu</span>
           </NavLink>
           <div className="flex items-center gap-2">
-            {(['analytics', 'profile'] as const).map((key) => (
-              <NavLink key={key} to={`/${key}`} aria-label={t(`nav.${key}`)} className={headerIconClass}>
-                {key === 'analytics' ? '📊' : '🥋'}
+            {HEADER_LINKS.map((item) => (
+              <NavLink key={item.key} to={`/${item.key}`} aria-label={t(`nav.${item.key}`)} className={headerIconClass}>
+                {item.icon}
               </NavLink>
             ))}
             <NavLink to="/settings" aria-label={t('nav.settings')} className={headerIconClass}>

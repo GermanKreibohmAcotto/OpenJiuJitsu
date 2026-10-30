@@ -5,6 +5,18 @@ export default {
   hours: 'Horas en el tatami',
   hoursValue: '{{value}} h',
   sessions: '{{count}} sesiones',
+  goal: {
+    title: 'Constancia',
+    progress: '{{count}} / {{goal}}',
+    current_one: 'Racha actual: {{count}} semana',
+    current_other: 'Racha actual: {{count}} semanas',
+    best_one: 'Mejor racha: {{count}} semana',
+    best_other: 'Mejor racha: {{count}} semanas',
+    invite: 'Define cuántas veces por semana quieres entrenar para empezar tu racha.',
+    label: 'Meta semanal',
+    save: 'Guardar meta',
+    invalid: 'La meta debe ser un número entero entre 1 y 14.',
+  },
   last: {
     title: 'Última sesión',
     empty: 'Aún no registraste ninguna sesión.',

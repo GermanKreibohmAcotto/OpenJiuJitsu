@@ -7,9 +7,11 @@ export default {
     journal: 'Journal',
     sparring: 'Sparring',
     analytics: 'Analytics',
+    injuries: 'Injuries',
     profile: 'Profile',
     settings: 'Settings',
   },
+  demoBanner: 'Demo mode',
   actions: {
     save: 'Save',
     cancel: 'Cancel',

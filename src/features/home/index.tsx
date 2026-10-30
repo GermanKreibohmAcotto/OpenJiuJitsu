@@ -7,6 +7,7 @@ import { ModeToggle } from '../../components/ModeToggle';
 import { PageHeader } from '../../components/Page';
 import { getProfile } from '../../db/profile';
 import { listSessions } from '../../db/sessions';
+import { WeeklyGoalCard } from './WeeklyGoalCard';
 import { filterByMode, minutesToHours, totalMinutes } from '../profile/stats';
 
 const ACTIONS = [
@@ -47,6 +48,8 @@ function Dashboard() {
           <p className="text-3xl font-bold">{t('hoursValue', { value: minutesToHours(totalMinutes(sessions)) })}</p>
           <p className="text-sm text-muted">{t('sessions', { count: sessions.length })}</p>
         </section>
+
+        {profile && <WeeklyGoalCard goal={profile.weeklyGoal} sessions={allSessions ?? []} />}
 
         <section className="card md:col-span-2" aria-labelledby="home-last">
           <h2 id="home-last" className="label">

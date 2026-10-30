@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { MatchConfig } from './SetupForm';
 import { addEvent, computeTotals, POINT_KINDS, SCORE_VALUES, undoLast, type AthleteIndex, type ScoreEvent } from './scoring';
-import { beep, keepAwake } from './sound';
+import { keepAwake } from './sound';
+import { useRoundCues } from './useRoundCues';
 import { createTimer, fightedMs, pause, remainingMs, reset, resume, start, sync, type TimerState } from './timer';
 
 interface MatchScreenProps {
@@ -21,7 +22,6 @@ export function MatchScreen({ config, onFinish }: MatchScreenProps) {
   const [timer, setTimer] = useState<TimerState>(createTimer);
   const [now, setNow] = useState(() => Date.now());
   const [events, setEvents] = useState<ScoreEvent[]>([]);
-  const previous = useRef(timer);
 
   // Derive time from timestamps on every tick and when the tab becomes visible again.
   useEffect(() => {
@@ -44,12 +44,7 @@ export function MatchScreen({ config, onFinish }: MatchScreenProps) {
     return keepAwake();
   }, [timer.running]);
 
-  // Beep when a round or rest ends (not when the match starts).
-  useEffect(() => {
-    const before = previous.current;
-    previous.current = timer;
-    if (before.phase !== 'idle' && (before.phase !== timer.phase || before.round !== timer.round)) beep();
-  }, [timer]);
+  useRoundCues(timer, config, now);
 
   const totals = computeTotals(events);
   const remaining = remainingMs(timer, config, now);

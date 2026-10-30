@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import '../../i18n';
 import { SettingsProvider } from '../../app/settings';
 import { db } from '../../db/db';
-import { saveProfile } from '../../db/profile';
+import { todayIso } from '../../db/ids';
+import { getProfile, saveProfile } from '../../db/profile';
 import { saveSession } from '../../db/sessions';
 import { HomeRoutes } from '.';
 
@@ -58,5 +60,55 @@ describe('home', () => {
   it('renders the dashboard for unknown paths', async () => {
     renderHome('/nope');
     expect(await screen.findByText(/Aún no registraste/)).toBeInTheDocument();
+  });
+});
+
+describe('weekly goal', () => {
+  it('invites to set a weekly goal and stores it without touching the profile', async () => {
+    const user = userEvent.setup();
+    await saveProfile({ name: 'Ana', academy: 'GB', belt: 'blue', stripes: 1, startedAt: '2020-01-01' });
+    renderHome();
+
+    expect(await screen.findByText(/Define cuántas veces por semana/)).toBeInTheDocument();
+    await user.type(screen.getByLabelText('Meta semanal'), '3');
+    await user.click(screen.getByRole('button', { name: 'Guardar meta' }));
+
+    expect(await screen.findByText('0 / 3')).toBeInTheDocument();
+    expect(await getProfile()).toEqual({
+      id: 'me', name: 'Ana', academy: 'GB', belt: 'blue', stripes: 1, startedAt: '2020-01-01', weeklyGoal: 3,
+    });
+  });
+
+  it('rejects goals outside 1..14', async () => {
+    const user = userEvent.setup();
+    renderHome();
+    await user.type(await screen.findByLabelText('Meta semanal'), '15');
+    await user.click(screen.getByRole('button', { name: 'Guardar meta' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('entre 1 y 14');
+    expect((await getProfile()).weeklyGoal).toBeUndefined();
+  });
+
+  it('shows this week and streaks counting every mode', async () => {
+    await saveProfile({ name: '', academy: '', belt: 'white', stripes: 0, weeklyGoal: 1 });
+    await saveSession({ ...base, date: todayIso(), durationMin: 60, mode: 'nogi', sparringRounds: 0 });
+    localStorage.setItem('ojj.mode', 'gi');
+    renderHome();
+
+    expect(await screen.findByText('1 / 1')).toBeInTheDocument();
+    expect(screen.getByText(/Racha actual: 1 semana/)).toBeInTheDocument();
+    expect(screen.getByText(/Mejor racha: 1 semana/)).toBeInTheDocument();
+  });
+
+  it('lets the user change the goal', async () => {
+    const user = userEvent.setup();
+    await saveProfile({ name: '', academy: '', belt: 'white', stripes: 0, weeklyGoal: 2 });
+    renderHome();
+    const input = await screen.findByLabelText('Meta semanal');
+    await user.clear(input);
+    await user.type(input, '5');
+    await user.click(screen.getByRole('button', { name: 'Guardar meta' }));
+    expect(await screen.findByText('0 / 5')).toBeInTheDocument();
+    expect((await getProfile()).weeklyGoal).toBe(5);
   });
 });

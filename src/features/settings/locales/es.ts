@@ -42,6 +42,18 @@ export default {
       unknown: 'No se pudo importar el archivo.',
     },
   },
+  demo: {
+    title: 'Modo demo',
+    help: 'Solo en desarrollo. La demo vive en una base aparte; tus datos reales no se tocan.',
+    switch: 'Modo demo',
+    on: 'activado',
+    off: 'desactivado',
+    reset: 'Restablecer demo',
+    confirmReset: 'Se borra la base de demo y se carga de nuevo desde cero. ¿Continuar?',
+    remove: 'Quitar datos de demo de la base real',
+    confirmRemove: 'Se borran de la base real los registros de demo (ids "demo-") y el perfil de demo. ¿Continuar?',
+    removed: 'Se quitaron {{count}} registros de demo.',
+  },
   storage: {
     title: 'Almacenamiento',
     help: 'El navegador puede borrar datos de sitios poco usados. Solicitar almacenamiento persistente lo evita.',

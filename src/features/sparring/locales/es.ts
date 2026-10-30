@@ -42,6 +42,11 @@ export default {
       backControl: 'Toma de espalda',
     },
   },
+  timer: {
+    link: 'Temporizador de rounds',
+    back: 'Volver a sparring',
+    reset: 'Reiniciar',
+  },
   result: {
     title: 'Resultado',
     byTime: 'Por tiempo',

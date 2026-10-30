@@ -97,9 +97,19 @@ describe('backup hardening', () => {
       method: 'points',
       createdAt: 'x',
     });
+    await db.injuries.put({
+      id: 'i1',
+      zone: 'knee',
+      intensity: 6,
+      date: '2026-10-25',
+      notes: 'menisco',
+      status: 'active',
+      createdAt: 'x',
+      updatedAt: 'x',
+    });
   }
 
-  it('round-trips all six tables and keeps the seed from overwriting the import', async () => {
+  it('round-trips every table and keeps the seed from overwriting the import', async () => {
     await seedEveryTable();
     const before = (await exportData()).data;
     const json = JSON.stringify(await exportData());
@@ -129,6 +139,79 @@ describe('backup hardening', () => {
     expect(() => parseBackup(JSON.stringify({ app: 'openjiujitsu', version: 1, data: {} }))).toThrow(BackupError);
     expect(() => parseBackup(JSON.stringify({ ...backup, data: rest }))).toThrow(BackupError);
     expect((await db.techniques.toArray()).map((t) => t.id)).toEqual([kimura.id]);
+  });
+
+  it('round-trips the profile goals and rejects malformed ones', async () => {
+    await db.profile.put({
+      id: 'me',
+      name: 'Fede',
+      academy: '',
+      belt: 'blue',
+      stripes: 1,
+      weeklyGoal: 3,
+      graduationGoal: { classes: 120, hours: 180, months: 18 },
+    });
+    const backup = await exportData();
+    const profile = backup.data.profile[0];
+
+    expect(parseBackup(JSON.stringify(backup)).data.profile[0]).toEqual(profile);
+    for (const bad of [{ weeklyGoal: '3' }, { graduationGoal: 5 }, { graduationGoal: { classes: 'x' } }]) {
+      const broken = { ...backup, data: { ...backup.data, profile: [{ ...profile, ...bad }] } };
+      expect(() => parseBackup(JSON.stringify(broken))).toThrow(BackupError);
+    }
+    expect((await db.profile.get('me'))?.weeklyGoal).toBe(3);
+  });
+
+  it('exports version 2 with injuries', async () => {
+    await seedEveryTable();
+    const backup = await exportData();
+    expect(backup.version).toBe(2);
+    expect(backup.data.injuries.map((i) => i.id)).toEqual(['i1']);
+  });
+
+  it('imports a version 1 backup without injuries leaving them empty', async () => {
+    await seedEveryTable();
+    const backup = await exportData();
+    const { injuries: _omitted, ...v1Data } = backup.data;
+    const json = JSON.stringify({ ...backup, version: 1, data: v1Data });
+
+    await importData(parseBackup(json));
+
+    expect(await db.injuries.count()).toBe(0);
+    expect(await db.graduations.count()).toBe(1);
+  });
+
+  it('rejects a version 2 backup missing injuries or with malformed ones, leaving data unchanged', async () => {
+    await seedEveryTable();
+    const backup = await exportData();
+    const good = backup.data.injuries[0];
+    const { injuries: _omitted, ...rest } = backup.data;
+    const variants = [
+      rest,
+      { ...rest, injuries: 'x' },
+      { ...rest, injuries: [{ ...good, zone: 'toe' }] },
+      { ...rest, injuries: [{ ...good, intensity: 0 }] },
+      { ...rest, injuries: [{ ...good, intensity: 11 }] },
+      { ...rest, injuries: [{ ...good, intensity: '5' }] },
+      { ...rest, injuries: [{ ...good, status: 'gone' }] },
+      { ...rest, injuries: [{ ...good, date: 5 }] },
+      { ...rest, injuries: [{ ...good, notes: undefined }] },
+    ];
+    const before = JSON.stringify((await exportData()).data);
+    for (const data of variants) {
+      expect(() => parseBackup(JSON.stringify({ ...backup, data }))).toThrow(BackupError);
+    }
+    expect(JSON.stringify((await exportData()).data)).toBe(before);
+  });
+
+  it('replaces stored injuries on import', async () => {
+    await seedEveryTable();
+    const backup = await exportData();
+    await db.injuries.put({ ...backup.data.injuries[0], id: 'extra' });
+
+    await importData(parseBackup(JSON.stringify(backup)));
+
+    expect((await db.injuries.toArray()).map((i) => i.id)).toEqual(['i1']);
   });
 
   it('rejects nested malformed records', async () => {

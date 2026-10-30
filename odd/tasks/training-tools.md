@@ -1,0 +1,61 @@
+Objective: add five training tools to OpenJiuJitsu: round timer, weekly streaks, graduation progress, position map, injury log.
+Branch: feat/training-tools · Test runner: `npm test` (Vitest + Testing Library), `npm run build` (tsc + vite) · UI strings in es (default) and en.
+
+## Specs
+
+S1 Round timer — idea 1: "Temporizador de rounds: configurable (por ejemplo 5 min por 6 rounds, descanso entre rounds) con sonido. Se usa en el tatami." Chosen scope "Básico": "Duración de round, descanso y cantidad de rounds; pitido al inicio, aviso a los 30 s finales y al terminar."
+- The sparring match screen already has a round/rest timer (`src/features/sparring/timer.ts`) with a beep when a round or rest ends. Assumption: S1 adds a standalone timer (no scoreboard, nothing saved) reachable from the sparring section, reusing `timer.ts`, and both the standalone timer and the match screen get the start beep and the 30 s warning.
+- The 30 s warning fires once per round, only when the round is longer than 30 s.
+
+S2 Weekly goal and streak — idea 2: "Rachas y objetivos: meta semanal de clases y racha de entrenamientos, con recordatorios locales." Chosen scope "Meta semanal": "Objetivo de X entrenamientos por semana; la racha cuenta semanas seguidas cumpliendo la meta. Sin notificaciones."
+- Weeks start on Monday (ISO weeks), local dates from `TrainingSession.date`.
+- Each journal session counts as one training, regardless of mode filter (assumption: the goal is about attendance, not GI/NoGI).
+- Current streak: consecutive weeks meeting the goal, ending at the current week when it already meets the goal, otherwise ending at the previous week (the current week is still in progress and never breaks the streak). Also show best streak and "this week n / X".
+- Goal is stored in the profile (`Profile.weeklyGoal`, 1..14) so it travels in backups; no goal set → the home card invites to set one.
+
+S3 Graduation progress — idea 3: "Gráfico de progreso por cinturón: horas de mat, clases hasta la próxima graduación y línea de tiempo (ya tenés `GraduationTimeline`)." Chosen scope "Ambos": "Referencia IBJJF por defecto, editable con tu propia meta."
+- Since the last graduation (latest `Graduation` record; fallback `Profile.startedAt`; else all sessions): classes, mat hours, time at current belt.
+- IBJJF adult minimum time at a belt before the next one: blue 2 years, purple 1.5 years, brown 1 year. White and black have no minimum time in this reference (shown as "no IBJJF minimum").
+- The user may set an own goal (`Profile.graduationGoal`: optional classes, hours, months); each set field replaces the reference and shows its own progress bar. Clearing the goal returns to the IBJJF reference.
+
+S4 Position map — idea 4: "Mapa de posiciones: un grafo de transiciones (guardia → pasaje → control → sumisión) navegable desde la biblioteca."
+- Techniques store only their starting position, so transitions come from a fixed domain graph of the existing `POSITIONS` (e.g. standing → closed guard/half guard by takedown or pull, guards → side control by pass, side control → mount, mount → back, bottom positions → guard by escape, guards → top by sweep).
+- Each position shows the library techniques that start there, grouped by type, linking to the technique detail, respecting the global GI/NoGI filter.
+- Reachable from the library list (link) at `/library/map`.
+
+S5 Injury log — idea 7: "Lesiones y estado físico: registro de dolores y de cómo te sentís antes de entrenar, cruzado con el volumen de entrenamiento." Chosen scope "Lesiones simples": "Zona del cuerpo, intensidad 1-10, fecha, notas y estado (activa/recuperada)."
+- Create, edit, delete injuries; mark as recovered or active again; list shows active first.
+- Stored in a new IndexedDB table (`injuries`), included in JSON export/import. Backups from before the table (version 1) still import, with no injuries.
+
+S6 Demo mode in its own database — user: "sin poner ?demo me queda todo guardado de la demo en la aplicacion, que opciones tengo para sacar la demo cuando yo quiera y volver cuando lo necesite". Chosen option "Base separada + interruptor": "la demo vive en otra base; un interruptor en Ajustes (solo en desarrollo) la prende y la apaga sin tocar tus datos reales."
+- Dev only (import.meta.env.DEV); production builds never show the controls nor open the demo database.
+- Demo mode on → the app uses IndexedDB `openjiujitsu-demo` (seeded library + demo data loaded when empty); off → `openjiujitsu`. The flag persists across reloads (localStorage) until switched off. Switching reloads the app.
+- `?demo` turns demo mode on (no longer writes into the real database).
+- A visible "Modo demo" banner while it is on.
+- "Restablecer demo": deletes the demo database and reloads it fresh.
+- One-time cleanup of the real database (button, only with demo mode off, with confirmation): deletes records whose id starts with `demo-` in plans, sessions, matches, graduations, injuries; resets the profile to the default only if its name and academy are the demo ones ("Alex Silva", "Open Mat Academy"). Nothing else changes (techniques, other records, meta).
+
+## Tasks
+
+- [x] T0 S2,S3 Profile fields `weeklyGoal`, `graduationGoal` + backup validation · route: inline · commit: d24edb1
+- [x] T1 S1 Standalone round timer + start beep + 30 s warning · route: writer (src/features/sparring) · commit: 9519e71
+- [x] T2 S2 Weekly goal and streak on home · route: writer (home + profile goal form) · commit: e177181
+- [x] T3 S3 Graduation progress in profile · route: writer (same writer as T2, profile) · commit: e177181
+- [x] T4 S4 Position map in library · route: writer (src/features/library, src/domain/positionGraph) · commit: 3d8f2d1
+- [x] T5 S5 Injury log (new table, backup v2) · route: writer, own commit (Risk item 1: schema/backup format) · commit: 04b3993, 3c68147 (independent verify: pass)
+- [x] T6 all Verify (independent for T5), full suite + build · route: verify · commit: — (200 tests, tsc, build OK)
+- [x] T7 S6 Demo mode in its own database + real-db cleanup · route: writer (context backstop), independent verify (Risk item 1: deletes stored data) · commit: 648ebbf (independent verify: pass)
+
+## Log
+
+L1 (user, original request): "Ideas que me gustaria aplicar son: la 1,2,3,4 y 7" — referring to the proposed list: "1. Temporizador de rounds: configurable (por ejemplo 5 min por 6 rounds, descanso entre rounds) con sonido. Se usa en el tatami. 2. Rachas y objetivos: meta semanal de clases y racha de entrenamientos, con recordatorios locales. 3. Gráfico de progreso por cinturón: horas de mat, clases hasta la próxima graduación y línea de tiempo (ya tenés `GraduationTimeline`). 4. Mapa de posiciones: un grafo de transiciones (guardia → pasaje → control → sumisión) navegable desde la biblioteca. 7. Lesiones y estado físico: registro de dolores y de cómo te sentís antes de entrenar, cruzado con el volumen de entrenamiento."
+L2 (user decisions): timer "Básico"; streaks "Meta semanal"; graduation "Ambos"; injuries "Lesiones simples".
+L3 (discovery): sparring already ships a round/rest timer with end beeps; techniques have no destination position.
+L4 (T1 worker): start beep also fires when rest ends; round→round without rest stays 'end'; cues differ by pitch/duration; timer link only from sparring setup.
+L5 (T4 review): removed 'submission' transition kind (a submission ends the exchange, not a transition); submissions show as techniques per position. Layered HTML buttons instead of SVG.
+L6 (T5 worker): 14 body zones; nav entry in desktop sidebar + phone header icon (bottom bar stays 5); stale Vitest fs module cache can hide new i18n namespaces locally — run with --experimental.fsModuleCache=false. Isolated check of 04b3993: 164 tests, tsc, build OK.
+L7 (T2/T3 worker): weekly goal edited only from the home card (empty clears it); future-dated sessions ignored; months = days / 30.4375; classes/hours bars only with an own goal (IBJJF reference is months only).
+L8 (T5 verify): pass on every S5 bullet and risk item; added its proposed regressions (all v1 tables across upgrade, whole data unchanged on rejected import, import replaces injuries) in 3c68147.
+L9 (T6): full suite 200/200, tsc, build OK. Local `npm test` showed 4 injury UI failures from a stale `node_modules/.vitest-cache` (import.meta.glob of feature locales); deleting the cache fixed it. CI is unaffected (fresh install).
+L10 (user): "sin poner ?demo me queda todo guardado de la demo en la aplicacion, que opciones tengo para sacar la demo cuando yo quiera y volver cuando lo necesite" → chose "Base separada + interruptor". Also earlier: injury save shows "no se pudo guardar la lesion" in the user browser; not reproducible in a clean Chrome profile; error now logged (e7599ee); awaiting console output.
+L11 (root cause, reproduced in headless Chrome over the LAN address http://192.168.100.231:5173): "No se pudo guardar la lesión." + console `TypeError: crypto.randomUUID is not a function` — randomUUID only exists in secure contexts (https/localhost) and `vite --host` serves the LAN over http. Affected every new record via newId(). Fixed with a getRandomValues v4 fallback; not reproducible on localhost (fresh, v1+demo upgrade, tab open during live code change all saved fine).

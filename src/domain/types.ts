@@ -145,6 +145,16 @@ export interface Profile {
   startedAt?: string;
   /** Self-rated style axes (1..10) that no logged data measures. */
   selfRatings?: { flexibility?: number };
+  /** Trainings per week the user aims for (1..14). */
+  weeklyGoal?: number;
+  /** Own target for the next graduation; each field set replaces the IBJJF reference. */
+  graduationGoal?: GraduationGoal;
+}
+
+export interface GraduationGoal {
+  classes?: number;
+  hours?: number;
+  months?: number;
 }
 
 export interface Graduation {
@@ -199,4 +209,38 @@ export interface SparringMatch {
   /** Scoring log. Absent on matches saved before the log was kept. */
   events?: MatchEvent[];
   createdAt: string;
+}
+
+export const BODY_ZONES = [
+  'neck',
+  'shoulder',
+  'elbow',
+  'wrist',
+  'hand',
+  'ribs',
+  'upper_back',
+  'lower_back',
+  'hip',
+  'knee',
+  'ankle',
+  'foot',
+  'head',
+  'other',
+] as const;
+export type BodyZone = (typeof BODY_ZONES)[number];
+
+export const INJURY_STATUSES = ['active', 'recovered'] as const;
+export type InjuryStatus = (typeof INJURY_STATUSES)[number];
+
+export interface Injury {
+  id: string;
+  zone: BodyZone;
+  /** 1 (mild) to 10 (severe). */
+  intensity: number;
+  /** yyyy-mm-dd */
+  date: string;
+  notes: string;
+  status: InjuryStatus;
+  createdAt: string;
+  updatedAt: string;
 }

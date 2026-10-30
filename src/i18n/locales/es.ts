@@ -7,9 +7,11 @@ export default {
     journal: 'Bitácora',
     sparring: 'Sparring',
     analytics: 'Analíticas',
+    injuries: 'Lesiones',
     profile: 'Perfil',
     settings: 'Ajustes',
   },
+  demoBanner: 'Modo demo',
   actions: {
     save: 'Guardar',
     cancel: 'Cancelar',
