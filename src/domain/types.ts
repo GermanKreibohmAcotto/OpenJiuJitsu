@@ -145,6 +145,16 @@ export interface Profile {
   startedAt?: string;
   /** Self-rated style axes (1..10) that no logged data measures. */
   selfRatings?: { flexibility?: number };
+  /** Trainings per week the user aims for (1..14). */
+  weeklyGoal?: number;
+  /** Own target for the next graduation; each field set replaces the IBJJF reference. */
+  graduationGoal?: GraduationGoal;
+}
+
+export interface GraduationGoal {
+  classes?: number;
+  hours?: number;
+  months?: number;
 }
 
 export interface Graduation {

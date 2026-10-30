@@ -112,7 +112,12 @@ const VALIDATORS: Record<keyof BackupData, (r: Rec) => boolean> = {
     isBelt(r.belt) &&
     isNumber(r.stripes) &&
     isString(r.name) &&
-    isOptional(r.selfRatings, (v) => isRecord(v) && isOptional(v.flexibility, isNumber)),
+    isOptional(r.selfRatings, (v) => isRecord(v) && isOptional(v.flexibility, isNumber)) &&
+    isOptional(r.weeklyGoal, isNumber) &&
+    isOptional(
+      r.graduationGoal,
+      (v) => isRecord(v) && isOptional(v.classes, isNumber) && isOptional(v.hours, isNumber) && isOptional(v.months, isNumber),
+    ),
   matches: (r) =>
     isString(r.date) &&
     oneOf(MODES, r.mode) &&

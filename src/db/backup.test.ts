@@ -131,6 +131,27 @@ describe('backup hardening', () => {
     expect((await db.techniques.toArray()).map((t) => t.id)).toEqual([kimura.id]);
   });
 
+  it('round-trips the profile goals and rejects malformed ones', async () => {
+    await db.profile.put({
+      id: 'me',
+      name: 'Fede',
+      academy: '',
+      belt: 'blue',
+      stripes: 1,
+      weeklyGoal: 3,
+      graduationGoal: { classes: 120, hours: 180, months: 18 },
+    });
+    const backup = await exportData();
+    const profile = backup.data.profile[0];
+
+    expect(parseBackup(JSON.stringify(backup)).data.profile[0]).toEqual(profile);
+    for (const bad of [{ weeklyGoal: '3' }, { graduationGoal: 5 }, { graduationGoal: { classes: 'x' } }]) {
+      const broken = { ...backup, data: { ...backup.data, profile: [{ ...profile, ...bad }] } };
+      expect(() => parseBackup(JSON.stringify(broken))).toThrow(BackupError);
+    }
+    expect((await db.profile.get('me'))?.weeklyGoal).toBe(3);
+  });
+
   it('rejects nested malformed records', async () => {
     await seedEveryTable();
     const backup = await exportData();
