@@ -9,7 +9,8 @@
   --color-accent: #a3e635;
   --color-accent-ink: #1a2e05;
   --color-danger: #f87171;
-  --font-sans: 'Dela Gothic One', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Barlow', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Dela Gothic One', 'Barlow', ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
@@ -21,9 +22,9 @@
   body {
     @apply bg-bg text-zinc-100 antialiased;
     font-family: var(--font-sans);
-    /* The face has a single weight: never fake bold or italic, hierarchy comes from size and color. */
+    /* Only real weights are loaded: never fake bold or italic. */
     font-synthesis: none;
-    /* The face is wide: let long words break instead of poking out of their box. */
+    /* The display face is wide: let long words break instead of poking out of their box. */
     overflow-wrap: anywhere;
   }
   :focus-visible {

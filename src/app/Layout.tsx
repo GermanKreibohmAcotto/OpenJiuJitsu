@@ -43,7 +43,7 @@ export function Layout() {
   return (
     <div className="min-h-screen md:flex">
       <aside className="hidden w-60 shrink-0 flex-col gap-1 border-r border-line p-4 md:flex">
-        <NavLink to="/" className="mb-6 px-3 text-lg tracking-tight">
+        <NavLink to="/" className="mb-6 px-3 font-display text-lg tracking-tight">
           Open<span className="text-accent">JiuJitsu</span>
         </NavLink>
         <NavLink to="/" end className={linkClass}>
@@ -64,7 +64,7 @@ export function Layout() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-line bg-bg/90 px-4 py-3 backdrop-blur">
-          <NavLink to="/" className="text-base tracking-tight md:invisible">
+          <NavLink to="/" className="font-display text-base tracking-tight md:invisible">
             Open<span className="text-accent">JiuJitsu</span>
           </NavLink>
           <div className="flex items-center gap-2">
