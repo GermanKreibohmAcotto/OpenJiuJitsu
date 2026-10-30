@@ -29,6 +29,7 @@ function InjuryFormBody({ id, initial }: { id?: string; initial: Draft }) {
       await saveInjury({ id, ...draft });
       navigate('/injuries');
     } catch (e) {
+      if (!(e instanceof InjuryValidationError)) console.error('Saving the injury failed', e);
       setError(e instanceof InjuryValidationError ? t(`form.invalidField.${e.field}`) : t('form.saveError'));
     }
   };
