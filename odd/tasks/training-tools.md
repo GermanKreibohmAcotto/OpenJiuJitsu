@@ -34,7 +34,7 @@ S5 Injury log — idea 7: "Lesiones y estado físico: registro de dolores y de c
 - [ ] T2 S2 Weekly goal and streak on home · route: writer (home + profile goal form) · commit: —
 - [ ] T3 S3 Graduation progress in profile · route: writer (same writer as T2, profile) · commit: —
 - [x] T4 S4 Position map in library · route: writer (src/features/library, src/domain/positionGraph) · commit: 3d8f2d1
-- [ ] T5 S5 Injury log (new table, backup v2) · route: writer, own commit (Risk item 1: schema/backup format) · commit: —
+- [ ] T5 S5 Injury log (new table, backup v2) · route: writer, own commit (Risk item 1: schema/backup format) · commit: 04b3993 (independent verify pending)
 - [ ] T6 all Verify (independent for T5), full suite + build · route: verify · commit: —
 
 ## Log
@@ -44,3 +44,4 @@ L2 (user decisions): timer "Básico"; streaks "Meta semanal"; graduation "Ambos"
 L3 (discovery): sparring already ships a round/rest timer with end beeps; techniques have no destination position.
 L4 (T1 worker): start beep also fires when rest ends; round→round without rest stays 'end'; cues differ by pitch/duration; timer link only from sparring setup.
 L5 (T4 review): removed 'submission' transition kind (a submission ends the exchange, not a transition); submissions show as techniques per position. Layered HTML buttons instead of SVG.
+L6 (T5 worker): 14 body zones; nav entry in desktop sidebar + phone header icon (bottom bar stays 5); stale Vitest fs module cache can hide new i18n namespaces locally — run with --experimental.fsModuleCache=false. Isolated check of 04b3993: 164 tests, tsc, build OK.
