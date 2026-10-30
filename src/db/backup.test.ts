@@ -197,9 +197,20 @@ describe('backup hardening', () => {
       { ...rest, injuries: [{ ...good, date: 5 }] },
       { ...rest, injuries: [{ ...good, notes: undefined }] },
     ];
+    const before = JSON.stringify((await exportData()).data);
     for (const data of variants) {
       expect(() => parseBackup(JSON.stringify({ ...backup, data }))).toThrow(BackupError);
     }
+    expect(JSON.stringify((await exportData()).data)).toBe(before);
+  });
+
+  it('replaces stored injuries on import', async () => {
+    await seedEveryTable();
+    const backup = await exportData();
+    await db.injuries.put({ ...backup.data.injuries[0], id: 'extra' });
+
+    await importData(parseBackup(JSON.stringify(backup)));
+
     expect((await db.injuries.toArray()).map((i) => i.id)).toEqual(['i1']);
   });
 

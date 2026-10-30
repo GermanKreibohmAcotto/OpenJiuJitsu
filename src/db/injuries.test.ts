@@ -24,12 +24,17 @@ describe('database upgrade', () => {
       meta: 'key',
     });
     await old.open();
-    await old.table('graduations').put({ id: 'g1', belt: 'blue', stripes: 1, date: '2026-01-01' });
+    const v1Tables = ['techniques', 'plans', 'sessions', 'graduations', 'profile', 'matches'] as const;
+    for (const table of v1Tables) await old.table(table).put({ id: `${table}-1`, date: '2026-01-01' });
+    await old.table('meta').put({ key: 'seeded', value: 1 });
     old.close();
 
     const upgraded = new OpenJiuJitsuDB(name);
     await upgraded.open();
-    expect((await upgraded.graduations.toArray()).map((g) => g.id)).toEqual(['g1']);
+    for (const table of v1Tables) {
+      expect((await upgraded.table(table).toArray()).map((r: { id: string }) => r.id)).toEqual([`${table}-1`]);
+    }
+    expect(await upgraded.meta.get('seeded')).toEqual({ key: 'seeded', value: 1 });
     expect(await upgraded.injuries.count()).toBe(0);
     await upgraded.delete();
   });
