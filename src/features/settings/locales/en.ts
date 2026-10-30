@@ -42,6 +42,18 @@ export default {
       unknown: 'The file could not be imported.',
     },
   },
+  demo: {
+    title: 'Demo mode',
+    help: 'Development only. The demo lives in a separate database; your real data is never touched.',
+    switch: 'Demo mode',
+    on: 'on',
+    off: 'off',
+    reset: 'Reset demo',
+    confirmReset: 'The demo database is deleted and loaded again from scratch. Continue?',
+    remove: 'Remove demo data from the real database',
+    confirmRemove: 'Demo records ("demo-" ids) and the demo profile are deleted from the real database. Continue?',
+    removed: '{{count}} demo records removed.',
+  },
   storage: {
     title: 'Storage',
     help: 'Browsers may clear data of rarely used sites. Requesting persistent storage prevents that.',

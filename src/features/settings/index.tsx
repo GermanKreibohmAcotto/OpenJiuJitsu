@@ -8,6 +8,7 @@ import { PageHeader } from '../../components/Page';
 import { BackupError, exportData, importData, parseBackup } from '../../db/backup';
 import { todayIso } from '../../db/ids';
 import { LANGS } from '../../domain/types';
+import { isDemoMode, resetDemo, setDemoMode } from '../../dev/demoMode';
 import { isLang } from '../../i18n';
 
 type Status = { kind: 'success' | 'error'; message: string } | null;
@@ -19,6 +20,56 @@ function downloadJson(filename: string, content: string) {
   link.download = filename;
   link.click();
   URL.revokeObjectURL(url);
+}
+
+/** Dev only: switch between the real and the demo database, and clean demo leftovers out of the real one. */
+function DemoSection() {
+  const { t } = useTranslation('settings');
+  const demo = isDemoMode();
+  const [result, setResult] = useState<string | null>(null);
+
+  const onReset = () => {
+    if (window.confirm(t('demo.confirmReset'))) void resetDemo();
+  };
+
+  const onRemove = async () => {
+    if (!window.confirm(t('demo.confirmRemove'))) return;
+    const { removeDemoData } = await import('../../dev/demoData');
+    setResult(t('demo.removed', { count: await removeDemoData() }));
+  };
+
+  return (
+    <section className="card flex flex-col gap-3">
+      <h2 className="font-semibold">{t('demo.title')}</h2>
+      <p className="text-sm text-muted">{t('demo.help')}</p>
+      <div className="flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          role="switch"
+          aria-checked={demo}
+          aria-label={t('demo.switch')}
+          onClick={() => setDemoMode(!demo)}
+          className={`btn px-3 py-1.5 ${demo ? 'border-accent text-accent' : ''}`}
+        >
+          {t('demo.switch')}: {t(demo ? 'demo.on' : 'demo.off')}
+        </button>
+        {demo ? (
+          <button type="button" className="btn" onClick={onReset}>
+            {t('demo.reset')}
+          </button>
+        ) : (
+          <button type="button" className="btn btn-danger" onClick={onRemove}>
+            {t('demo.remove')}
+          </button>
+        )}
+      </div>
+      {result && (
+        <p role="status" className="text-sm text-accent">
+          {result}
+        </p>
+      )}
+    </section>
+  );
 }
 
 function SettingsPage() {
@@ -166,6 +217,8 @@ function SettingsPage() {
             </button>
           )}
         </section>
+
+        {import.meta.env.DEV && <DemoSection />}
 
         <p className="text-center text-xs text-muted">OpenJiuJitsu v{__APP_VERSION__}</p>
       </div>

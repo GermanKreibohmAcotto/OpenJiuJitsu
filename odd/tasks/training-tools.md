@@ -27,6 +27,14 @@ S5 Injury log — idea 7: "Lesiones y estado físico: registro de dolores y de c
 - Create, edit, delete injuries; mark as recovered or active again; list shows active first.
 - Stored in a new IndexedDB table (`injuries`), included in JSON export/import. Backups from before the table (version 1) still import, with no injuries.
 
+S6 Demo mode in its own database — user: "sin poner ?demo me queda todo guardado de la demo en la aplicacion, que opciones tengo para sacar la demo cuando yo quiera y volver cuando lo necesite". Chosen option "Base separada + interruptor": "la demo vive en otra base; un interruptor en Ajustes (solo en desarrollo) la prende y la apaga sin tocar tus datos reales."
+- Dev only (import.meta.env.DEV); production builds never show the controls nor open the demo database.
+- Demo mode on → the app uses IndexedDB `openjiujitsu-demo` (seeded library + demo data loaded when empty); off → `openjiujitsu`. The flag persists across reloads (localStorage) until switched off. Switching reloads the app.
+- `?demo` turns demo mode on (no longer writes into the real database).
+- A visible "Modo demo" banner while it is on.
+- "Restablecer demo": deletes the demo database and reloads it fresh.
+- One-time cleanup of the real database (button, only with demo mode off, with confirmation): deletes records whose id starts with `demo-` in plans, sessions, matches, graduations, injuries; resets the profile to the default only if its name and academy are the demo ones ("Alex Silva", "Open Mat Academy"). Nothing else changes (techniques, other records, meta).
+
 ## Tasks
 
 - [x] T0 S2,S3 Profile fields `weeklyGoal`, `graduationGoal` + backup validation · route: inline · commit: d24edb1
@@ -36,6 +44,7 @@ S5 Injury log — idea 7: "Lesiones y estado físico: registro de dolores y de c
 - [x] T4 S4 Position map in library · route: writer (src/features/library, src/domain/positionGraph) · commit: 3d8f2d1
 - [x] T5 S5 Injury log (new table, backup v2) · route: writer, own commit (Risk item 1: schema/backup format) · commit: 04b3993, 3c68147 (independent verify: pass)
 - [x] T6 all Verify (independent for T5), full suite + build · route: verify · commit: — (200 tests, tsc, build OK)
+- [ ] T7 S6 Demo mode in its own database + real-db cleanup · route: writer (context backstop), independent verify (Risk item 1: deletes stored data) · commit: —
 
 ## Log
 
@@ -48,3 +57,4 @@ L6 (T5 worker): 14 body zones; nav entry in desktop sidebar + phone header icon 
 L7 (T2/T3 worker): weekly goal edited only from the home card (empty clears it); future-dated sessions ignored; months = days / 30.4375; classes/hours bars only with an own goal (IBJJF reference is months only).
 L8 (T5 verify): pass on every S5 bullet and risk item; added its proposed regressions (all v1 tables across upgrade, whole data unchanged on rejected import, import replaces injuries) in 3c68147.
 L9 (T6): full suite 200/200, tsc, build OK. Local `npm test` showed 4 injury UI failures from a stale `node_modules/.vitest-cache` (import.meta.glob of feature locales); deleting the cache fixed it. CI is unaffected (fresh install).
+L10 (user): "sin poner ?demo me queda todo guardado de la demo en la aplicacion, que opciones tengo para sacar la demo cuando yo quiera y volver cuando lo necesite" → chose "Base separada + interruptor". Also earlier: injury save shows "no se pudo guardar la lesion" in the user browser; not reproducible in a clean Chrome profile; error now logged (e7599ee); awaiting console output.

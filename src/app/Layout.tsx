@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { NavLink, Outlet } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { isDemoMode } from '../dev/demoMode';
 
 /** Sections of the desktop sidebar. */
 const NAV = [
@@ -71,6 +72,11 @@ export function Layout() {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
+        {isDemoMode() && (
+          <div role="status" className="bg-accent px-4 py-1 text-center text-xs font-semibold text-accent-ink">
+            {t('demoBanner')}
+          </div>
+        )}
         <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-line bg-bg/90 px-4 py-3 backdrop-blur">
           <NavLink to="/" className="font-display text-base tracking-tight md:invisible">
             Open<span className="text-accent">JiuJitsu</span>

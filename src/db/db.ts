@@ -8,11 +8,15 @@ import type {
   TrainingPlan,
   TrainingSession,
 } from '../domain/types';
+import { DEMO_DB_NAME, databaseName, isDemoMode } from '../dev/demoMode';
 
 export interface MetaEntry {
   key: string;
   value: unknown;
 }
+
+export { DEMO_DB_NAME };
+export const DB_NAME = databaseName(false);
 
 export class OpenJiuJitsuDB extends Dexie {
   techniques!: EntityTable<Technique, 'id'>;
@@ -24,7 +28,7 @@ export class OpenJiuJitsuDB extends Dexie {
   injuries!: EntityTable<Injury, 'id'>;
   meta!: EntityTable<MetaEntry, 'key'>;
 
-  constructor(name = 'openjiujitsu') {
+  constructor(name = DB_NAME) {
     super(name);
     const v1 = {
       techniques: 'id, category, type, *modes, updatedAt',
@@ -41,7 +45,8 @@ export class OpenJiuJitsuDB extends Dexie {
   }
 }
 
-export const db = new OpenJiuJitsuDB();
+/** Opens the demo database in dev demo mode; production always opens the real one. */
+export const db = new OpenJiuJitsuDB(databaseName(isDemoMode()));
 
 /** Every data table, in export order. `meta` is internal and never exported. */
 export const DATA_TABLES = ['techniques', 'plans', 'sessions', 'graduations', 'profile', 'matches', 'injuries'] as const;

@@ -11,6 +11,7 @@ export default {
     profile: 'Perfil',
     settings: 'Ajustes',
   },
+  demoBanner: 'Modo demo',
   actions: {
     save: 'Guardar',
     cancel: 'Cancelar',

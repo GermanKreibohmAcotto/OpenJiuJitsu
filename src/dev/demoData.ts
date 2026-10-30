@@ -1,5 +1,8 @@
 import { db } from '../db/db';
+import type { OpenJiuJitsuDB } from '../db/db';
 import { todayIso } from '../db/ids';
+import { DEFAULT_PROFILE } from '../db/profile';
+import { ensureSeeded } from '../db/seed';
 import type {
   Graduation,
   Injury,
@@ -178,5 +181,36 @@ export async function loadDemoData(): Promise<void> {
     await db.sessions.bulkPut(buildSessions());
     await db.matches.bulkPut(buildMatches());
     await db.graduations.bulkPut(buildGraduations());
+  });
+}
+
+const DEMO_NAME = 'Alex Silva';
+const DEMO_ACADEMY = 'Open Mat Academy';
+const DEMO_TABLES = ['plans', 'sessions', 'matches', 'graduations', 'injuries'] as const;
+
+/** Seeds the library and, when the database has no demo profile yet, fills it with the demo data. */
+export async function ensureDemoData(): Promise<void> {
+  await ensureSeeded();
+  const profile = await db.profile.get('me');
+  if (profile?.name !== DEMO_NAME || profile.academy !== DEMO_ACADEMY) await loadDemoData();
+}
+
+/**
+ * One-time cleanup of a database that received demo data: deletes the `demo-` records of plans,
+ * sessions, matches, graduations and injuries, and resets the profile only when it is still the
+ * demo identity. Techniques, meta and every other record stay. Returns how many records were deleted.
+ */
+export function removeDemoData(database: OpenJiuJitsuDB = db): Promise<number> {
+  return database.transaction('rw', [database.profile, ...DEMO_TABLES.map((name) => database[name])], async () => {
+    let removed = 0;
+    for (const name of DEMO_TABLES) {
+      const table = database[name];
+      const ids = (await table.toCollection().primaryKeys()).filter((id) => id.startsWith('demo-'));
+      await table.bulkDelete(ids);
+      removed += ids.length;
+    }
+    const profile = await database.profile.get('me');
+    if (profile?.name === DEMO_NAME && profile.academy === DEMO_ACADEMY) await database.profile.put(DEFAULT_PROFILE);
+    return removed;
   });
 }
