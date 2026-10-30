@@ -7,6 +7,7 @@ export default {
     journal: 'Bitácora',
     sparring: 'Sparring',
     analytics: 'Analíticas',
+    injuries: 'Lesiones',
     profile: 'Perfil',
     settings: 'Ajustes',
   },

@@ -210,3 +210,37 @@ export interface SparringMatch {
   events?: MatchEvent[];
   createdAt: string;
 }
+
+export const BODY_ZONES = [
+  'neck',
+  'shoulder',
+  'elbow',
+  'wrist',
+  'hand',
+  'ribs',
+  'upper_back',
+  'lower_back',
+  'hip',
+  'knee',
+  'ankle',
+  'foot',
+  'head',
+  'other',
+] as const;
+export type BodyZone = (typeof BODY_ZONES)[number];
+
+export const INJURY_STATUSES = ['active', 'recovered'] as const;
+export type InjuryStatus = (typeof INJURY_STATUSES)[number];
+
+export interface Injury {
+  id: string;
+  zone: BodyZone;
+  /** 1 (mild) to 10 (severe). */
+  intensity: number;
+  /** yyyy-mm-dd */
+  date: string;
+  notes: string;
+  status: InjuryStatus;
+  createdAt: string;
+  updatedAt: string;
+}

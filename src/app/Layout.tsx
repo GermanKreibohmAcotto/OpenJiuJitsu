@@ -9,12 +9,20 @@ const NAV = [
   { to: '/journal', key: 'journal', icon: '📝' },
   { to: '/sparring', key: 'sparring', icon: '⏱️' },
   { to: '/analytics', key: 'analytics', icon: '📊' },
+  { to: '/injuries', key: 'injuries', icon: '🩹' },
   { to: '/profile', key: 'profile', icon: '🥋' },
+] as const;
+
+/** Icon links in the header, for phones. */
+const HEADER_LINKS = [
+  { key: 'analytics', icon: '📊' },
+  { key: 'injuries', icon: '🩹' },
+  { key: 'profile', icon: '🥋' },
 ] as const;
 
 /**
  * Bottom bar on phones: exactly five buttons, with Home in the middle as the primary one.
- * Analytics and Profile stay one tap away from the header.
+ * Analytics, Injuries and Profile stay one tap away from the header.
  */
 const TAB_BAR = [
   { to: '/library', key: 'library', icon: '📖' },
@@ -68,9 +76,9 @@ export function Layout() {
             Open<span className="text-accent">JiuJitsu</span>
           </NavLink>
           <div className="flex items-center gap-2">
-            {(['analytics', 'profile'] as const).map((key) => (
-              <NavLink key={key} to={`/${key}`} aria-label={t(`nav.${key}`)} className={headerIconClass}>
-                {key === 'analytics' ? '📊' : '🥋'}
+            {HEADER_LINKS.map((item) => (
+              <NavLink key={item.key} to={`/${item.key}`} aria-label={t(`nav.${item.key}`)} className={headerIconClass}>
+                {item.icon}
               </NavLink>
             ))}
             <NavLink to="/settings" aria-label={t('nav.settings')} className={headerIconClass}>

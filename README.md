@@ -50,7 +50,7 @@ src/
   db/         Dexie database, repositories, seed library, backup
   i18n/       i18next setup and shared strings (es, en)
   components/ Shared UI (belt bar, GI/NoGI toggle, technique picker)
-  features/   One folder per area: library, plans, journal, profile, sparring, settings, home
+  features/   One folder per area: library, plans, journal, profile, sparring, injuries, settings, home
 ```
 
 Each feature owns its routes and its strings (`features/<name>/locales/{es,en}.ts`), registered
