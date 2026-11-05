@@ -21,6 +21,7 @@ import { getPlan, planTotalMinutes, savePlan } from '../../db/plans';
 import { BLOCK_KINDS, type BlockKind, type Mode, type PlanBlock, type Technique, type TrainingPlan } from '../../domain/types';
 import { useTechniqueMap, useTechniques } from '../../hooks/useTechniques';
 import { useLocalize } from '../../i18n';
+import { Icon } from '../../components/Icon';
 import {
   addBlock,
   addTechniqueToBlock,
@@ -189,7 +190,7 @@ function PlanForm({ planId, title, initial }: { planId?: string; title: string; 
                       aria-label={t('builder.objectives.remove', { text })}
                       onClick={() => setForm((f) => ({ ...f, objectives: f.objectives.filter((_, i) => i !== index) }))}
                     >
-                      ✕
+                      <Icon name="close" />
                     </button>
                   </li>
                 ))}
@@ -327,7 +328,7 @@ function BlockCard({ block, index, count, mode, techniques, onChange, onRemove, 
           {...attributes}
           {...listeners}
         >
-          ⠿
+          <Icon name="drag_indicator" />
         </button>
         <select
           className="input w-auto"
@@ -356,7 +357,7 @@ function BlockCard({ block, index, count, mode, techniques, onChange, onRemove, 
           onChange={(e) => onChange({ minutes: Math.max(0, Number(e.target.value) || 0) })}
         />
         <button type="button" className="btn btn-ghost" disabled={index === 0} aria-label={t('builder.blocks.moveUp', { n })} onClick={() => onMove(-1)}>
-          ↑
+          <Icon name="arrow_upward" />
         </button>
         <button
           type="button"
@@ -365,10 +366,10 @@ function BlockCard({ block, index, count, mode, techniques, onChange, onRemove, 
           aria-label={t('builder.blocks.moveDown', { n })}
           onClick={() => onMove(1)}
         >
-          ↓
+          <Icon name="arrow_downward" />
         </button>
         <button type="button" className="btn btn-danger" aria-label={t('builder.blocks.remove', { n })} onClick={onRemove}>
-          ✕
+          <Icon name="close" />
         </button>
       </div>
 
@@ -382,7 +383,7 @@ function BlockCard({ block, index, count, mode, techniques, onChange, onRemove, 
               <li key={techniqueId} className="chip">
                 <span>{name}</span>
                 <button type="button" aria-label={t('builder.blocks.removeTechnique', { name })} onClick={() => onRemoveTechnique(techniqueId)}>
-                  ✕
+                  <Icon name="close" />
                 </button>
               </li>
             );

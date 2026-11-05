@@ -5,16 +5,17 @@ import { useSettings } from '../../app/settings';
 import { BeltBar } from '../../components/BeltBar';
 import { ModeToggle } from '../../components/ModeToggle';
 import { PageHeader } from '../../components/Page';
+import { Icon } from '../../components/Icon';
 import { getProfile } from '../../db/profile';
 import { listSessions } from '../../db/sessions';
 import { WeeklyGoalCard } from './WeeklyGoalCard';
 import { filterByMode, minutesToHours, totalMinutes } from '../profile/stats';
 
 const ACTIONS = [
-  { to: '/journal/new', key: 'journal', icon: '📝' },
-  { to: '/sparring', key: 'sparring', icon: '⏱️' },
-  { to: '/plans/new', key: 'plan', icon: '🗂️' },
-  { to: '/library', key: 'library', icon: '📖' },
+  { to: '/journal/new', key: 'journal', icon: 'edit_note' },
+  { to: '/sparring', key: 'sparring', icon: 'timer' },
+  { to: '/plans/new', key: 'plan', icon: 'list_alt' },
+  { to: '/library', key: 'library', icon: 'menu_book' },
 ] as const;
 
 function Dashboard() {
@@ -74,9 +75,7 @@ function Dashboard() {
             {ACTIONS.map((action) => (
               <li key={action.key}>
                 <Link to={action.to} className="card flex flex-col items-center gap-1 py-5 text-sm font-medium hover:border-accent">
-                  <span aria-hidden className="text-2xl">
-                    {action.icon}
-                  </span>
+                  <Icon name={action.icon} className="text-3xl text-accent" />
                   {t(`actions.${action.key}`)}
                 </Link>
               </li>

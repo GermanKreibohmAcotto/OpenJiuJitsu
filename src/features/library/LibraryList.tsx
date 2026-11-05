@@ -9,6 +9,7 @@ import { matchesSearch } from '../../components/TechniquePicker';
 import { TECHNIQUE_TYPES, type TechniqueType } from '../../domain/types';
 import { useTechniques } from '../../hooks/useTechniques';
 import { localize } from '../../i18n';
+import { Icon } from '../../components/Icon';
 
 export function LibraryList() {
   const { t, i18n } = useTranslation('library');
@@ -86,7 +87,7 @@ export function LibraryList() {
                 {tech.type === 'submission' && <BeltLegalityBadges legality={tech.legality} modes={tech.modes} />}
                 {tech.counterpartIds.length === 0 && (
                   <span className="chip border-danger/40 text-danger" title={t('noCounterpartHint')}>
-                    <span aria-hidden>⚠</span> {t('noCounterpart')}
+                    <Icon name="warning" /> {t('noCounterpart')}
                   </span>
                 )}
               </div>

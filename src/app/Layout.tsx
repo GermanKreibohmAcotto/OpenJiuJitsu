@@ -2,23 +2,24 @@ import { Suspense } from 'react';
 import { NavLink, Outlet } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { isDemoMode } from '../dev/demoMode';
+import { Icon } from '../components/Icon';
 
 /** Sections of the desktop sidebar. */
 const NAV = [
-  { to: '/library', key: 'library', icon: '📖' },
-  { to: '/plans', key: 'plans', icon: '🗂️' },
-  { to: '/journal', key: 'journal', icon: '📝' },
-  { to: '/sparring', key: 'sparring', icon: '⏱️' },
-  { to: '/analytics', key: 'analytics', icon: '📊' },
-  { to: '/injuries', key: 'injuries', icon: '🩹' },
-  { to: '/profile', key: 'profile', icon: '🥋' },
+  { to: '/library', key: 'library', icon: 'menu_book' },
+  { to: '/plans', key: 'plans', icon: 'list_alt' },
+  { to: '/journal', key: 'journal', icon: 'edit_note' },
+  { to: '/sparring', key: 'sparring', icon: 'timer' },
+  { to: '/analytics', key: 'analytics', icon: 'bar_chart' },
+  { to: '/injuries', key: 'injuries', icon: 'healing' },
+  { to: '/profile', key: 'profile', icon: 'person' },
 ] as const;
 
 /** Icon links in the header, for phones. */
 const HEADER_LINKS = [
-  { key: 'analytics', icon: '📊' },
-  { key: 'injuries', icon: '🩹' },
-  { key: 'profile', icon: '🥋' },
+  { key: 'analytics', icon: 'bar_chart' },
+  { key: 'injuries', icon: 'healing' },
+  { key: 'profile', icon: 'person' },
 ] as const;
 
 /**
@@ -26,11 +27,11 @@ const HEADER_LINKS = [
  * Analytics, Injuries and Profile stay one tap away from the header.
  */
 const TAB_BAR = [
-  { to: '/library', key: 'library', icon: '📖' },
-  { to: '/plans', key: 'plans', icon: '🗂️' },
-  { to: '/', key: 'home', icon: '🏠', primary: true },
-  { to: '/journal', key: 'journal', icon: '📝' },
-  { to: '/sparring', key: 'sparring', icon: '⏱️' },
+  { to: '/library', key: 'library', icon: 'menu_book' },
+  { to: '/plans', key: 'plans', icon: 'list_alt' },
+  { to: '/', key: 'home', icon: 'home', primary: true },
+  { to: '/journal', key: 'journal', icon: 'edit_note' },
+  { to: '/sparring', key: 'sparring', icon: 'timer' },
 ] as const;
 
 export function Layout() {
@@ -56,17 +57,17 @@ export function Layout() {
           Open<span className="text-accent">JiuJitsu</span>
         </NavLink>
         <NavLink to="/" end className={linkClass}>
-          <span aria-hidden>🏠</span>
+          <Icon name="home" className="text-xl" />
           {t('nav.home')}
         </NavLink>
         {NAV.map((item) => (
           <NavLink key={item.to} to={item.to} className={linkClass}>
-            <span aria-hidden>{item.icon}</span>
+            <Icon name={item.icon} className="text-xl" />
             {t(`nav.${item.key}`)}
           </NavLink>
         ))}
         <NavLink to="/settings" className={(s) => `${linkClass(s)} mt-auto`}>
-          <span aria-hidden>⚙️</span>
+          <Icon name="settings" className="text-xl" />
           {t('nav.settings')}
         </NavLink>
       </aside>
@@ -84,11 +85,11 @@ export function Layout() {
           <div className="flex items-center gap-2">
             {HEADER_LINKS.map((item) => (
               <NavLink key={item.key} to={`/${item.key}`} aria-label={t(`nav.${item.key}`)} className={headerIconClass}>
-                {item.icon}
+                <Icon name={item.icon} className="text-xl" />
               </NavLink>
             ))}
             <NavLink to="/settings" aria-label={t('nav.settings')} className={headerIconClass}>
-              ⚙️
+              <Icon name="settings" className="text-xl" />
             </NavLink>
           </div>
         </header>
@@ -104,16 +105,11 @@ export function Layout() {
         {TAB_BAR.map((item) => (
           <NavLink key={item.to} to={item.to} end={item.to === '/'} className={tabClass('primary' in item)}>
             {'primary' in item ? (
-              <span
-                aria-hidden
-                className="flex h-14 w-14 items-center justify-center rounded-full border-4 border-bg bg-accent text-2xl text-accent-ink shadow-lg"
-              >
-                {item.icon}
+              <span className="flex h-14 w-14 items-center justify-center rounded-full border-4 border-bg bg-accent text-[1.75rem] text-accent-ink shadow-lg">
+                <Icon name={item.icon} />
               </span>
             ) : (
-              <span aria-hidden className="text-lg">
-                {item.icon}
-              </span>
+              <Icon name={item.icon} className="text-2xl" />
             )}
             <span className="max-w-full truncate">{t(`nav.${item.key}`)}</span>
           </NavLink>

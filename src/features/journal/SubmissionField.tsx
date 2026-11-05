@@ -3,6 +3,7 @@ import { TechniquePicker } from '../../components/TechniquePicker';
 import type { Mode, TechniqueType } from '../../domain/types';
 import { useTechniqueMap } from '../../hooks/useTechniques';
 import { useLocalize } from '../../i18n';
+import { Icon } from '../../components/Icon';
 import { countIds } from './parts';
 
 interface SubmissionFieldProps {
@@ -54,7 +55,7 @@ export function SubmissionField({ legend, hint, mode, types = ['submission'], va
                     aria-label={t('form.decrease', { name })}
                     onClick={() => setCount(id, count - 1)}
                   >
-                    −
+                    <Icon name="remove" />
                   </button>
                   <span className="w-6 text-center font-semibold" aria-live="polite">
                     {count}
@@ -65,7 +66,7 @@ export function SubmissionField({ legend, hint, mode, types = ['submission'], va
                     aria-label={t('form.increase', { name })}
                     onClick={() => setCount(id, count + 1)}
                   >
-                    +
+                    <Icon name="add" />
                   </button>
                 </span>
               </li>

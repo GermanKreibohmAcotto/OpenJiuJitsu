@@ -11,6 +11,7 @@ import { LEGALITY_SOURCE, allowedBelts, isAllowedFor } from '../../domain/belts'
 import { MODES, type MediaItem, type Technique } from '../../domain/types';
 import { useTechniqueMap } from '../../hooks/useTechniques';
 import { localize } from '../../i18n';
+import { Icon } from '../../components/Icon';
 import { isSafeUrl, parseYoutubeId, youtubeEmbedUrl } from './media';
 
 function MediaView({ item, title }: { item: MediaItem; title: string }) {
@@ -165,7 +166,7 @@ export function TechniqueDetail() {
         <section className="card">
           <h2 className="label">{t('detail.counterparts')}</h2>
           {counterparts.length === 0 ? (
-            <p className="text-sm text-danger"><span aria-hidden>⚠</span> {t('noCounterpart')}</p>
+            <p className="text-sm text-danger"><Icon name="warning" /> {t('noCounterpart')}</p>
           ) : (
             <ul className="flex flex-wrap gap-2">
               {counterparts.map((c) => (

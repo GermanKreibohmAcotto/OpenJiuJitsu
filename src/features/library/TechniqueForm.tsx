@@ -24,6 +24,7 @@ import {
   type TechniqueType,
 } from '../../domain/types';
 import { localize, withLocalized } from '../../i18n';
+import { Icon } from '../../components/Icon';
 import { isSafeUrl } from './media';
 
 type PresetKey = keyof typeof LEGALITY_PRESETS;
@@ -205,13 +206,13 @@ export function TechniqueForm({ initial }: { initial?: Technique }) {
                 onChange={(e) => setSteps(steps.map((s, i) => (i === index ? withLocalized(s, lang, e.target.value) : s)))}
               />
               <button type="button" className="btn px-2" aria-label={t('form.moveUp', { n: index + 1 })} disabled={index === 0} onClick={() => setSteps(swap(steps, index, index - 1))}>
-                ↑
+                <Icon name="arrow_upward" />
               </button>
               <button type="button" className="btn px-2" aria-label={t('form.moveDown', { n: index + 1 })} disabled={index === steps.length - 1} onClick={() => setSteps(swap(steps, index, index + 1))}>
-                ↓
+                <Icon name="arrow_downward" />
               </button>
               <button type="button" className="btn btn-danger px-2" aria-label={t('form.removeStep', { n: index + 1 })} onClick={() => setSteps(steps.filter((_, i) => i !== index))}>
-                ✕
+                <Icon name="close" />
               </button>
             </div>
           ))}
@@ -247,7 +248,7 @@ export function TechniqueForm({ initial }: { initial?: Technique }) {
                   onChange={(e) => setMedia(media.map((m, i) => (i === index ? { ...m, url: e.target.value } : m)))}
                 />
                 <button type="button" className="btn btn-danger px-2" aria-label={t('form.removeMedia', { n: index + 1 })} onClick={() => setMedia(media.filter((_, i) => i !== index))}>
-                  ✕
+                  <Icon name="close" />
                 </button>
               </div>
               {errors.media.includes(index) && (
