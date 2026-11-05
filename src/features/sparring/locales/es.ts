@@ -42,9 +42,12 @@ export default {
       backControl: 'Toma de espalda',
     },
   },
+  tabs: {
+    label: 'Modo de sparring',
+    match: 'Combate',
+    timer: 'Solo temporizador',
+  },
   timer: {
-    link: 'Temporizador de rounds',
-    back: 'Volver a sparring',
     reset: 'Reiniciar',
   },
   result: {

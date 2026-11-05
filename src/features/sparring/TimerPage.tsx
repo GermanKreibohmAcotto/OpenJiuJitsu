@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
 import { formatClock } from './MatchScreen';
 import { keepAwake } from './sound';
 import { createTimer, pause, remainingMs, reset, resume, start, sync, type TimerConfig, type TimerState } from './timer';
+import { SparringTabs } from './SparringTabs';
 import { useRoundCues } from './useRoundCues';
 
 function clampInt(value: string, min: number, fallback: number): number {
@@ -68,9 +68,7 @@ export function TimerPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Link to="/sparring" className="btn btn-ghost self-start">
-        {t('timer.back')}
-      </Link>
+      <SparringTabs />
       <section className="card flex flex-col items-center gap-3 text-center" aria-label={status}>
         <p className={`text-sm font-semibold tracking-wide uppercase ${resting ? 'text-accent' : 'text-muted'}`}>{status}</p>
         <p role="timer" className="text-7xl font-bold tabular-nums sm:text-8xl">

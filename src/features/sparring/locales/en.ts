@@ -42,9 +42,12 @@ export default {
       backControl: 'Back control',
     },
   },
+  tabs: {
+    label: 'Sparring mode',
+    match: 'Match',
+    timer: 'Timer only',
+  },
   timer: {
-    link: 'Round timer',
-    back: 'Back to sparring',
     reset: 'Reset',
   },
   result: {

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "comments": [
+    {
+      "id": "21out2xe",
+      "file": "01-tabs.html",
+      "selector": "body > main > nav",
+      "excerpt": "Combate Solo temporizador",
+      "comment": "Que tenga un logo el combate tambien",
+      "createdAt": "2026-11-05T21:07:27.463Z",
+      "status": "resolved",
+      "sentAt": "2026-11-05T21:07:28.868Z",
+      "resolvedAt": "2026-11-05T21:07:58.497Z"
+    }
+  ]
+}

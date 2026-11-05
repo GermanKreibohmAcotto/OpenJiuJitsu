@@ -1,0 +1,30 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tool card</title><style>
+:root{--bg:#0b0d10;--surface:#14171c;--surface-2:#1b1f26;--line:#262b33;--muted:#8b93a1;--accent:#ef4444;--accent-ink:#ffffff;--text:#f4f4f5}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Barlow',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:14px}
+main{max-width:1024px;margin:0 auto;padding:24px 16px 40px}
+h1{font-family:'Dela Gothic One','Barlow',ui-sans-serif,system-ui,sans-serif;font-size:30px;margin:0;font-weight:400}
+.sub{color:var(--muted);margin:4px 0 20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+label,.lbl{display:block;font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:4px}
+.input{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:8px 12px;color:var(--text);font:inherit}
+.input:focus{outline:2px solid var(--accent);outline-offset:2px;border-color:var(--accent)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:8px 16px;color:var(--text);font:inherit;font-weight:500;cursor:pointer;text-decoration:none}
+.btn:hover{border-color:#71717a}
+.btn:focus-visible,a:focus-visible,[role=tab]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn-primary:hover{filter:brightness(1.1);border-color:var(--accent)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface)}
+.seg span{padding:3px 12px;border-radius:999px;font-size:12px;font-weight:600;color:var(--muted)}
+.seg .on{background:var(--accent);color:var(--accent-ink)}
+.mt{margin-top:16px}
+.hist{margin-top:32px}.hist h2{font-size:18px;margin:0 0 12px}
+.empty{text-align:center;color:var(--muted);padding:28px 0}
+svg{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:700px){.grid{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.tool{display:flex;align-items:center;gap:16px;margin-top:16px;text-decoration:none;color:inherit;transition:border-color .15s}.tool:hover{border-color:#71717a}.ico{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent)}.tool b{display:block;font-size:15px}.tool small{color:var(--muted);font-size:13px}.tool .go{margin-left:auto;color:var(--muted)}</style></head><body><main><h1>Sparring</h1><p class="sub">Cronómetro, puntos y resultado de tus rolladas.</p><div class="card"><div class="grid"><div><label for="a1">Atleta 1</label><input id="a1" class="input" value="Yo"></div><div><label for="a2">Atleta 2</label><input id="a2" class="input" value="Compañero"></div></div>
+<div class="mt"><span class="lbl">Modalidad</span><div class="seg"><span class="on">Gi</span><span>NoGi</span></div></div>
+<div class="grid mt"><div><label for="d">Duración por cinto (IBJJF adultos)</label><select id="d" class="input"><option>Blanco · 5 min</option></select></div><div><label for="r">Cantidad de rounds</label><input id="r" class="input" value="1"></div></div>
+<div class="grid mt"><div><label for="s">Descanso entre rounds (segundos)</label><input id="s" class="input" value="30"></div></div><button class="btn btn-primary mt" style="width:100%">Iniciar combate</button></div><a class="card tool" href="#"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg></span><span><b>Temporizador de rounds</b><small>Solo el reloj: sin puntos y sin guardar el combate.</small></span><span class="go"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span></a><section class="hist" aria-labelledby="h"><h2 id="h">Historial</h2><div class="card empty">Todavía no hay combates guardados.</div></section></main></body></html>

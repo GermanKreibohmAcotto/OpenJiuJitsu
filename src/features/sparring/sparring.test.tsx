@@ -238,10 +238,23 @@ describe('sparring mini-app', () => {
 });
 
 describe('standalone round timer', () => {
+  it('shows the mode tabs on both pages with the current one selected', async () => {
+    const user = userEvent.setup();
+    renderSparring();
+    expect(screen.getByRole('link', { name: 'Combate' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('link', { name: 'Solo temporizador' })).not.toHaveAttribute('aria-current');
+    await user.click(screen.getByRole('link', { name: 'Solo temporizador' }));
+    await screen.findByRole('timer');
+    expect(screen.getByRole('link', { name: 'Solo temporizador' })).toHaveAttribute('aria-current', 'page');
+    await user.click(screen.getByRole('link', { name: 'Combate' }));
+    expect(await screen.findByRole('button', { name: 'Iniciar combate' })).toBeInTheDocument();
+  });
+
+
   it('is reachable from the sparring setup and renders the timer page', async () => {
     const user = userEvent.setup();
     renderSparring();
-    await user.click(screen.getByRole('link', { name: 'Temporizador de rounds' }));
+    await user.click(screen.getByRole('link', { name: 'Solo temporizador' }));
     expect(await screen.findByRole('timer')).toHaveTextContent('05:00');
     expect(screen.getByRole('button', { name: 'Iniciar' })).toBeInTheDocument();
     expect(screen.queryByTestId('points-0')).not.toBeInTheDocument();
@@ -250,7 +263,7 @@ describe('standalone round timer', () => {
   it('uses the configured round length', async () => {
     const user = userEvent.setup();
     renderSparring();
-    await user.click(screen.getByRole('link', { name: 'Temporizador de rounds' }));
+    await user.click(screen.getByRole('link', { name: 'Solo temporizador' }));
     const minutes = await screen.findByLabelText('Minutos por round');
     await user.clear(minutes);
     await user.type(minutes, '3');
