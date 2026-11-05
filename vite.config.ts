@@ -1,4 +1,5 @@
 /// <reference types="vitest/config" />
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
@@ -20,11 +21,22 @@ export default defineConfig({
         theme_color: '#0b0d10',
         background_color: '#0b0d10',
         display: 'standalone',
-        start_url: '/',
+        start_url: '/app/',
+        scope: '/',
         icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' }],
       },
+      // The landing (`/`) and the app (`/app/`) are separate pages: only app navigations fall back to the app shell.
+      workbox: { navigateFallback: '/app/index.html', navigateFallbackAllowlist: [/^\/app\//] },
     }),
   ],
+  build: {
+    rollupOptions: {
+      input: {
+        landing: fileURLToPath(new URL('./index.html', import.meta.url)),
+        app: fileURLToPath(new URL('./app/index.html', import.meta.url)),
+      },
+    },
+  },
   // Listen on all interfaces so the app is reachable from other devices on the LAN.
   server: { host: true },
   preview: { host: true },

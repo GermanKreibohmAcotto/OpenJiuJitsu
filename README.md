@@ -28,8 +28,11 @@ Requirements: Node.js 20+.
 
 ```bash
 npm install
-npm run dev       # http://localhost:5173
+npm run dev
 ```
+
+- Landing page: http://localhost:5173/
+- App: http://localhost:5173/app/ (dev demo mode with fictional data: http://localhost:5173/app/?demo)
 
 | Command | Purpose |
 | --- | --- |
@@ -39,8 +42,7 @@ npm run dev       # http://localhost:5173
 | `npm run build` | Type-check and build the static PWA into `dist/` |
 | `npm run preview` | Serve the production build locally |
 
-`dist/` is a static site. Host it anywhere (Nginx, GitHub Pages, Netlify, a NAS); hash-based
-routing means no rewrite rules are needed.
+`dist/` is a static site with two pages: the landing at `/` and the app at `/app/`. Host it anywhere (Nginx, GitHub Pages, Netlify, a NAS); hash-based routing inside the app means no rewrite rules are needed. Old `/#/...` app links (and installed PWAs that still launch `/`) redirect to `/app/`.
 
 ## Project structure
 
@@ -48,6 +50,7 @@ routing means no rewrite rules are needed.
 src/
   domain/     Types and rules (belts, IBJJF legality)
   db/         Dexie database, repositories, seed library, backup
+  landing/    Landing page served at / (reads the real library, legality and timer data)
   i18n/       i18next setup and shared strings (es, en)
   components/ Shared UI (belt bar, GI/NoGI toggle, technique picker)
   features/   One folder per area: library, plans, journal, profile, sparring, injuries, settings, home
