@@ -9,7 +9,8 @@ import type { MatchMethod } from '../../domain/types';
 import { useTechniques } from '../../hooks/useTechniques';
 import { useLocalize } from '../../i18n';
 import type { MatchConfig } from './SetupForm';
-import { computeTotals, decideWinner, type AthleteIndex, type ScoreEvent } from './scoring';
+import { penaltyRulesFor } from './divisions';
+import { computeTotals, decideMatch, type AthleteIndex, type ScoreEvent } from './scoring';
 
 type Outcome = 'time' | 'submission' | 'referee';
 const OUTCOMES: Outcome[] = ['time', 'submission', 'referee'];
@@ -65,8 +66,9 @@ export function ResultForm({ config, events, durationSec, onDone }: ResultFormPr
   const techniques = useTechniques();
   const localize = useLocalize();
 
-  const totals = computeTotals(events);
-  const decision = decideWinner(totals);
+  const rules = penaltyRulesFor(config.division);
+  const totals = computeTotals(events, rules);
+  const decision = decideMatch(events, rules);
   const techniqueId = techniqueIds[0];
 
   const resolved: { winner: AthleteIndex | null; method: MatchMethod } =

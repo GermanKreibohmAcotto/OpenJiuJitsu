@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import '../../i18n';
@@ -234,6 +234,53 @@ describe('sparring mini-app', () => {
     expect(within(row).getByText(/Ganador: Yo/)).toBeInTheDocument();
     await user.click(within(row).getByRole('button', { name: 'Eliminar combate' }));
     await waitFor(async () => expect(await listMatches()).toHaveLength(0));
+  });
+});
+
+describe('IBJJF 6.1 rules in the match', () => {
+  it('turns penalties into advantage, points and a disqualification', async () => {
+    const user = userEvent.setup();
+    renderSparring();
+    await startMatch(user);
+    const penalize = () => user.click(screen.getByRole('button', { name: 'Yo: Penalización' }));
+    await penalize();
+    await penalize();
+    expect(screen.getByTestId('advantages-1')).toHaveTextContent('1');
+    await penalize();
+    expect(screen.getByTestId('points-1')).toHaveTextContent('2');
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    await penalize();
+    expect(screen.getByRole('alert')).toHaveTextContent('Yo queda descalificado');
+    expect(screen.getByRole('button', { name: 'Compañero: Montada (+4)' })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: 'Terminar combate' }));
+    expect(screen.getByText('Gana Compañero por penalizaciones')).toBeInTheDocument();
+  });
+
+  it('uses the match time of the chosen age division', async () => {
+    const user = userEvent.setup();
+    renderSparring();
+    await user.selectOptions(screen.getByLabelText('División'), 'peeWee');
+    await startMatch(user);
+    expect(screen.getByRole('timer')).toHaveTextContent('03:00');
+  });
+
+  it('counts 20 seconds of lack of combativeness before offering the penalty', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderSparring();
+      await startMatch(user);
+      await user.click(screen.getByRole('button', { name: 'Contar falta de combatividad' }));
+      expect(screen.queryByRole('button', { name: 'Penalizar a Yo' })).not.toBeInTheDocument();
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(20_500);
+      });
+      await user.click(await screen.findByRole('button', { name: 'Penalizar a Compañero' }));
+      expect(screen.getByTestId('penalties-1')).toHaveTextContent('1');
+      expect(screen.queryByRole('button', { name: 'Penalizar a Yo' })).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 
