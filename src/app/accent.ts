@@ -1,6 +1,6 @@
 import type { Belt } from '../domain/types';
 
-export const DEFAULT_ACCENT = '#a3e635';
+export const DEFAULT_ACCENT = '#ef4444';
 
 /**
  * Accent per belt, tuned to stay visible on the dark theme: the real brown and black
@@ -17,8 +17,8 @@ export const BELT_ACCENTS: Record<Belt, string> = {
 
 /** Ready-made accent colors, in the order they are offered. */
 export const ACCENT_PRESETS = [
-  { key: 'lime', hex: DEFAULT_ACCENT },
-  { key: 'red', hex: '#ef4444' },
+  { key: 'red', hex: DEFAULT_ACCENT },
+  { key: 'lime', hex: '#a3e635' },
   { key: 'orange', hex: '#f97316' },
   { key: 'amber', hex: '#f59e0b' },
   { key: 'cyan', hex: '#22d3ee' },

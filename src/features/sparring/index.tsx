@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Link, Route, Routes } from 'react-router';
+import { Route, Routes } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '../../components/Page';
 import { MatchDetail } from './MatchDetail';
 import { MatchHistory } from './MatchHistory';
 import { MatchScreen } from './MatchScreen';
 import { ResultForm } from './ResultForm';
+import { SparringTabs } from './SparringTabs';
 import { TimerPage } from './TimerPage';
 import { SetupForm, type MatchConfig } from './SetupForm';
 import type { ScoreEvent } from './scoring';
@@ -25,10 +26,8 @@ function SparringHome() {
       <PageHeader title={t('title')} subtitle={t('subtitle')} />
       {view.step === 'setup' && (
         <>
+          <SparringTabs />
           <SetupForm onStart={(config) => setView({ step: 'match', config })} />
-          <Link to="/sparring/timer" className="btn self-start">
-            {t('timer.link')}
-          </Link>
           <MatchHistory />
         </>
       )}

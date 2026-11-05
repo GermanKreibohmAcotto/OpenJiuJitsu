@@ -1,0 +1,27 @@
+{
+  "title": "Round timer entry",
+  "brief": "Rework how the Sparring page presents the standalone round timer, which looks like an orphan button under the setup card.",
+  "artboards": [
+    {
+      "file": "01-tabs.html",
+      "title": "Mode tabs",
+      "tradeoff": "Clear that Combat and Timer are siblings; adds a permanent tab bar",
+      "width": 1100,
+      "height": 780
+    },
+    {
+      "file": "02-tool-card.html",
+      "title": "Tool card",
+      "tradeoff": "Explains what the timer is and is not; takes more vertical space",
+      "width": 1100,
+      "height": 820
+    },
+    {
+      "file": "03-header-action.html",
+      "title": "Header action + split row",
+      "tradeoff": "Compact and always visible; terse labels, two entry points",
+      "width": 1100,
+      "height": 780
+    }
+  ]
+}

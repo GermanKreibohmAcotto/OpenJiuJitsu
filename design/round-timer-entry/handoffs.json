@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "chosen": "01-tabs.html",
+  "handoffs": {
+    "01-tabs.html": {
+      "status": "implemented",
+      "queued": false,
+      "sentAt": "2026-11-05T21:08:34.775Z",
+      "startedAt": "2026-11-05T21:08:51.849Z",
+      "implementedAt": "2026-11-05T21:12:18.327Z",
+      "note": "Mode tabs (Combate / Solo temporizador) on both sparring pages. All 247 tests, tsc and build pass. No dev server was running, so no preview URL."
+    }
+  }
+}
