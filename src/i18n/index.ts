@@ -3,9 +3,9 @@ import { initReactI18next, useTranslation } from 'react-i18next';
 import { LANGS, type Lang, type LocalizedText } from '../domain/types';
 import es from './locales/es';
 import en from './locales/en';
+import { DEFAULT_LANG, LANG_KEY, initialLang, isLang } from './lang';
 
-export const DEFAULT_LANG: Lang = 'es';
-const LANG_KEY = 'ojj.lang';
+export { DEFAULT_LANG, initialLang, isLang };
 
 type Resources = Record<string, Record<string, unknown>>;
 
@@ -26,17 +26,6 @@ function featureResources(): Record<Lang, Resources> {
     if ((LANGS as readonly string[]).includes(lang)) resources[lang as Lang][feature] = strings;
   }
   return resources;
-}
-
-export function isLang(value: unknown): value is Lang {
-  return typeof value === 'string' && (LANGS as readonly string[]).includes(value);
-}
-
-export function initialLang(): Lang {
-  const stored = typeof localStorage !== 'undefined' ? localStorage.getItem(LANG_KEY) : null;
-  if (isLang(stored)) return stored;
-  const browser = typeof navigator !== 'undefined' ? navigator.language.slice(0, 2) : '';
-  return browser === 'en' ? 'en' : DEFAULT_LANG;
 }
 
 export function setLang(lang: Lang) {
