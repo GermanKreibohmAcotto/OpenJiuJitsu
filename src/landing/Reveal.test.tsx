@@ -1,6 +1,7 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { Landing } from './Landing';
 import { Reveal } from './Reveal';
 
 type Callback = (entries: Partial<IntersectionObserverEntry>[]) => void;
@@ -88,5 +89,13 @@ describe('Reveal', () => {
     expect(screen.getByRole('link', { name: 'Link' })).toHaveFocus();
     expect(screen.getByTestId('box')).toHaveAttribute('data-reveal', 'shown');
     expect(observers[0].disconnect).toHaveBeenCalled();
+  });
+
+  it('only observes HTML elements on the landing, never SVG shapes that mobile browsers may not report', () => {
+    mockObserver();
+    render(<Landing />);
+    const targets = observers.flatMap((o) => o.observe.mock.calls.map(([target]) => target as Element));
+    expect(targets.length).toBeGreaterThan(0);
+    expect(targets.filter((target) => target instanceof SVGElement).map((target) => target.tagName)).toEqual([]);
   });
 });

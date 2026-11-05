@@ -1,7 +1,7 @@
 import { useCallback, useLayoutEffect, useRef, useState, type CSSProperties, type ElementType, type ReactNode } from 'react';
 
 export type RevealState = 'hidden' | 'shown';
-export type RevealVariant = 'up' | 'left' | 'right' | 'scale' | 'grow' | 'pop' | 'meter';
+export type RevealVariant = 'up' | 'left' | 'right' | 'scale' | 'grow' | 'radar' | 'meter';
 
 /** Hidden styles only make sense when something will lift them again. */
 function canAnimate(): boolean {

@@ -37,12 +37,24 @@
   transform: scaleX(0);
 }
 
-/* SVG shape growing from its own origin (set inline), e.g. the radar polygon. */
-[data-variant='pop'] {
-  transform-box: view-box;
+/*
+ * Radar: the wrapper is observed and stays put; its data polygon grows from the chart center
+ * (origin set inline). SVG shapes are never observed directly (see Progress.tsx).
+ */
+[data-reveal='hidden'][data-variant='radar'] {
+  opacity: 1;
+  transform: none;
 }
 
-[data-reveal='hidden'][data-variant='pop'] {
+[data-variant='radar'] .radar-data {
+  transform-box: view-box;
+  transition:
+    opacity 600ms var(--reveal-ease) var(--reveal-delay, 0ms),
+    transform 650ms var(--reveal-ease) var(--reveal-delay, 0ms);
+}
+
+[data-reveal='hidden'][data-variant='radar'] .radar-data {
+  opacity: 0;
   transform: scale(0);
 }
 

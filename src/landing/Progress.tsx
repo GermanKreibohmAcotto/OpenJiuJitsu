@@ -26,41 +26,43 @@ function Radar() {
   const top = scores.indexOf(Math.max(...scores));
   const topName = app.analytics.axes[AXES[top]].name;
   const spokes = AXES.map((_, i) => radarPoint(i, 100));
+  // The HTML wrapper is what scrolls into view: mobile browsers do not reliably report SVG shapes to
+  // IntersectionObserver, least of all one scaled to zero.
   return (
-    <svg
-      viewBox="0 0 320 290"
-      className="mx-auto w-full max-w-[320px]"
-      role="img"
-      aria-label={fmt(copy.features.progress.radarLabel, { axis: topName })}
-    >
-      <polygon points={radarPolygon(AXES.map(() => 100))} fill="none" stroke="var(--color-line)" />
-      <polygon points={radarPolygon(AXES.map(() => 50))} fill="none" stroke="var(--color-line)" />
-      <g stroke="var(--color-line)">
-        {spokes.map((p, i) => (
-          <line key={i} x1={RADAR.cx} y1={RADAR.cy} x2={p.x.toFixed(1)} y2={p.y.toFixed(1)} />
-        ))}
-      </g>
-      <Reveal
-        as="polygon"
-        variant="pop"
-        delay={250}
-        points={radarPolygon(scores)}
-        fill="color-mix(in srgb, var(--color-accent) 22%, transparent)"
-        stroke="var(--color-accent)"
-        strokeWidth="2"
-        style={{ transformOrigin: `${RADAR.cx}px ${RADAR.cy}px` }}
-      />
-      <g fill="var(--color-muted)" fontSize="12" textAnchor="middle" dominantBaseline="middle">
-        {AXES.map((axis, i) => {
-          const p = radarPoint(i, 100, RADAR.radius + 20);
-          return (
-            <text key={axis} x={p.x.toFixed(0)} y={p.y.toFixed(0)} fill={i === top ? 'var(--color-accent)' : undefined}>
-              {i + 1}
-            </text>
-          );
-        })}
-      </g>
-    </svg>
+    <Reveal variant="radar" delay={250} className="mx-auto w-full max-w-[320px]">
+      <svg
+        viewBox="0 0 320 290"
+        className="block w-full"
+        role="img"
+        aria-label={fmt(copy.features.progress.radarLabel, { axis: topName })}
+      >
+        <polygon points={radarPolygon(AXES.map(() => 100))} fill="none" stroke="var(--color-line)" />
+        <polygon points={radarPolygon(AXES.map(() => 50))} fill="none" stroke="var(--color-line)" />
+        <g stroke="var(--color-line)">
+          {spokes.map((p, i) => (
+            <line key={i} x1={RADAR.cx} y1={RADAR.cy} x2={p.x.toFixed(1)} y2={p.y.toFixed(1)} />
+          ))}
+        </g>
+        <polygon
+          className="radar-data"
+          points={radarPolygon(scores)}
+          fill="color-mix(in srgb, var(--color-accent) 22%, transparent)"
+          stroke="var(--color-accent)"
+          strokeWidth="2"
+          style={{ transformOrigin: `${RADAR.cx}px ${RADAR.cy}px` }}
+        />
+        <g fill="var(--color-muted)" fontSize="12" textAnchor="middle" dominantBaseline="middle">
+          {AXES.map((axis, i) => {
+            const p = radarPoint(i, 100, RADAR.radius + 20);
+            return (
+              <text key={axis} x={p.x.toFixed(0)} y={p.y.toFixed(0)} fill={i === top ? 'var(--color-accent)' : undefined}>
+                {i + 1}
+              </text>
+            );
+          })}
+        </g>
+      </svg>
+    </Reveal>
   );
 }
 
