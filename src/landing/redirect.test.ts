@@ -25,4 +25,21 @@ describe('appRedirectTarget', () => {
   it('keeps the hash of a legacy route even when standalone', () => {
     expect(appRedirectTarget('#/plans', true)).toBe('/app/#/plans');
   });
+
+  describe('under a subpath base', () => {
+    const base = '/OpenJiuJitsu/';
+
+    it('moves legacy hash routes to the based app and keeps the hash', () => {
+      expect(appRedirectTarget('#/journal', false, base)).toBe('/OpenJiuJitsu/app/#/journal');
+    });
+
+    it('sends a standalone launch to the based app', () => {
+      expect(appRedirectTarget('', true, base)).toBe('/OpenJiuJitsu/app/');
+    });
+
+    it('still does not redirect plain hashes or landing anchors', () => {
+      expect(appRedirectTarget('', false, base)).toBeNull();
+      expect(appRedirectTarget('#faq', false, base)).toBeNull();
+    });
+  });
 });

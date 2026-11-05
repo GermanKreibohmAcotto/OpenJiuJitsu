@@ -3,7 +3,7 @@ import { BELT_COLOR } from './landingData';
 import type { Belt } from '../domain/types';
 
 export const GITHUB_URL = 'https://github.com/GermanKreibohmAcotto/OpenJiuJitsu';
-export const APP_URL = '/app/';
+export const APP_URL = `${import.meta.env.BASE_URL}app/`;
 
 export function Logo({ className = '' }: { className?: string }) {
   return (

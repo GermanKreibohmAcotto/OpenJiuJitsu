@@ -6,7 +6,13 @@ import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import pkg from './package.json' with { type: 'json' };
 
+// Served from the domain root by default; set BASE_PATH (e.g. `/OpenJiuJitsu/`) for a subpath such as a GitHub Pages project site.
+const baseSegments = (process.env.BASE_PATH ?? '').replace(/^\/+|\/+$/g, '');
+const base = baseSegments ? `/${baseSegments}/` : '/';
+const escapedBase = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 export default defineConfig({
+  base,
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   plugins: [
     react(),
@@ -21,12 +27,12 @@ export default defineConfig({
         theme_color: '#0b0d10',
         background_color: '#0b0d10',
         display: 'standalone',
-        start_url: '/app/',
-        scope: '/',
+        start_url: `${base}app/`,
+        scope: base,
         icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' }],
       },
-      // The landing (`/`) and the app (`/app/`) are separate pages: only app navigations fall back to the app shell.
-      workbox: { navigateFallback: '/app/index.html', navigateFallbackAllowlist: [/^\/app\//] },
+      // The landing (`<base>`) and the app (`<base>app/`) are separate pages: only app navigations fall back to the app shell.
+      workbox: { navigateFallback: `${base}app/index.html`, navigateFallbackAllowlist: [new RegExp(`^${escapedBase}app/`)] },
     }),
   ],
   build: {

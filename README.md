@@ -42,7 +42,22 @@ npm run dev
 | `npm run build` | Type-check and build the static PWA into `dist/` |
 | `npm run preview` | Serve the production build locally |
 
-`dist/` is a static site with two pages: the landing at `/` and the app at `/app/`. Host it anywhere (Nginx, GitHub Pages, Netlify, a NAS); hash-based routing inside the app means no rewrite rules are needed. Old `/#/...` app links (and installed PWAs that still launch `/`) redirect to `/app/`.
+`dist/` is a static site with two pages: the landing at the site root and the app at `app/`. Hash-based routing inside the app means no rewrite rules are needed. Old `/#/...` app links (and installed PWAs that still launch the root) redirect to `app/`.
+
+## Deploy
+
+The site is deployed to GitHub Pages by [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) on every push to `main` (or manually via **Run workflow**). It typechecks, tests and builds, then publishes `dist/`.
+
+One-time setup: repo **Settings → Pages → Source: GitHub Actions**.
+
+- Landing: https://germankreibohmacotto.github.io/OpenJiuJitsu/
+- App: https://germankreibohmacotto.github.io/OpenJiuJitsu/app/
+
+The build reads the `BASE_PATH` environment variable (default `/`). The workflow sets it to `/<repository-name>/`; use another subpath for a different project site, or `/` for a custom domain or root hosting:
+
+```bash
+BASE_PATH=/OpenJiuJitsu/ npm run build
+```
 
 ## Project structure
 

@@ -9,8 +9,8 @@ import '../index.css';
 import { Landing, LANDING_THEME } from './Landing';
 import { appRedirectTarget } from './redirect';
 
-// Old app links (`/#/journal`) and installed PWAs (start_url `/`) belong in the app.
-const target = appRedirectTarget(location.hash, matchMedia('(display-mode: standalone)').matches);
+// Old app links (`#/journal`) and installed PWAs (start_url = site root) belong in the app.
+const target = appRedirectTarget(location.hash, matchMedia('(display-mode: standalone)').matches, import.meta.env.BASE_URL);
 
 if (target) {
   location.replace(target);
