@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "comments": [
+    {
+      "id": "pd7sxmlf",
+      "file": "03-app-first.html",
+      "selector": "body",
+      "excerpt": "OpenJiuJitsu TU COMPAÑERO DE BJJ · GI Y NOGI Entrená. Anotá. Mejorá. Técnicas, planes, diario y cronómetro de sparring en una app que se abre al toque y guarda todo en tu dispositivo. Abrir la app Código en GitHub Sin cuenta Abrís y usás. Offline Instalable como app. Tus datos Exportá en JSON. Grati",
+      "comment": "Me gusta esta pero quiero que explique las funcionalidades de la aplicacion asi como tambien que tome datos de la aplicacion real",
+      "createdAt": "2026-11-05T01:12:22.753Z",
+      "status": "resolved",
+      "sentAt": "2026-11-05T01:12:22.888Z",
+      "resolvedAt": "2026-11-05T01:14:18.652Z"
+    },
+    {
+      "id": "hys9b0zu",
+      "file": "03-app-first.html",
+      "selector": "#funciones > div",
+      "excerpt": "Analíticas de rendimiento Tu estilo de juego en siete ejes, calculado con tus combates y tu bitácora. Perfil y progresión Tu cinturón, tus graduaciones y tus estadísticas en el tatami: horas totales, sumisiones favoritas y las que más te cuesta escapar. Lesiones Registro de dolores y lesiones, para",
+      "comment": "lo siento vacio",
+      "createdAt": "2026-11-05T01:15:35.823Z",
+      "status": "resolved",
+      "sentAt": "2026-11-05T01:15:58.148Z",
+      "resolvedAt": "2026-11-05T01:17:19.122Z"
+    },
+    {
+      "id": "0c0frbuw",
+      "file": "03-app-first.html",
+      "selector": "body > main > section:nth-of-type(3)",
+      "excerpt": "Tu próxima clase, ya con plan. Abrir OpenJiuJitsu",
+      "comment": "lo siento muy simple",
+      "createdAt": "2026-11-05T01:15:56.405Z",
+      "status": "resolved",
+      "sentAt": "2026-11-05T01:15:58.148Z",
+      "resolvedAt": "2026-11-05T01:17:19.122Z"
+    },
+    {
+      "id": "1vb5xqrz",
+      "file": "03-app-first.html",
+      "selector": "#funciones > div > div > article:nth-of-type(1)",
+      "excerpt": "ANALÍTICAS Analíticas de rendimiento Tu estilo de juego en siete ejes, calculado con tus combates y tu bitácora. 1 2 3 4 5 6 7 1 Presión / Pasaje 82 2 Lucha / Ritmo 60 3 Sumisión 90 4 Control / Defensa 55 5 Constancia 75 6 Inversiones / Transiciones 40 7 Flexibilidad / Guardia 65",
+      "comment": "hay mucho espacio",
+      "createdAt": "2026-11-05T01:18:46.230Z",
+      "status": "resolved",
+      "sentAt": "2026-11-05T01:20:31.371Z",
+      "resolvedAt": "2026-11-05T01:20:54.501Z"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "title": "Landing page",
+  "brief": "Landing page for OpenJiuJitsu, served at / with the local-first web app at /app/. Primary color: red (#ef4444), no lime.",
+  "artboards": [
+    { "file": "01-scoreboard.html", "title": "Scoreboard", "tradeoff": "Classic SaaS structure with a live IBJJF scoreboard as hero; clear and complete, but more conventional", "width": 1440, "height": 2900 },
+    { "file": "02-belt-journey.html", "title": "Belt journey", "tradeoff": "Editorial narrative from white to black belt, one feature per stage; memorable and on-theme, but long to scroll", "width": 1440, "height": 3600 },
+    { "file": "03-app-first.html", "title": "App first", "tradeoff": "Split hero with the real Home screen in a phone, then each area explained with real app data (seed library, IBJJF legality, belt round times); longer page, but shows exactly what the app does", "width": 1440, "height": 5400 }
+  ]
+}

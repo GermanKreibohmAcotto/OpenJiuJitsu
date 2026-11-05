@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenJiuJitsu — El camino del cinturón</title>
+<style>
+  :root {
+    --bg: #0b0d10; --surface: #14171c; --surface-2: #1b1f26; --line: #262b33;
+    --muted: #8b93a1; --accent: #ef4444; --accent-ink: #0b0d10; --text: #f4f4f5;
+    --white: #f4f4f5; --blue: #3b82f6; --purple: #a855f7; --brown: #c2813b; --black: #ef4444;
+    --font-display: 'Dela Gothic One', 'Barlow', ui-sans-serif, system-ui, sans-serif;
+    --font-sans: 'Barlow', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-sans); line-height: 1.5; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 40px; }
+  .logo { font-family: var(--font-display); font-weight: 900; font-size: 20px; text-decoration: none; }
+  .logo span { color: var(--accent); }
+  .btn { display: inline-flex; align-items: center; gap: 8px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); padding: 12px 20px; font: 600 15px var(--font-sans); text-decoration: none; }
+  .btn:hover { border-color: #71717a; }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn-primary:hover { filter: brightness(1.1); border-color: var(--accent); }
+  .label { font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+  header.top .wrap { display: flex; justify-content: space-between; align-items: center; height: 76px; }
+
+  .hero { padding: 72px 0 0; }
+  .hero h1 { font-family: var(--font-display); font-weight: 900; font-size: 120px; line-height: .95; letter-spacing: -0.04em; margin: 0; }
+  .hero h1 span { display: block; color: var(--muted); }
+  .hero .sub { display: grid; grid-template-columns: 1fr auto; gap: 48px; align-items: end; margin-top: 40px; }
+  .hero .sub p { font-size: 22px; max-width: 620px; margin: 0; color: #d4d4d8; }
+
+  /* The belt: a full-width bar with a black tip and stripes, like the profile belt selector. */
+  .belt { margin: 72px 0 0; height: 72px; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 220px; }
+  .belt div:nth-child(1) { background: var(--white); }
+  .belt div:nth-child(2) { background: var(--blue); }
+  .belt div:nth-child(3) { background: var(--purple); }
+  .belt div:nth-child(4) { background: var(--brown); }
+  .belt .tip { background: #0a0a0a; border-left: 6px solid var(--black); display: flex; gap: 14px; padding-left: 40px; }
+  .belt .tip i { width: 14px; background: var(--white); }
+
+  .stage { border-bottom: 1px solid var(--line); }
+  .stage .wrap { display: grid; grid-template-columns: 140px 1fr 1fr; gap: 48px; padding-top: 88px; padding-bottom: 88px; align-items: start; }
+  .stage .num { font-family: var(--font-display); font-size: 64px; font-weight: 900; line-height: 1; color: var(--c); }
+  .stage .tag { display: inline-flex; gap: 8px; align-items: center; margin-bottom: 14px; }
+  .stage .tag i { width: 28px; height: 8px; border-radius: 2px; background: var(--c); }
+  .stage h2 { font-family: var(--font-display); font-weight: 900; font-size: 44px; line-height: 1.05; letter-spacing: -0.02em; margin: 0 0 16px; }
+  .stage p { font-size: 18px; color: var(--muted); margin: 0; max-width: 460px; }
+  .stage ul { list-style: none; margin: 24px 0 0; padding: 0; display: grid; gap: 10px; }
+  .stage li { display: flex; gap: 10px; font-size: 16px; }
+  .stage li::before { content: ""; width: 6px; height: 6px; border-radius: 99px; background: var(--c); margin-top: 10px; flex: none; }
+
+  .mock { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; border-top: 3px solid var(--c); }
+  .row { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); font-size: 15px; }
+  .row + .row { margin-top: 8px; }
+  .row small { color: var(--muted); }
+  .chip { border-radius: 999px; border: 1px solid var(--line); padding: 2px 10px; font-size: 12px; color: #d4d4d8; }
+  .bars { display: flex; gap: 10px; align-items: end; height: 140px; margin-top: 8px; }
+  .bars span { flex: 1; background: var(--c); border-radius: 6px 6px 0 0; opacity: .85; }
+  .time { font-family: var(--font-display); font-size: 56px; font-weight: 900; text-align: center; font-variant-numeric: tabular-nums; }
+
+  .closing { padding: 120px 0; text-align: center; }
+  .closing h2 { font-family: var(--font-display); font-weight: 900; font-size: 64px; letter-spacing: -0.03em; line-height: 1.05; margin: 0 auto 24px; max-width: 900px; }
+  .closing p { color: var(--muted); font-size: 18px; margin: 0 0 36px; }
+  .closing .ctas { display: flex; gap: 12px; justify-content: center; }
+  footer { border-top: 1px solid var(--line); padding: 28px 0; color: var(--muted); font-size: 14px; }
+  footer .wrap { display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#">Open<span>JiuJitsu</span></a>
+    <a class="btn btn-primary" href="#app">Abrir la app</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero" aria-labelledby="h">
+    <div class="wrap">
+      <h1 id="h">Del blanco al negro.<span>Un registro a la vez.</span></h1>
+      <div class="sub">
+        <p>OpenJiuJitsu acompaña cada etapa: lo que aprendés, cómo lo entrenás y cuánto avanzás. Gratis, open source y guardado en tu dispositivo.</p>
+        <a class="btn btn-primary" href="#app" id="app">Empezar ahora</a>
+      </div>
+    </div>
+    <div class="belt" aria-hidden="true"><div></div><div></div><div></div><div></div><div class="tip"><i></i><i></i><i></i><i></i></div></div>
+  </section>
+
+  <section class="stage" style="--c: var(--white)" aria-labelledby="s1">
+    <div class="wrap">
+      <div class="num" aria-hidden="true">01</div>
+      <div>
+        <span class="tag label"><i></i>Aprender</span>
+        <h2 id="s1">Una biblioteca que crece con vos.</h2>
+        <p>Viene con una biblioteca inicial bilingüe. Agregá tus técnicas con pasos, video y contrapartes.</p>
+        <ul><li>Drills, guardias, pasadas, sumisiones y escapes</li><li>Kimura enlazada con su escape</li><li>Filtro global GI / NoGI</li></ul>
+      </div>
+      <div class="mock" role="img" aria-label="Lista de técnicas de ejemplo">
+        <div class="row"><span>Armbar desde guardia cerrada<br><small>Sumisión · 5 pasos</small></span><span class="chip">GI · NoGI</span></div>
+        <div class="row"><span>Pasada torreando<br><small>Pasada · 4 pasos</small></span><span class="chip">GI</span></div>
+        <div class="row"><span>Escape de kimura<br><small>Escape · 3 pasos</small></span><span class="chip">GI · NoGI</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" style="--c: var(--blue)" aria-labelledby="s2">
+    <div class="wrap">
+      <div class="num" aria-hidden="true">02</div>
+      <div>
+        <span class="tag label"><i></i>Planificar</span>
+        <h2 id="s2">Llegá a clase con un plan.</h2>
+        <p>Armá bloques con tiempo arrastrando técnicas y definí los objetivos del día.</p>
+      </div>
+      <div class="mock" role="img" aria-label="Plan de clase con tres bloques">
+        <div class="row"><span>Drills</span><small>15 min</small></div>
+        <div class="row"><span>Pasadas de guardia</span><small>20 min</small></div>
+        <div class="row"><span>Rolling</span><small>30 min</small></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" style="--c: var(--purple)" aria-labelledby="s3">
+    <div class="wrap">
+      <div class="num" aria-hidden="true">03</div>
+      <div>
+        <span class="tag label"><i></i>Registrar</span>
+        <h2 id="s3">Anotá los detalles de oro.</h2>
+        <p>Duración, dificultad física y técnica, sensaciones, sumisiones logradas y sufridas, y lo que dijo el profe.</p>
+      </div>
+      <div class="mock" role="img" aria-label="Entrada de diario de ejemplo">
+        <div class="row"><span>Martes · 90 min</span><small>Dificultad 7/10</small></div>
+        <div class="row"><span>Lograste: triángulo, armbar</span></div>
+        <div class="row"><span>Sufriste: estrangulación por la espalda</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" style="--c: var(--brown)" aria-labelledby="s4">
+    <div class="wrap">
+      <div class="num" aria-hidden="true">04</div>
+      <div>
+        <span class="tag label"><i></i>Competir</span>
+        <h2 id="s4">Rounds con marcador IBJJF.</h2>
+        <p>Cronómetro de round y descanso por cinturón, puntos, ventajas, faltas y deshacer. Si termina por sumisión, va directo al diario.</p>
+      </div>
+      <div class="mock"><p class="time" role="timer" aria-label="5 minutos restantes">05:00</p></div>
+    </div>
+  </section>
+
+  <section class="stage" style="--c: var(--black)" aria-labelledby="s5">
+    <div class="wrap">
+      <div class="num" aria-hidden="true">05</div>
+      <div>
+        <span class="tag label"><i></i>Progresar</span>
+        <h2 id="s5">Mirá cuánto avanzaste.</h2>
+        <p>Cinturón y grados, línea de graduaciones, horas de tatami y las sumisiones que más te cuesta escapar.</p>
+      </div>
+      <div class="mock" role="img" aria-label="Gráfico de horas de tatami por mes, en aumento">
+        <span class="label">Horas por mes</span>
+        <div class="bars"><span style="height:30%"></span><span style="height:45%"></span><span style="height:40%"></span><span style="height:62%"></span><span style="height:70%"></span><span style="height:88%"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing" aria-labelledby="c">
+    <div class="wrap">
+      <h2 id="c">Sin cuenta. Sin nube. Solo vos y el tatami.</h2>
+      <p>Tus datos quedan en el navegador. Exportalos cuando quieras en un archivo JSON.</p>
+      <div class="ctas"><a class="btn btn-primary" href="#app">Abrir OpenJiuJitsu</a><a class="btn" href="https://github.com/GermanKreibohmAcotto/OpenJiuJitsu">Ver en GitHub</a></div>
+    </div>
+  </section>
+</main>
+<footer><div class="wrap"><span>OpenJiuJitsu · AGPL-3.0</span><span>Español · English</span></div></footer>
+</body>
+</html>

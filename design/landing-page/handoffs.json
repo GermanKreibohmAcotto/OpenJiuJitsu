@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "chosen": "03-app-first.html",
+  "handoffs": {
+    "03-app-first.html": {
+      "status": "implemented",
+      "queued": false,
+      "sentAt": "2026-11-05T01:22:32.343Z",
+      "startedAt": "2026-11-05T01:22:40.904Z",
+      "implementedAt": "2026-11-05T01:40:47.009Z",
+      "note": "Landing at / (src/landing), app at /app/. Typecheck, 237 tests and build pass; independent verify V1-V8 pass.",
+      "previewUrl": "http://localhost:5173/"
+    }
+  }
+}

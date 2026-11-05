@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenJiuJitsu — La app primero</title>
+<style>
+  :root {
+    --bg: #0b0d10; --surface: #14171c; --surface-2: #1b1f26; --line: #262b33;
+    --muted: #8b93a1; --accent: #ef4444; --accent-ink: #0b0d10; --text: #f4f4f5;
+    --white: #f4f4f5; --blue: #3b82f6; --purple: #a855f7; --brown: #78350f; --tip: #0a0a0a;
+    --font-display: 'Dela Gothic One', 'Barlow', ui-sans-serif, system-ui, sans-serif;
+    --font-sans: 'Barlow', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-sans); line-height: 1.5; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .logo { font-family: var(--font-display); font-weight: 900; font-size: 22px; text-decoration: none; }
+  .logo span { color: var(--accent); }
+  .btn { display: inline-flex; align-items: center; gap: 8px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); padding: 14px 22px; font: 600 16px var(--font-sans); text-decoration: none; }
+  .btn:hover { border-color: #71717a; }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn-primary:hover { filter: brightness(1.1); border-color: var(--accent); }
+  .label { font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); padding: 2px 10px; font-size: 12px; color: #d4d4d8; white-space: nowrap; }
+  .chip-active { border-color: var(--accent); background: rgba(239,68,68,.15); color: var(--accent); }
+  .dot { width: 8px; height: 8px; border-radius: 99px; display: inline-block; }
+
+  /* Hero */
+  .split { display: grid; grid-template-columns: 1fr 1fr; min-height: 900px; }
+  .left { padding: 40px 72px 56px; display: flex; flex-direction: column; }
+  .left .top { display: flex; justify-content: space-between; align-items: center; }
+  .left .top nav { display: flex; gap: 24px; font-size: 15px; }
+  .left .top nav a { color: var(--muted); text-decoration: none; }
+  .left .top nav a:hover { color: var(--text); }
+  .left .body { margin: auto 0; }
+  .left h1 { font-family: var(--font-display); font-weight: 900; font-size: 64px; line-height: 1.02; letter-spacing: -0.03em; margin: 16px 0 20px; }
+  .left h1 em { font-style: normal; color: var(--accent); }
+  .left p.lead { font-size: 19px; color: #d4d4d8; margin: 0 0 32px; max-width: 520px; }
+  .ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+  .guarantees { list-style: none; padding: 0; margin: 40px 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .guarantees li { border-top: 2px solid var(--accent); padding-top: 12px; font-size: 14px; color: var(--muted); }
+  .guarantees b { display: block; color: var(--text); font-size: 16px; }
+  .left footer { color: var(--muted); font-size: 13px; display: flex; gap: 16px; }
+
+  .right { background: var(--surface); border-left: 1px solid var(--line); display: grid; place-items: center; position: relative; overflow: hidden; }
+  .right::before { content: ""; position: absolute; width: 560px; height: 560px; border-radius: 50%; background: radial-gradient(circle, rgba(239,68,68,.14), transparent 70%); }
+  .phone { position: relative; width: 340px; border-radius: 44px; border: 10px solid var(--line); background: var(--bg); padding: 18px 16px 0; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
+  .phone .bar { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  .phone .bar .logo { font-size: 15px; }
+  .phone .content { padding: 14px 0; display: grid; gap: 10px; }
+  .p-card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; }
+  .p-card h3 { margin: 0 0 4px; font-size: 14px; }
+  .p-card small { color: var(--muted); font-size: 12px; display: block; }
+  .p-card .big { font-family: var(--font-display); font-size: 22px; color: var(--accent); }
+  .progress { height: 8px; border-radius: 99px; background: var(--surface-2); margin: 8px 0 6px; overflow: hidden; }
+  .progress i { display: block; height: 100%; width: 66%; background: var(--accent); }
+  .beltbar { height: 18px; border-radius: 4px; display: flex; justify-content: flex-end; margin-top: 8px; }
+  .beltbar span { width: 56px; background: var(--tip); display: flex; gap: 5px; justify-content: center; }
+  .beltbar span i { width: 5px; background: var(--white); }
+  .qa { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+  .qa span { font-size: 11px; text-align: center; padding: 6px 0; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); }
+  .tabs { display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid var(--line); padding: 8px 0 14px; text-align: center; font-size: 10px; color: var(--muted); align-items: end; }
+  .tabs .home { color: var(--accent); }
+  .tabs .home i { display: block; width: 46px; height: 46px; border-radius: 50%; background: var(--accent); margin: -22px auto 2px; border: 4px solid var(--bg); }
+
+  /* Features */
+  .features { border-top: 1px solid var(--line); padding: 104px 72px 40px; }
+  .features > header { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: end; margin-bottom: 56px; }
+  .features h2 { font-family: var(--font-display); font-weight: 900; font-size: 48px; line-height: 1.05; letter-spacing: -0.02em; margin: 12px 0 0; }
+  .features > header p { color: var(--muted); font-size: 18px; margin: 0; }
+  .feature { display: grid; grid-template-columns: 1fr 1.15fr; gap: 64px; align-items: center; padding: 56px 0; border-top: 1px solid var(--line); }
+  .feature:nth-of-type(even) .copy { order: 2; }
+  .feature .kicker { display: flex; align-items: center; gap: 12px; }
+  .feature .num { font-family: var(--font-display); font-size: 14px; color: var(--accent); }
+  .feature h3 { font-family: var(--font-display); font-weight: 900; font-size: 32px; line-height: 1.1; margin: 12px 0 14px; }
+  .feature p { color: #d4d4d8; font-size: 17px; margin: 0 0 16px; max-width: 520px; }
+  .feature ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; color: var(--muted); font-size: 15px; }
+  .feature li { display: flex; gap: 10px; }
+  .feature li::before { content: ""; width: 6px; height: 6px; border-radius: 99px; background: var(--accent); margin-top: 9px; flex: none; }
+
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; }
+  .panel .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); font-size: 15px; }
+  .row + .row { margin-top: 8px; }
+  .row small { display: block; color: var(--muted); font-size: 13px; }
+  .row .link { color: var(--accent); font-size: 13px; }
+  .blocks { display: grid; grid-template-columns: 15fr 20fr 30fr; gap: 8px; }
+  .blocks div { border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); padding: 12px; font-size: 14px; min-height: 120px; }
+  .blocks b { display: block; margin-bottom: 8px; }
+  .blocks .chip { margin: 0 4px 4px 0; }
+  .score { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .score > div { border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); padding: 14px; }
+  .score .pts { font-family: var(--font-display); font-size: 44px; line-height: 1; }
+  .score .lead { border-color: var(--accent); }
+  .score .lead .pts { color: var(--accent); }
+  .timer { font-family: var(--font-display); font-size: 52px; text-align: center; margin: 4px 0 12px; font-variant-numeric: tabular-nums; }
+  .minutes { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 12px; }
+  .minutes span { text-align: center; font-size: 12px; padding: 8px 0; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); border-top: 3px solid var(--c); }
+  .minutes b { display: block; font-size: 15px; }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .field { border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); padding: 10px 12px; font-size: 14px; }
+  .field .label { display: block; font-size: 11px; margin-bottom: 2px; }
+  .field.full { grid-column: span 2; }
+  .meter { display: flex; gap: 3px; margin-top: 6px; }
+  .meter i { flex: 1; height: 6px; border-radius: 2px; background: var(--line); }
+  .meter i.on { background: var(--accent); }
+
+  /* Bento: analytics on the left, profile and injuries stacked on the right. */
+  .more { padding: 56px 0 0; border-top: 1px solid var(--line); }
+  .more > header { display: flex; justify-content: space-between; align-items: end; gap: 32px; margin-bottom: 28px; }
+  .more > header h3 { font-family: var(--font-display); font-weight: 900; font-size: 32px; line-height: 1.1; margin: 12px 0 0; }
+  .more > header p { color: var(--muted); margin: 0; max-width: 420px; }
+  .bento { display: grid; grid-template-columns: 1.1fr 1fr; grid-template-rows: auto auto; gap: 16px; }
+  .tile { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 28px; }
+  .tile.tall { grid-row: span 2; display: flex; flex-direction: column; }
+  .tile h4 { margin: 8px 0 6px; font-size: 22px; }
+  .tile > p { margin: 0 0 20px; color: var(--muted); font-size: 15px; }
+  .radar-wrap { display: grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: center; }
+  .insights { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: auto; padding-top: 24px; }
+  .insights div { border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); padding: 16px; }
+  .insights .strong { border-color: var(--accent); }
+  .insights b { display: block; font-size: 17px; margin: 4px 0 2px; }
+  .insights small { color: var(--muted); font-size: 13px; }
+  .insights .val { font-family: var(--font-display); font-size: 28px; float: right; line-height: 1; }
+  .insights .strong .val { color: var(--accent); }
+  .axes { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 14px; }
+  .axes li { display: grid; grid-template-columns: 22px 1fr 30px; gap: 8px; align-items: center; }
+  .axes .n { width: 22px; height: 22px; border-radius: 99px; background: var(--surface-2); border: 1px solid var(--line); display: grid; place-items: center; font-size: 11px; color: var(--muted); }
+  .axes b { text-align: right; font-variant-numeric: tabular-nums; }
+  .axes .top .n { border-color: var(--accent); color: var(--accent); }
+  .pbar { height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; margin: 6px 0 12px; }
+  .pbar i { display: block; height: 100%; background: var(--accent); }
+  .pline { display: flex; justify-content: space-between; font-size: 14px; }
+  .pline span { color: var(--muted); }
+  .timeline { display: flex; align-items: center; gap: 10px; margin-top: 16px; font-size: 13px; color: var(--muted); }
+  .timeline .seg { flex: 1; height: 2px; background: var(--line); }
+  .timeline .node { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .timeline .node i { width: 22px; height: 8px; border-radius: 2px; display: inline-block; }
+  .inj { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; padding: 12px 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); }
+  .inj + .inj { margin-top: 8px; }
+  .inj .zone { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: rgba(239,68,68,.12); color: var(--accent); }
+  .inj.done .zone { background: var(--surface); color: var(--muted); }
+  .inj small { display: block; color: var(--muted); font-size: 13px; }
+  .inj .meter { width: 120px; }
+
+  .faq { border-top: 1px solid var(--line); margin-top: 96px; padding: 72px 72px; display: grid; grid-template-columns: 1fr 2fr; gap: 64px; }
+  .faq h2 { font-family: var(--font-display); font-weight: 900; font-size: 32px; line-height: 1.1; margin: 8px 0 0; }
+  details { border: 1px solid var(--line); border-radius: 16px; background: var(--surface); padding: 16px 20px; }
+  details + details { margin-top: 10px; }
+  summary { cursor: pointer; font-weight: 600; }
+  details p { color: var(--muted); margin: 10px 0 0; }
+  /* Closing: a red block with the pitch, three start steps and a belt running along its base. */
+  .final { margin: 0 72px; border-radius: 24px; background: var(--accent); color: var(--accent-ink); overflow: hidden; }
+  .final .inner { padding: 72px 64px 64px; display: grid; grid-template-columns: 1.1fr 1fr; gap: 64px; align-items: center; }
+  .final h2 { font-family: var(--font-display); font-weight: 900; font-size: 60px; line-height: 1; letter-spacing: -0.03em; margin: 16px 0 20px; }
+  .final .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+  .final p { font-size: 19px; margin: 0 0 32px; max-width: 520px; }
+  .final .btn { background: var(--bg); color: var(--text); border-color: var(--bg); }
+  .final .btn:hover { border-color: var(--bg); filter: brightness(1.3); }
+  .final .btn-outline { background: transparent; color: var(--accent-ink); border: 2px solid var(--accent-ink); }
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; counter-reset: step; }
+  .steps li { counter-increment: step; display: grid; grid-template-columns: 48px 1fr; gap: 16px; align-items: center; background: var(--bg); color: var(--text); border-radius: 16px; padding: 18px 20px; }
+  .steps li::before { content: counter(step); width: 48px; height: 48px; border-radius: 12px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-family: var(--font-display); font-size: 22px; }
+  .steps b { display: block; font-size: 17px; }
+  .steps small { color: var(--muted); font-size: 14px; }
+  .final .belt { height: 28px; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 180px; }
+  .final .belt .tip { background: var(--tip); display: flex; gap: 10px; padding-left: 32px; }
+  .final .belt .tip i { width: 10px; background: var(--white); }
+  .site-footer { margin: 0 72px; padding: 32px 0 48px; display: flex; justify-content: space-between; align-items: center; gap: 24px; color: var(--muted); font-size: 14px; }
+  .site-footer nav { display: flex; gap: 24px; }
+  .site-footer a { text-decoration: none; }
+  .site-footer a:hover { color: var(--text); }
+</style>
+</head>
+<body>
+<main>
+  <div class="split">
+    <section class="left" aria-labelledby="h">
+      <div class="top">
+        <a class="logo" href="#">Open<span>JiuJitsu</span></a>
+        <nav aria-label="Principal"><a href="#funciones">Funciones</a><a href="#faq">Preguntas</a><a href="https://github.com/GermanKreibohmAcotto/OpenJiuJitsu">GitHub</a></nav>
+      </div>
+      <div class="body">
+        <span class="label">Tu compañero de BJJ · GI y NoGI</span>
+        <h1 id="h">Entrena. Anota. <em>Mejora.</em></h1>
+        <p class="lead">Biblioteca de técnicas, planes de entrenamiento, bitácora y cronómetro de sparring con puntuación IBJJF, en una app que guarda todo en tu dispositivo.</p>
+        <div class="ctas">
+          <a class="btn btn-primary" href="#app" id="app">Abrir la app</a>
+          <a class="btn" href="#funciones">Ver qué incluye</a>
+        </div>
+        <ul class="guarantees">
+          <li><b>Sin cuenta</b>Abres y empiezas.</li>
+          <li><b>Sin conexión</b>Instálala como app.</li>
+          <li><b>Tus datos</b>Expórtalos en JSON.</li>
+        </ul>
+      </div>
+      <footer><span>Gratis y open source (AGPL-3.0)</span><span>Español · English</span></footer>
+    </section>
+
+    <div class="right" role="img" aria-label="Pantalla de Inicio de la app: cinturón azul con dos grados, 42 horas en el tatami, meta semanal 2 de 3 con racha de 4 semanas, última sesión de 90 minutos en GI">
+      <div class="phone">
+        <div class="bar"><span class="logo">Open<span>JiuJitsu</span></span><span class="label">Inicio</span></div>
+        <div class="content">
+          <div class="p-card"><small>Tu cinturón</small><h3>Azul · 2 grados</h3><div class="beltbar" style="background:var(--blue)"><span><i></i><i></i></span></div></div>
+          <div class="p-card"><small>Horas en el tatami</small><span class="big">42 h</span><small>31 sesiones</small></div>
+          <div class="p-card"><h3>Constancia</h3><small>Meta semanal</small><div class="progress"><i></i></div><small>2 / 3 · Racha actual: 4 semanas</small></div>
+          <div class="p-card"><h3>Última sesión</h3><small>3 nov · GI · 90 min</small><small>6 rondas · 2 sumisiones logradas · 1 sufridas</small></div>
+          <div class="p-card"><h3>Acciones rápidas</h3><div class="qa"><span>Registrar sesión</span><span>Sparring</span><span>Crear plan</span><span>Biblioteca</span></div></div>
+        </div>
+        <div class="tabs"><span>Biblioteca</span><span>Planes</span><span class="home"><i></i>Inicio</span><span>Bitácora</span><span>Sparring</span></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="features" id="funciones" aria-labelledby="f">
+    <header>
+      <div><span class="label">Qué incluye</span><h2 id="f">Todo lo que pasa en el tatami, en una sola app.</h2></div>
+      <p>Siete áreas pensadas para cómo se entrena de verdad: aprender técnicas, planificar la clase, registrar cada sesión, rolar con marcador y medir tu progreso.</p>
+    </header>
+
+    <article class="feature" aria-labelledby="f1">
+      <div class="copy">
+        <div class="kicker"><span class="num">01</span><span class="label">Biblioteca</span></div>
+        <h3 id="f1">60 técnicas listas desde el primer día.</h3>
+        <p>Sumisiones, escapes, guardias, raspajes, pasajes y derribos, en español e inglés. Cada técnica tiene pasos, video o imagen y su contraparte enlazada.</p>
+        <ul><li>Agrega tus propias técnicas y detalles</li><li>Filtro global GI / NoGI</li><li>Mapa de posiciones para ver cómo se conectan</li></ul>
+      </div>
+      <div class="panel" role="img" aria-label="Técnicas de la biblioteca inicial con su escape enlazado">
+        <div class="head"><span class="label">Biblioteca de técnicas</span><span><span class="chip chip-active">GI</span> <span class="chip">NoGI</span></span></div>
+        <div class="row"><span>Triángulo desde guardia cerrada<small>Sumisión · Guardia cerrada · 4 pasos</small></span><span class="link">↔ Escape de triángulo</span></div>
+        <div class="row"><span>Kimura desde guardia cerrada<small>Sumisión · Guardia cerrada</small></span><span class="link">↔ Escape de Kimura</span></div>
+        <div class="row"><span>Pasaje cortando con la rodilla<small>Pasaje</small></span></div>
+        <div class="row"><span>Raspaje de tijera<small>Raspaje</small></span></div>
+      </div>
+    </article>
+
+    <article class="feature" aria-labelledby="f2">
+      <div class="copy">
+        <div class="kicker"><span class="num">02</span><span class="label">Legalidad por cinturón</span></div>
+        <h3 id="f2">Sabe qué puedes aplicar antes de competir.</h3>
+        <p>Cada sumisión muestra el cinturón mínimo permitido en GI y en NoGI, según el reglamento IBJJF v6.1 (2024) para adultos.</p>
+        <ul><li>Revisa siempre el reglamento de tu evento: cada organización tiene sus reglas</li></ul>
+      </div>
+      <div class="panel" role="img" aria-label="Cinturón mínimo por sumisión en GI y NoGI">
+        <div class="head"><span class="label">Sumisión</span><span class="label">GI · NoGI</span></div>
+        <div class="row"><span>Mata león</span><span><span class="chip"><span class="dot" style="background:var(--white)"></span>Blanco</span> <span class="chip"><span class="dot" style="background:var(--white)"></span>Blanco</span></span></div>
+        <div class="row"><span>Llave de muñeca</span><span><span class="chip"><span class="dot" style="background:var(--blue)"></span>Azul</span> <span class="chip"><span class="dot" style="background:var(--blue)"></span>Azul</span></span></div>
+        <div class="row"><span>Kneebar</span><span><span class="chip"><span class="dot" style="background:var(--brown)"></span>Marrón</span> <span class="chip"><span class="dot" style="background:var(--brown)"></span>Marrón</span></span></div>
+        <div class="row"><span>Heel hook interno</span><span><span class="chip">No permitido</span> <span class="chip"><span class="dot" style="background:var(--brown)"></span>Marrón</span></span></div>
+      </div>
+    </article>
+
+    <article class="feature" aria-labelledby="f3">
+      <div class="copy">
+        <div class="kicker"><span class="num">03</span><span class="label">Planes</span></div>
+        <h3 id="f3">Arma la clase en bloques con tiempo.</h3>
+        <p>Arrastra técnicas de tu biblioteca a cada bloque y define los objetivos del día. Al registrar la sesión, eliges el plan que seguiste.</p>
+      </div>
+      <div class="panel" role="img" aria-label="Plan con tres bloques: drills 15 minutos, pasajes 20 minutos, rolling 30 minutos">
+        <div class="head"><span class="label">Planes de entrenamiento</span><span class="label">65 min</span></div>
+        <div class="blocks">
+          <div><b>Drills · 15 min</b><span class="chip">Salida de cadera</span><span class="chip">Puente</span></div>
+          <div><b>Pasajes · 20 min</b><span class="chip">Pasaje toreando</span><span class="chip">Over-under</span></div>
+          <div><b>Rolling · 30 min</b><span class="chip">5 rounds de 6 min</span></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="feature" aria-labelledby="f4">
+      <div class="copy">
+        <div class="kicker"><span class="num">04</span><span class="label">Bitácora</span></div>
+        <h3 id="f4">Anota los detalles que el profe dijo una sola vez.</h3>
+        <p>Fecha, duración, plan seguido, dificultad física y técnica del 1 al 10, sensaciones, sumisiones logradas y sufridas, y notas libres.</p>
+      </div>
+      <div class="panel" role="img" aria-label="Formulario de sesión de ejemplo">
+        <div class="head"><span class="label">Bitácora de entrenamiento</span><span class="chip">GI</span></div>
+        <div class="fields">
+          <div class="field"><span class="label">Duración</span>90 min</div>
+          <div class="field"><span class="label">Plan</span>Guardia cerrada</div>
+          <div class="field"><span class="label">Dificultad física</span>7 / 10<div class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div></div>
+          <div class="field"><span class="label">Dificultad técnica</span>5 / 10<div class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div></div>
+          <div class="field"><span class="label">Logradas</span>Triángulo, Armlock</div>
+          <div class="field"><span class="label">Sufridas</span>Mata león</div>
+          <div class="field full"><span class="label">Notas</span>En el triángulo, angular el cuerpo antes de apretar las rodillas.</div>
+        </div>
+      </div>
+    </article>
+
+    <article class="feature" aria-labelledby="f5">
+      <div class="copy">
+        <div class="kicker"><span class="num">05</span><span class="label">Sparring</span></div>
+        <h3 id="f5">Cronómetro, puntos y resultado de tus roladas.</h3>
+        <p>Rounds y descanso con la duración de cada cinturón, puntos IBJJF, ventajas, faltas y deshacer. Si termina por sumisión, pasa directo a tu bitácora.</p>
+      </div>
+      <div class="panel" role="img" aria-label="Marcador: 4 minutos 12 segundos, 6 puntos contra 2">
+        <p class="timer">04:12</p>
+        <div class="score">
+          <div class="lead"><small class="label">Tú</small><div class="pts">6</div><small style="color:var(--muted)">1 ventaja · 0 faltas</small></div>
+          <div><small class="label">Rival</small><div class="pts">2</div><small style="color:var(--muted)">0 ventajas · 1 falta</small></div>
+        </div>
+        <div class="minutes" aria-label="Duración del round por cinturón">
+          <span style="--c:var(--white)"><b>5</b>Blanco</span><span style="--c:var(--blue)"><b>6</b>Azul</span><span style="--c:var(--purple)"><b>7</b>Morado</span><span style="--c:var(--brown)"><b>8</b>Marrón</span><span style="--c:var(--accent)"><b>10</b>Negro</span>
+        </div>
+      </div>
+    </article>
+
+    <div class="more">
+      <header>
+        <div><div class="kicker" style="display:flex;gap:12px;align-items:center"><span class="num" style="font-family:var(--font-display);font-size:14px;color:var(--accent)">06</span><span class="label">Tu progreso</span></div><h3>Mira cómo evoluciona tu juego.</h3></div>
+        <p>Todo se calcula con lo que registras en la bitácora y en el sparring. Cuanto más entrenas, más preciso es.</p>
+      </header>
+      <div class="bento">
+        <article class="tile tall" aria-labelledby="m1">
+          <span class="label">Analíticas</span>
+          <h4 id="m1">Analíticas de rendimiento</h4>
+          <p>Tu estilo de juego en siete ejes, calculado con tus combates y tu bitácora.</p>
+          <div class="radar-wrap">
+            <svg width="320" height="290" viewBox="0 0 320 290" role="img" aria-label="Gráfico radar de siete ejes; el más alto es Constancia">
+              <polygon points="160.0,50.0 238.2,87.7 257.5,172.3 203.4,240.1 116.6,240.1 62.5,172.3 81.8,87.7" fill="none" stroke="#262b33"/>
+              <polygon points="160.0,100.0 199.1,118.8 208.7,161.1 181.7,195.0 138.3,195.0 111.3,161.1 120.9,118.8" fill="none" stroke="#262b33"/>
+              <g stroke="#262b33"><line x1="160" y1="150" x2="160.0" y2="50.0"/><line x1="160" y1="150" x2="238.2" y2="87.7"/><line x1="160" y1="150" x2="257.5" y2="172.3"/><line x1="160" y1="150" x2="203.4" y2="240.1"/><line x1="160" y1="150" x2="116.6" y2="240.1"/><line x1="160" y1="150" x2="62.5" y2="172.3"/><line x1="160" y1="150" x2="81.8" y2="87.7"/></g>
+              <polygon points="160.0,68.0 206.9,112.6 247.7,170.0 183.9,199.6 127.5,217.6 121.0,158.9 109.2,109.5" fill="rgba(239,68,68,.22)" stroke="#ef4444" stroke-width="2"/>
+              <g fill="#8b93a1" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif" text-anchor="middle" dominant-baseline="middle">
+                <text x="160" y="30">1</text><text x="255" y="74">2</text><text x="277" y="177" fill="#ef4444">3</text><text x="213" y="260">4</text><text x="107" y="260">5</text><text x="43" y="177">6</text><text x="65" y="74">7</text>
+              </g>
+            </svg>
+            <ol class="axes">
+              <li><span class="n">1</span>Presión / Pasaje<b>82</b></li>
+              <li><span class="n">2</span>Lucha / Ritmo<b>60</b></li>
+              <li class="top"><span class="n">3</span>Sumisión<b>90</b></li>
+              <li><span class="n">4</span>Control / Defensa<b>55</b></li>
+              <li><span class="n">5</span>Constancia<b>75</b></li>
+              <li><span class="n">6</span>Inversiones / Transiciones<b>40</b></li>
+              <li><span class="n">7</span>Flexibilidad / Guardia<b>65</b></li>
+            </ol>
+          </div>
+          <div class="insights">
+            <div class="strong"><span class="val">90</span><span class="label">Punto fuerte</span><b>Sumisión</b><small>Sumisiones logradas por combate y por sesión.</small></div>
+            <div><span class="val">40</span><span class="label">Para trabajar</span><b>Inversiones / Transiciones</b><small>Practica raspajes y retención de guardia en tu próximo plan.</small></div>
+          </div>
+        </article>
+
+        <article class="tile" aria-labelledby="m2">
+          <span class="label">Perfil</span>
+          <h4 id="m2">Progreso hacia la próxima graduación</h4>
+          <p>Tu cinturón, tus graduaciones y tus estadísticas en el tatami.</p>
+          <div class="pline"><span>Clases</span>46 / 80</div><div class="pbar"><i style="width:57%"></i></div>
+          <div class="pline"><span>Horas en el tatami</span>42 h / 70 h</div><div class="pbar"><i style="width:60%"></i></div>
+          <div class="pline"><span>Tiempo en el cinturón</span>14 / 24 meses</div><div class="pbar"><i style="width:58%"></i></div>
+          <div class="timeline" aria-label="Línea de tiempo de graduaciones">
+            <span class="node"><i style="background:var(--white)"></i>Blanco · mar 2023</span><span class="seg"></span>
+            <span class="node"><i style="background:var(--blue)"></i>Azul · sep 2025</span><span class="seg"></span>
+            <span class="node" style="color:var(--text)"><i style="background:var(--blue);box-shadow:inset -6px 0 0 var(--tip)"></i>2 grados · hoy</span>
+          </div>
+        </article>
+
+        <article class="tile" aria-labelledby="m3">
+          <span class="label">Lesiones</span>
+          <h4 id="m3">Registro de dolores y lesiones</h4>
+          <p>Zona del cuerpo, intensidad del 1 al 10, estado y notas, para entrenar sabiendo qué cuidar.</p>
+          <div class="inj">
+            <span class="zone" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v6M12 16v6"/></svg></span>
+            <span>Rodilla<small>Activa · dolor al flexionar, evitar llaves de rodilla</small></span>
+            <span><small>Intensidad 4/10</small><span class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i></span></span>
+          </div>
+          <div class="inj done">
+            <span class="zone" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg></span>
+            <span>Hombro<small>Recuperada</small></span>
+            <span><small>Intensidad 2/10</small><span class="meter"><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq" id="faq" aria-labelledby="q">
+    <div><span class="label">Preguntas</span><h2 id="q">Tus datos, en tu dispositivo.</h2></div>
+    <div>
+      <details open><summary>¿Dónde se guardan mis datos?</summary><p>En el navegador de tu dispositivo (IndexedDB). No hay servidor ni telemetría: nadie más los ve. Si borras los datos del sitio, se pierden, así que exporta una copia desde Ajustes.</p></details>
+      <details><summary>¿Necesito crear una cuenta?</summary><p>No. Abres la app y empiezas a usar la biblioteca y a registrar sesiones.</p></details>
+      <details><summary>¿Funciona sin internet?</summary><p>Sí. Es una PWA: instálala desde el navegador y funciona sin conexión en la academia.</p></details>
+      <details><summary>¿Puedo pasar mis datos a otro dispositivo?</summary><p>Sí. Exporta todo en un archivo JSON e impórtalo en el otro dispositivo. Los archivos inválidos se rechazan antes de escribir nada.</p></details>
+    </div>
+  </section>
+
+  <section class="final" aria-labelledby="c">
+    <div class="inner">
+      <div>
+        <span class="eyebrow">Gratis · Sin cuenta · Sin conexión</span>
+        <h2 id="c">Tu próxima clase, ya con plan.</h2>
+        <p>Abre la app y empieza con 60 técnicas listas. En tres pasos tienes tu primera sesión en la bitácora.</p>
+        <div class="ctas">
+          <a class="btn" href="#app">Abrir OpenJiuJitsu</a>
+          <a class="btn btn-outline" href="https://github.com/GermanKreibohmAcotto/OpenJiuJitsu">Ver el código</a>
+        </div>
+      </div>
+      <ol class="steps" aria-label="Cómo empezar">
+        <li><span><b>Elige tu cinturón</b><small>En Perfil: cinturón actual y grados.</small></span></li>
+        <li><span><b>Arma tu primer plan</b><small>Bloques de drills, pasajes y rolling.</small></span></li>
+        <li><span><b>Registra la sesión</b><small>Dificultad, sumisiones y los detalles de oro.</small></span></li>
+      </ol>
+    </div>
+    <div class="belt" aria-hidden="true"><div style="background:var(--white)"></div><div style="background:var(--blue)"></div><div style="background:var(--purple)"></div><div style="background:var(--brown)"></div><div class="tip"><i></i><i></i><i></i><i></i></div></div>
+  </section>
+</main>
+<footer class="site-footer">
+  <a class="logo" href="#" style="font-size:18px">Open<span>JiuJitsu</span></a>
+  <nav aria-label="Pie de página"><a href="#funciones">Funciones</a><a href="#faq">Preguntas</a><a href="https://github.com/GermanKreibohmAcotto/OpenJiuJitsu">GitHub</a></nav>
+  <span>AGPL-3.0 · Español · English</span>
+</footer>
+</body>
+</html>
