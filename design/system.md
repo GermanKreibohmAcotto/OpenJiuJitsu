@@ -11,8 +11,8 @@ Synced from the project sources. Only values found in the sources are recorded.
 | `--color-surface-2` | `#1b1f26` | Buttons, inputs, chips | `src/index.css` |
 | `--color-line` | `#262b33` | Borders and dividers | `src/index.css` |
 | `--color-muted` | `#8b93a1` | Secondary text, labels | `src/index.css` |
-| `--color-accent` | `#a3e635` | Primary actions, active state, focus ring, scrollbar | `src/index.css` |
-| `--color-accent-ink` | `#1a2e05` | Text on accent | `src/index.css` |
+| `--color-accent` | `#ef4444` | Primary actions, active state, focus ring, scrollbar | `src/index.css` |
+| `--color-accent-ink` | `#ffffff` | Text on accent | `src/index.css` |
 | `--color-danger` | `#f87171` | Destructive actions | `src/index.css` |
 | text (zinc-100) | `#f4f4f5` | Body text | `src/index.css` (`text-zinc-100`) |
 | belt white | `#f4f4f5` | Accent that follows a white belt | `src/app/accent.ts` |

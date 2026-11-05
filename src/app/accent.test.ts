@@ -13,7 +13,7 @@ describe('accent color', () => {
 
   it('picks dark text on light accents and white text on dark ones', () => {
     expect(inkFor('#ffffff')).toBe('#0b0d10');
-    expect(inkFor(DEFAULT_ACCENT)).toBe('#0b0d10');
+    expect(inkFor(DEFAULT_ACCENT)).toBe('#ffffff');
     expect(inkFor('#1d4ed8')).toBe('#ffffff');
     expect(inkFor('#000000')).toBe('#ffffff');
   });

@@ -109,7 +109,7 @@ describe('settings: language', () => {
       expect(radio).not.toBeChecked();
     }
 
-    await user.click(screen.getByRole('radio', { name: 'Lima' }));
+    await user.click(screen.getByRole('radio', { name: 'Rojo' }));
     expect(document.documentElement.style.getPropertyValue('--color-accent')).toBe('');
     localStorage.removeItem('ojj.accent');
   });
@@ -125,14 +125,14 @@ describe('settings: language', () => {
     expect(screen.getByRole('radio', { name: 'Según mi cinturón' })).toBeChecked();
     expect(document.documentElement.style.getPropertyValue('--color-accent')).toBe('#a855f7');
     expect(localStorage.getItem('ojj.accentSource')).toBe('belt');
-    expect(screen.getByRole('radio', { name: 'Lima' })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Rojo' })).not.toBeChecked();
 
     await db.profile.put({ id: 'me', name: '', academy: '', belt: 'brown', stripes: 0 });
     await waitFor(() => expect(document.documentElement.style.getPropertyValue('--color-accent')).toBe('#c2813b'));
 
-    await user.click(screen.getByRole('radio', { name: 'Rojo' }));
+    await user.click(screen.getByRole('radio', { name: 'Lima' }));
     expect(screen.getByRole('radio', { name: 'Según mi cinturón' })).not.toBeChecked();
-    expect(document.documentElement.style.getPropertyValue('--color-accent')).toBe('#ef4444');
+    expect(document.documentElement.style.getPropertyValue('--color-accent')).toBe('#a3e635');
     expect(localStorage.getItem('ojj.accentSource')).toBe('manual');
 
     localStorage.removeItem('ojj.accent');
