@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { MatchConfig } from './SetupForm';
-import { addEvent, computeTotals, POINT_KINDS, SCORE_VALUES, undoLast, type AthleteIndex, type ScoreEvent } from './scoring';
+import { penaltyRulesFor } from './divisions';
+import { StallingCounter } from './StallingCounter';
+import { addEvent, computeTotals, disqualified, POINT_KINDS, SCORE_VALUES, undoLast, type AthleteIndex, type ScoreEvent } from './scoring';
 import { keepAwake } from './sound';
 import { useRoundCues } from './useRoundCues';
 import { createTimer, fightedMs, pause, remainingMs, reset, resume, start, sync, type TimerState } from './timer';
@@ -46,7 +48,9 @@ export function MatchScreen({ config, onFinish }: MatchScreenProps) {
 
   useRoundCues(timer, config, now);
 
-  const totals = computeTotals(events);
+  const rules = penaltyRulesFor(config.division);
+  const totals = computeTotals(events, rules);
+  const out = disqualified(events, rules);
   const remaining = remainingMs(timer, config, now);
   const score = (athlete: AthleteIndex, kind: ScoreEvent['kind']) => setEvents((list) => addEvent(list, athlete, kind));
   const act = (fn: (state: TimerState, at: number) => TimerState) => {
@@ -104,6 +108,13 @@ export function MatchScreen({ config, onFinish }: MatchScreenProps) {
         </div>
       </section>
 
+      {out !== null && (
+        <p role="alert" className="card border-danger/40 text-center font-semibold text-danger">
+          {t('match.disqualified', { name: config.names[out] })}
+        </p>
+      )}
+      <StallingCounter names={config.names} disabled={out !== null} onPenalty={(athlete) => score(athlete, 'penalty')} />
+
       <div className="grid grid-cols-2 gap-3">
         {([0, 1] as const).map((i) => (
           <section key={i} className="card flex flex-col gap-3" aria-label={config.names[i]}>
@@ -130,6 +141,7 @@ export function MatchScreen({ config, onFinish }: MatchScreenProps) {
                   type="button"
                   className="btn min-h-12 justify-between"
                   aria-label={t('match.scoreLabel', { name: config.names[i], action: actionLabel(kind), points: SCORE_VALUES[kind] })}
+                  disabled={out !== null}
                   onClick={() => score(i, kind)}
                 >
                   <span aria-hidden>{actionLabel(kind)}</span>
@@ -144,6 +156,7 @@ export function MatchScreen({ config, onFinish }: MatchScreenProps) {
                   type="button"
                   className={`btn min-h-12 ${kind === 'penalty' ? 'btn-danger' : ''}`}
                   aria-label={t('match.plainLabel', { name: config.names[i], action: actionLabel(kind) })}
+                  disabled={out !== null}
                   onClick={() => score(i, kind)}
                 >
                   <span aria-hidden>{actionLabel(kind)}</span>

@@ -3,11 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { useSettings } from '../../app/settings';
 import { ModeToggle } from '../../components/ModeToggle';
 import { BELTS, type Mode } from '../../domain/types';
+import { DIVISIONS, divisionMinutes, type Division } from './divisions';
 import { BELT_ROUND_MINUTES, type TimerConfig } from './timer';
 
 export interface MatchConfig extends TimerConfig {
   names: [string, string];
   mode: Mode;
+  division: Division;
 }
 
 const CUSTOM = 'custom';
@@ -23,12 +25,18 @@ export function SetupForm({ onStart }: { onStart: (config: MatchConfig) => void 
   const { defaultMode } = useSettings();
   const [names, setNames] = useState<[string, string]>([t('defaults.you'), t('defaults.partner')]);
   const [mode, setMode] = useState<Mode>(defaultMode);
+  const [division, setDivision] = useState<Division>('adult');
   const [preset, setPreset] = useState<string>('white');
   const [customMin, setCustomMin] = useState('5');
   const [rounds, setRounds] = useState('1');
   const [rest, setRest] = useState('30');
 
-  const minutes = preset === CUSTOM ? clampInt(customMin, 1, 5) : BELT_ROUND_MINUTES[preset as keyof typeof BELT_ROUND_MINUTES];
+  const minutes =
+    division !== 'adult'
+      ? divisionMinutes(division)
+      : preset === CUSTOM
+        ? clampInt(customMin, 1, 5)
+        : BELT_ROUND_MINUTES[preset as keyof typeof BELT_ROUND_MINUTES];
 
   const setName = (index: 0 | 1, value: string) =>
     setNames((current) => (index === 0 ? [value, current[1]] : [current[0], value]));
@@ -38,6 +46,7 @@ export function SetupForm({ onStart }: { onStart: (config: MatchConfig) => void 
     onStart({
       names: [names[0].trim() || t('defaults.you'), names[1].trim() || t('defaults.partner')],
       mode,
+      division,
       roundSec: minutes * 60,
       rounds: clampInt(rounds, 1, 1),
       restSec: clampInt(rest, 0, 0),
@@ -62,6 +71,21 @@ export function SetupForm({ onStart }: { onStart: (config: MatchConfig) => void 
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
+          <label className="label" htmlFor="division">
+            {t('setup.division')}
+          </label>
+          <select id="division" className="input" value={division} onChange={(e) => setDivision(e.target.value as Division)}>
+            {DIVISIONS.map((key) => (
+              <option key={key} value={key}>
+                {key === 'adult'
+                  ? t(`setup.divisions.${key}`)
+                  : t('setup.divisionOption', { division: t(`setup.divisions.${key}`), minutes: divisionMinutes(key) })}
+              </option>
+            ))}
+          </select>
+        </div>
+        {division === 'adult' && (
+        <div>
           <label className="label" htmlFor="belt-preset">
             {t('setup.belt')}
           </label>
@@ -74,7 +98,8 @@ export function SetupForm({ onStart }: { onStart: (config: MatchConfig) => void 
             <option value={CUSTOM}>{t('setup.custom')}</option>
           </select>
         </div>
-        {preset === CUSTOM && (
+        )}
+        {division === 'adult' && preset === CUSTOM && (
           <div>
             <label className="label" htmlFor="custom-minutes">
               {t('setup.customMinutes')}
