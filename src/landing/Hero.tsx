@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Icon, type IconName } from '../components/Icon';
 import type { Lang } from '../domain/types';
 import { useLanding } from './context';
+import { Reveal, stagger } from './Reveal';
 import { BELT_COLOR, BELT_TIP, EXAMPLE, STRIPE_COLOR, fmt } from './landingData';
 import { APP_URL, BTN, GITHUB_URL, Logo, SECTION_X } from './ui';
 
@@ -67,7 +68,7 @@ function PhoneMock() {
     <div
       role="img"
       aria-label={label}
-      className="relative w-[min(340px,calc(100%-2rem))] rounded-[44px] border-10 border-line bg-bg px-4 pt-[18px] shadow-[0_30px_80px_rgba(0,0,0,0.5)]"
+      className="relative w-full rounded-[44px] border-10 border-line bg-bg px-4 pt-[18px] shadow-[0_30px_80px_rgba(0,0,0,0.5)]"
     >
       <div className="flex items-center justify-between border-b border-line pb-3">
         <Logo className="text-[15px]" />
@@ -94,7 +95,13 @@ function PhoneMock() {
           <h3 className="text-sm font-semibold">{home.goal.title}</h3>
           <PhoneSmall>{home.goal.label}</PhoneSmall>
           <div className="my-2 mb-1.5 h-2 overflow-hidden rounded-full bg-surface-2">
-            <i className="block h-full bg-accent" style={{ width: `${Math.round((EXAMPLE.goalDone / EXAMPLE.goalTarget) * 100)}%` }} />
+            <Reveal
+              as="i"
+              variant="grow"
+              delay={900}
+              className="block h-full bg-accent"
+              style={{ width: `${Math.round((EXAMPLE.goalDone / EXAMPLE.goalTarget) * 100)}%` }}
+            />
           </div>
           <PhoneSmall>{goalLine}</PhoneSmall>
         </PhoneCard>
@@ -159,25 +166,34 @@ export function Hero({ onLangChange }: { onLangChange: (lang: Lang) => void }) {
           </div>
         </div>
         <div className="my-14 md:my-auto">
-          <span className="label">{hero.eyebrow}</span>
-          <h1 id="hero-title" className="font-display mt-4 mb-5 text-[40px] leading-[1.02] tracking-[-0.03em] sm:text-[52px] lg:text-[64px]">
+          <Reveal as="span" delay={100} className="label">
+            {hero.eyebrow}
+          </Reveal>
+          <Reveal
+            as="h1"
+            id="hero-title"
+            delay={200}
+            className="font-display mt-4 mb-5 text-[40px] leading-[1.02] tracking-[-0.03em] sm:text-[52px] lg:text-[64px]"
+          >
             {hero.titleLead} <em className="text-accent not-italic">{hero.titleAccent}</em>
-          </h1>
-          <p className="mb-8 max-w-[520px] text-[19px] text-zinc-300">{hero.lead}</p>
-          <div className="flex flex-wrap gap-3">
+          </Reveal>
+          <Reveal as="p" delay={320} className="mb-8 max-w-[520px] text-[19px] text-zinc-300">
+            {hero.lead}
+          </Reveal>
+          <Reveal delay={440} className="flex flex-wrap gap-3">
             <a className={`${BTN} btn-primary`} href={APP_URL}>
               {hero.openApp}
             </a>
             <a className={BTN} href="#funciones">
               {hero.seeMore}
             </a>
-          </div>
+          </Reveal>
           <ul className="mt-10 grid gap-3 sm:grid-cols-3">
-            {hero.guarantees.map((item) => (
-              <li key={item.title} className="border-t-2 border-accent pt-3 text-sm text-muted">
+            {hero.guarantees.map((item, i) => (
+              <Reveal as="li" key={item.title} delay={stagger(i, 90, 560)} className="border-t-2 border-accent pt-3 text-sm text-muted">
                 <b className="block text-base font-semibold text-zinc-100">{item.title}</b>
                 {item.text}
-              </li>
+              </Reveal>
             ))}
           </ul>
         </div>
@@ -192,7 +208,9 @@ export function Hero({ onLangChange }: { onLangChange: (lang: Lang) => void }) {
           className="absolute size-[560px] rounded-full"
           style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--color-accent) 14%, transparent), transparent 70%)' }}
         />
-        <PhoneMock />
+        <Reveal variant="scale" delay={250} className="relative w-[min(340px,calc(100%-2rem))]">
+          <PhoneMock />
+        </Reveal>
       </div>
     </div>
   );

@@ -2,20 +2,21 @@ import type { ReactNode } from 'react';
 import { Icon } from '../components/Icon';
 import { useLanding } from './context';
 import { AXES, BELT_COLOR, BELT_TIP, EXAMPLE, RADAR, fmt, radarPoint, radarPolygon } from './landingData';
+import { Reveal, stagger } from './Reveal';
 import { Kicker, Meter, ProgressBar } from './ui';
 
 const TILE = 'rounded-2xl border border-line bg-surface p-6 md:p-7';
 
-function Tile({ id, label, title, text, className = '', children }: { id: string; label: string; title: string; text: string; className?: string; children: ReactNode }) {
+function Tile({ id, label, title, text, className = '', delay = 0, children }: { id: string; label: string; title: string; text: string; className?: string; delay?: number; children: ReactNode }) {
   return (
-    <article aria-labelledby={id} className={`${TILE} ${className}`}>
+    <Reveal as="article" aria-labelledby={id} delay={delay} className={`${TILE} ${className}`}>
       <span className="label">{label}</span>
       <h4 id={id} className="mt-2 mb-1.5 text-[22px] font-semibold">
         {title}
       </h4>
       <p className="mb-5 text-[15px] text-muted">{text}</p>
       {children}
-    </article>
+    </Reveal>
   );
 }
 
@@ -39,7 +40,16 @@ function Radar() {
           <line key={i} x1={RADAR.cx} y1={RADAR.cy} x2={p.x.toFixed(1)} y2={p.y.toFixed(1)} />
         ))}
       </g>
-      <polygon points={radarPolygon(scores)} fill="color-mix(in srgb, var(--color-accent) 22%, transparent)" stroke="var(--color-accent)" strokeWidth="2" />
+      <Reveal
+        as="polygon"
+        variant="pop"
+        delay={250}
+        points={radarPolygon(scores)}
+        fill="color-mix(in srgb, var(--color-accent) 22%, transparent)"
+        stroke="var(--color-accent)"
+        strokeWidth="2"
+        style={{ transformOrigin: `${RADAR.cx}px ${RADAR.cy}px` }}
+      />
       <g fill="var(--color-muted)" fontSize="12" textAnchor="middle" dominantBaseline="middle">
         {AXES.map((axis, i) => {
           const p = radarPoint(i, 100, RADAR.radius + 20);
@@ -117,7 +127,7 @@ function Profile() {
   const of = (value: { current: number; target: number }, unit = '') =>
     fmt(profile.progress.of, { current: `${value.current}${unit}`, target: `${value.target}${unit}` });
   return (
-    <Tile id="m2" label={common.nav.profile} title={profile.progress.title} text={profile.subtitle}>
+    <Tile id="m2" label={common.nav.profile} title={profile.progress.title} text={profile.subtitle} delay={stagger(1, 90)}>
       <Goal label={profile.progress.bar.classes} current={EXAMPLE.classes.current} target={EXAMPLE.classes.target} display={of(EXAMPLE.classes)} />
       <Goal label={app.home.hours} current={EXAMPLE.hoursGoal.current} target={EXAMPLE.hoursGoal.target} display={of(EXAMPLE.hoursGoal, ' h')} />
       <Goal label={profile.progress.bar.months} current={EXAMPLE.months.current} target={EXAMPLE.months.target} display={of(EXAMPLE.months)} />
@@ -145,7 +155,7 @@ function Injuries() {
   const { copy, app } = useLanding();
   const { injuries } = app;
   return (
-    <Tile id="m3" label={app.common.nav.injuries} title={injuries.title} text={injuries.subtitle}>
+    <Tile id="m3" label={app.common.nav.injuries} title={injuries.title} text={injuries.subtitle} delay={stagger(2, 90)}>
       {EXAMPLE.injuries.map((injury) => {
         const active = injury.status === 'active';
         return (
@@ -180,11 +190,13 @@ export function Progress() {
   return (
     <div className="border-t border-line pt-14">
       <header className="mb-7 flex flex-wrap items-end justify-between gap-6">
-        <div>
+        <Reveal>
           <Kicker num="06">{text.kicker}</Kicker>
           <h3 className="font-display mt-3 text-[26px] leading-[1.1] md:text-[32px]">{text.title}</h3>
-        </div>
-        <p className="max-w-[420px] text-muted">{text.text}</p>
+        </Reveal>
+        <Reveal as="p" delay={120} className="max-w-[420px] text-muted">
+          {text.text}
+        </Reveal>
       </header>
       <div className="grid gap-4 md:grid-cols-[1.1fr_1fr]">
         <Analytics />

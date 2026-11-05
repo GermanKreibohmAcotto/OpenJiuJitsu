@@ -1,6 +1,7 @@
 import { useLanding } from './context';
 import { BELT_COLOR, BELT_TIP, STRIPE_COLOR, TECHNIQUE_COUNT, fmt } from './landingData';
 import { BELTS } from '../domain/types';
+import { Reveal, stagger } from './Reveal';
 import { APP_URL, BTN, GITHUB_URL, Logo, SECTION_MX, SECTION_X } from './ui';
 
 export function Faq() {
@@ -12,18 +13,20 @@ export function Faq() {
       aria-labelledby="faq-title"
       className={`mt-24 grid gap-8 border-t border-line py-16 md:grid-cols-[1fr_2fr] md:gap-16 md:py-[72px] ${SECTION_X}`}
     >
-      <div>
+      <Reveal>
         <span className="label">{faq.eyebrow}</span>
         <h2 id="faq-title" className="font-display mt-2 text-[26px] leading-[1.1] md:text-[32px]">
           {faq.title}
         </h2>
-      </div>
+      </Reveal>
       <div className="grid gap-2.5">
         {faq.items.map((item, i) => (
-          <details key={item.question} open={i === 0} className="rounded-2xl border border-line bg-surface px-5 py-4">
-            <summary className="cursor-pointer font-semibold">{item.question}</summary>
-            <p className="mt-2.5 text-muted">{item.answer}</p>
-          </details>
+          <Reveal key={item.question} delay={stagger(i, 70, 80)}>
+            <details open={i === 0} className="rounded-2xl border border-line bg-surface px-5 py-4">
+              <summary className="cursor-pointer font-semibold">{item.question}</summary>
+              <p className="mt-2.5 text-muted">{item.answer}</p>
+            </details>
+          </Reveal>
         ))}
       </div>
     </section>
@@ -37,7 +40,7 @@ export function Closing() {
   return (
     <section aria-labelledby="closing-title" className={`overflow-hidden rounded-3xl bg-accent text-accent-ink ${SECTION_MX}`}>
       <div className="grid items-center gap-10 px-6 pt-12 pb-12 md:grid-cols-[1.1fr_1fr] md:gap-16 md:px-16 md:pt-[72px] md:pb-16">
-        <div>
+        <Reveal>
           <span className="text-xs font-semibold tracking-wide uppercase">{closing.eyebrow}</span>
           <h2 id="closing-title" className="font-display mt-4 mb-5 text-[38px] leading-none tracking-[-0.03em] md:text-[60px]">
             {closing.title}
@@ -51,20 +54,25 @@ export function Closing() {
               {closing.code}
             </a>
           </div>
-        </div>
+        </Reveal>
         <ol aria-label={closing.stepsLabel} className="grid gap-3">
           {closing.steps.map((step, i) => (
-            <li key={step.title} className="grid grid-cols-[48px_1fr] items-center gap-4 rounded-2xl bg-bg px-5 py-4 text-zinc-100">
+            <Reveal as="li" key={step.title} delay={stagger(i, 90, 120)} className="grid grid-cols-[48px_1fr] items-center gap-4 rounded-2xl bg-bg px-5 py-4 text-zinc-100">
               <span className="font-display grid size-12 place-items-center rounded-xl bg-accent text-[22px] text-accent-ink">{i + 1}</span>
               <span>
                 <b className="block text-[17px]">{step.title}</b>
                 <small className="text-sm text-muted">{fmt(step.text, { profile: app.common.nav.profile })}</small>
               </span>
-            </li>
+            </Reveal>
           ))}
         </ol>
       </div>
-      <div aria-hidden="true" className="grid h-7 grid-cols-[1fr_1fr_1fr_1fr_120px] md:grid-cols-[1fr_1fr_1fr_1fr_180px]">
+      <Reveal
+        aria-hidden="true"
+        variant="grow"
+        delay={200}
+        className="grid h-7 grid-cols-[1fr_1fr_1fr_1fr_120px] md:grid-cols-[1fr_1fr_1fr_1fr_180px]"
+      >
         {stripeBelts.map((belt) => (
           <div key={belt} style={{ background: BELT_COLOR[belt] }} />
         ))}
@@ -73,7 +81,7 @@ export function Closing() {
             <i key={i} className="w-2.5" style={{ background: STRIPE_COLOR }} />
           ))}
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

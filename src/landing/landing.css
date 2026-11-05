@@ -1,0 +1,71 @@
+/*
+ * Scroll reveal. Reveal.tsx sets data-reveal only once it can lift the hidden state again
+ * (IntersectionObserver present, no reduced motion), so without JS everything is visible.
+ * Only opacity and transform change: no layout shift.
+ */
+[data-reveal] {
+  --reveal-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition:
+    opacity 600ms var(--reveal-ease) var(--reveal-delay, 0ms),
+    transform 650ms var(--reveal-ease) var(--reveal-delay, 0ms);
+}
+
+[data-reveal='hidden'] {
+  opacity: 0;
+  transform: translate3d(0, 20px, 0);
+}
+
+[data-reveal='hidden'][data-variant='left'] {
+  transform: translate3d(-28px, 0, 0);
+}
+
+[data-reveal='hidden'][data-variant='right'] {
+  transform: translate3d(28px, 0, 0);
+}
+
+[data-reveal='hidden'][data-variant='scale'] {
+  transform: translate3d(0, 24px, 0) scale(0.96);
+}
+
+/* Bars grow from their left edge. */
+[data-variant='grow'] {
+  transform-origin: left center;
+}
+
+[data-reveal='hidden'][data-variant='grow'] {
+  opacity: 1;
+  transform: scaleX(0);
+}
+
+/* SVG shape growing from its own origin (set inline), e.g. the radar polygon. */
+[data-variant='pop'] {
+  transform-box: view-box;
+}
+
+[data-reveal='hidden'][data-variant='pop'] {
+  transform: scale(0);
+}
+
+/* Meter segments fill one after another. */
+[data-variant='meter'] > i {
+  transform-origin: left center;
+  transition: transform 400ms var(--reveal-ease) calc(var(--reveal-delay, 0ms) + var(--i, 0) * 45ms);
+}
+
+[data-reveal='hidden'][data-variant='meter'] {
+  opacity: 1;
+  transform: none;
+}
+
+[data-reveal='hidden'][data-variant='meter'] > i {
+  transform: scaleX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-variant='meter'] > i {
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

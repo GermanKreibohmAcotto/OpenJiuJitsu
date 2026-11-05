@@ -13,6 +13,7 @@ import {
   techniqueName,
 } from './landingData';
 import { Progress } from './Progress';
+import { Reveal, stagger } from './Reveal';
 import { BeltChip, Kicker, Meter, Panel, PanelHead, Row, SECTION_X, Small } from './ui';
 
 interface FeatureProps {
@@ -29,7 +30,7 @@ interface FeatureProps {
 function Feature({ id, num, kicker, title, text, bullets, flip, children }: FeatureProps) {
   return (
     <article aria-labelledby={id} className="grid items-center gap-8 border-t border-line py-14 md:grid-cols-[1fr_1.15fr] md:gap-16">
-      <div className={flip ? 'md:order-2' : ''}>
+      <Reveal className={flip ? 'md:order-2' : ''}>
         <Kicker num={num}>{kicker}</Kicker>
         <h3 id={id} className="font-display mt-3 mb-3.5 text-[26px] leading-[1.1] md:text-[32px]">
           {title}
@@ -37,16 +38,19 @@ function Feature({ id, num, kicker, title, text, bullets, flip, children }: Feat
         <p className="mb-4 max-w-[520px] text-[17px] text-zinc-300">{text}</p>
         {bullets && (
           <ul className="grid gap-2 text-[15px] text-muted">
-            {bullets.map((bullet) => (
-              <li key={bullet} className="flex gap-2.5">
+            {bullets.map((bullet, i) => (
+              <Reveal as="li" key={bullet} delay={stagger(i, 80, 150)} className="flex gap-2.5">
                 <span className="mt-[9px] size-1.5 flex-none rounded-full bg-accent" />
                 {bullet}
-              </li>
+              </Reveal>
             ))}
           </ul>
         )}
-      </div>
-      {children}
+      </Reveal>
+      {/* The panel slides in from the side it sits on. */}
+      <Reveal variant={flip ? 'left' : 'right'} delay={120}>
+        {children}
+      </Reveal>
     </article>
   );
 }
@@ -76,8 +80,8 @@ function Library() {
     >
       <Panel label={app.library.title}>
         <PanelHead title={app.library.title} aside={<ModeChips />} />
-        {rows.map((row) => (
-          <Row key={row.id}>
+        {rows.map((row, i) => (
+          <Row key={row.id} index={i}>
             <span>
               {row.name}
               <Small>{[row.type, row.position, fmt(text.steps, { count: row.steps })].filter(Boolean).join(' · ')}</Small>
@@ -110,8 +114,8 @@ function Legality() {
             </span>
           }
         />
-        {legalityRows(lang).map((row) => (
-          <Row key={row.id}>
+        {legalityRows(lang).map((row, i) => (
+          <Row key={row.id} index={i}>
             <span>{row.name}</span>
             <span className="flex flex-wrap justify-end gap-1">
               {belt(row.gi)}
@@ -134,8 +138,8 @@ function Plans() {
       <Panel label={`${app.common.nav.plans}: ${plan.blocks.map((b) => `${b.title} ${minutes(b.minutes)}`).join(', ')}`}>
         <PanelHead title={app.common.nav.plans} aside={<span className="label mb-0">{minutes(plan.total)}</span>} />
         <div className="grid gap-2 sm:grid-cols-[15fr_20fr_30fr]">
-          {plan.blocks.map((block) => (
-            <div key={block.kind} className="min-h-[120px] rounded-xl border border-line bg-surface-2 p-3 text-sm">
+          {plan.blocks.map((block, i) => (
+            <Reveal key={block.kind} delay={stagger(i, 90, 150)} className="min-h-[120px] rounded-xl border border-line bg-surface-2 p-3 text-sm">
               <b className="mb-2 block">
                 {block.title} · {minutes(block.minutes)}
               </b>
@@ -146,7 +150,7 @@ function Plans() {
                   </span>
                 ))}
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </Panel>
@@ -250,13 +254,15 @@ export function Features() {
   return (
     <section id="funciones" aria-labelledby="features-title" className={`border-t border-line pt-24 pb-10 ${SECTION_X}`}>
       <header className="mb-14 grid items-end gap-6 md:grid-cols-2 md:gap-16">
-        <div>
+        <Reveal>
           <span className="label">{text.eyebrow}</span>
           <h2 id="features-title" className="font-display mt-3 text-[34px] leading-[1.05] tracking-[-0.02em] md:text-5xl">
             {text.title}
           </h2>
-        </div>
-        <p className="text-lg text-muted">{text.intro}</p>
+        </Reveal>
+        <Reveal as="p" delay={120} className="text-lg text-muted">
+          {text.intro}
+        </Reveal>
       </header>
       <Library />
       <Legality />

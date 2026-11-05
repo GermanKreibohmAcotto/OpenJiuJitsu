@@ -1,5 +1,6 @@
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { BELT_COLOR } from './landingData';
+import { Reveal, stagger } from './Reveal';
 import type { Belt } from '../domain/types';
 
 export const GITHUB_URL = 'https://github.com/GermanKreibohmAcotto/OpenJiuJitsu';
@@ -40,11 +41,14 @@ export function PanelHead({ title, aside }: { title: string; aside?: ReactNode }
   );
 }
 
-export function Row({ children }: { children: ReactNode }) {
+export function Row({ children, index = 0 }: { children: ReactNode; index?: number }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-xl border border-line bg-surface-2 px-3.5 py-3 text-[15px] [&+&]:mt-2">
+    <Reveal
+      delay={stagger(index, 70, 120)}
+      className="flex items-center justify-between gap-3 rounded-xl border border-line bg-surface-2 px-3.5 py-3 text-[15px] [&+&]:mt-2"
+    >
       {children}
-    </div>
+    </Reveal>
   );
 }
 
@@ -64,18 +68,18 @@ export function BeltChip({ belt, label }: { belt: Belt; label: string }) {
 /** Ten-step meter, `value` of `max` filled. */
 export function Meter({ value, max = 10, className = '' }: { value: number; max?: number; className?: string }) {
   return (
-    <span aria-hidden="true" className={`mt-1.5 flex gap-[3px] ${className}`}>
+    <Reveal as="span" variant="meter" aria-hidden="true" className={`mt-1.5 flex gap-[3px] ${className}`}>
       {Array.from({ length: max }, (_, i) => (
-        <i key={i} className={`h-1.5 flex-1 rounded-[2px] ${i < value ? 'bg-accent' : 'bg-line'}`} />
+        <i key={i} style={{ '--i': i } as CSSProperties} className={`h-1.5 flex-1 rounded-[2px] ${i < value ? 'bg-accent' : 'bg-line'}`} />
       ))}
-    </span>
+    </Reveal>
   );
 }
 
 export function ProgressBar({ percent }: { percent: number }) {
   return (
     <div className="my-1.5 h-2 overflow-hidden rounded-full bg-surface-2" aria-hidden="true">
-      <i className="block h-full bg-accent" style={{ width: `${Math.round(percent)}%` }} />
+      <Reveal as="i" variant="grow" delay={200} className="block h-full bg-accent" style={{ width: `${Math.round(percent)}%` }} />
     </div>
   );
 }
