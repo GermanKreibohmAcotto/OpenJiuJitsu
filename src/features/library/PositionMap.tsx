@@ -4,7 +4,7 @@ import { Link, useSearchParams } from 'react-router';
 import { matchesModeFilter, useSettings } from '../../app/settings';
 import { ModeToggle } from '../../components/ModeToggle';
 import { PageHeader } from '../../components/Page';
-import { incomingEdges, outgoingEdges, type PositionEdge } from '../../domain/positionGraph';
+import { incomingEdges, isPositionInMode, outgoingEdges, type PositionEdge } from '../../domain/positionGraph';
 import { POSITIONS, TECHNIQUE_TYPES, type Position } from '../../domain/types';
 import { useTechniques } from '../../hooks/useTechniques';
 import { localize } from '../../i18n';
@@ -38,7 +38,7 @@ export function PositionMap() {
   const techniques = useTechniques();
   const [params, setParams] = useSearchParams();
   const raw = params.get('pos');
-  const selected = isPosition(raw) ? raw : null;
+  const selected = isPosition(raw) && isPositionInMode(raw, modeFilter) ? raw : null;
 
   const grouped = useMemo(() => {
     const here = (techniques ?? [])
@@ -90,7 +90,7 @@ export function PositionMap() {
           <div key={layer.id} className="card p-3">
             <h2 className="mb-2 text-xs uppercase tracking-wide text-muted">{t(`map.layers.${layer.id}`)}</h2>
             <div className="flex flex-wrap gap-2">
-              {layer.positions.map((position) => (
+              {layer.positions.filter((position) => isPositionInMode(position, modeFilter)).map((position) => (
                 <button
                   key={position}
                   type="button"
@@ -109,8 +109,8 @@ export function PositionMap() {
       {selected ? (
         <section aria-label={t(`common:positions.${selected}`)} className="card flex flex-col gap-4 p-4">
           <h2 className="font-display text-xl">{t(`common:positions.${selected}`)}</h2>
-          {edgeList(outgoingEdges(selected), 'to', t('map.outgoing'))}
-          {edgeList(incomingEdges(selected), 'from', t('map.incoming'))}
+          {edgeList(outgoingEdges(selected, modeFilter), 'to', t('map.outgoing'))}
+          {edgeList(incomingEdges(selected, modeFilter), 'from', t('map.incoming'))}
           <section aria-label={t('map.techniques')}>
             <h3 className="mb-2 text-sm font-semibold text-muted">{t('map.techniques')}</h3>
             {grouped.length === 0 ? (

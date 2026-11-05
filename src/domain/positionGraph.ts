@@ -1,4 +1,4 @@
-import type { Position } from './types';
+import type { ModeFilter, Position } from './types';
 
 export const TRANSITION_KINDS = ['takedown', 'pass', 'sweep', 'escape', 'control'] as const;
 export type TransitionKind = (typeof TRANSITION_KINDS)[number];
@@ -21,6 +21,16 @@ const GUARDS: Position[] = [
   'lasso_guard',
   'single_leg_x',
 ];
+
+/** Positions built on sleeve grips: they only exist with the gi. */
+export const GI_ONLY_POSITIONS: readonly Position[] = ['spider_guard', 'lasso_guard'];
+
+/** Whether a position exists under the global mode filter. */
+export function isPositionInMode(position: Position, filter: ModeFilter): boolean {
+  return filter !== 'nogi' || !GI_ONLY_POSITIONS.includes(position);
+}
+
+const edgeInMode = (e: PositionEdge, filter: ModeFilter) => isPositionInMode(e.from, filter) && isPositionInMode(e.to, filter);
 
 /** Fixed graph of common transitions between positions (not exhaustive). */
 export const POSITION_EDGES: readonly PositionEdge[] = [
@@ -69,10 +79,10 @@ export const POSITION_EDGES: readonly PositionEdge[] = [
   edge('turtle', 'half_guard', 'escape'),
 ];
 
-export function outgoingEdges(position: Position): PositionEdge[] {
-  return POSITION_EDGES.filter((e) => e.from === position);
+export function outgoingEdges(position: Position, filter: ModeFilter = 'all'): PositionEdge[] {
+  return POSITION_EDGES.filter((e) => e.from === position && edgeInMode(e, filter));
 }
 
-export function incomingEdges(position: Position): PositionEdge[] {
-  return POSITION_EDGES.filter((e) => e.to === position);
+export function incomingEdges(position: Position, filter: ModeFilter = 'all'): PositionEdge[] {
+  return POSITION_EDGES.filter((e) => e.to === position && edgeInMode(e, filter));
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { POSITIONS } from './types';
-import { POSITION_EDGES, TRANSITION_KINDS, incomingEdges, outgoingEdges } from './positionGraph';
+import { GI_ONLY_POSITIONS, POSITION_EDGES, TRANSITION_KINDS, incomingEdges, isPositionInMode, outgoingEdges } from './positionGraph';
 
 describe('position graph', () => {
   it('has at least one edge for every position', () => {
@@ -29,6 +29,19 @@ describe('position graph', () => {
     expect(incomingEdges('mount')).toContainEqual({ from: 'side_control', to: 'mount', kind: 'control' });
     expect(outgoingEdges('mount').every((e) => e.from === 'mount')).toBe(true);
     expect(incomingEdges('mount').every((e) => e.to === 'mount')).toBe(true);
+  });
+
+  it('drops gi-only positions and their edges in no-gi only', () => {
+    for (const position of GI_ONLY_POSITIONS) {
+      expect(isPositionInMode(position, 'nogi')).toBe(false);
+      expect(isPositionInMode(position, 'gi')).toBe(true);
+      expect(isPositionInMode(position, 'all')).toBe(true);
+      expect(outgoingEdges(position, 'nogi')).toEqual([]);
+    }
+    const nogi = [...outgoingEdges('standing', 'nogi'), ...incomingEdges('side_control', 'nogi')];
+    expect(nogi.some((e) => GI_ONLY_POSITIONS.includes(e.from) || GI_ONLY_POSITIONS.includes(e.to))).toBe(false);
+    expect(incomingEdges('side_control', 'gi')).toEqual(incomingEdges('side_control'));
+    expect(incomingEdges('side_control', 'nogi').length).toBeLessThan(incomingEdges('side_control').length);
   });
 
   it('covers the main flow of the spec', () => {

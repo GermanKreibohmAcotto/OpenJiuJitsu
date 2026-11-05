@@ -142,4 +142,31 @@ describe('position map', () => {
     expect(within(detail).queryByRole('link', { name: 'Ezequiel desde la montada' })).toBeNull();
     localStorage.removeItem('ojj.mode');
   });
+
+  it('hides gi-only positions and their transitions in no-gi', async () => {
+    localStorage.setItem('ojj.mode', 'nogi');
+    renderLibrary('/library/map?pos=side_control');
+    const detail = await screen.findByRole('region', { name: '100 kilos' });
+    expect(screen.queryByRole('button', { name: 'Guardia araña' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Guardia lazo' })).toBeNull();
+    expect(within(detail).queryByRole('link', { name: /Guardia araña|Guardia lazo/ })).toBeNull();
+    expect(within(detail).getAllByRole('link', { name: /Media guardia · pasaje/ })[0]).toBeInTheDocument();
+    localStorage.removeItem('ojj.mode');
+  });
+
+  it('does not open a gi-only position from the url in no-gi', async () => {
+    localStorage.setItem('ojj.mode', 'nogi');
+    renderLibrary('/library/map?pos=spider_guard');
+    expect(await screen.findByText(/Elegí una posición/)).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Guardia araña' })).toBeNull();
+    localStorage.removeItem('ojj.mode');
+  });
+
+  it('keeps gi-only positions in gi', async () => {
+    localStorage.setItem('ojj.mode', 'gi');
+    renderLibrary('/library/map');
+    expect(await screen.findByRole('button', { name: 'Guardia araña' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Guardia lazo' })).toBeInTheDocument();
+    localStorage.removeItem('ojj.mode');
+  });
 });
